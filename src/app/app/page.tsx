@@ -1,0 +1,50 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { createResume } from "./actions";
+
+export default async function AppPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: resumes } = await supabase
+    .from("resumes")
+    .select("id, title, updated_at")
+    .order("updated_at", { ascending: false });
+
+  return (
+    <main className="mx-auto max-w-2xl px-6 py-10">
+      <header className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-semibold" style={{ color: "var(--accent)" }}>CV của tôi</h1>
+          <p className="text-sm text-neutral-500">{user.email}</p>
+        </div>
+        <form action="/auth/signout" method="post">
+          <button className="text-sm text-neutral-500 hover:text-neutral-900">Đăng xuất</button>
+        </form>
+      </header>
+
+      <form action={createResume} className="mb-6">
+        <button className="rounded-lg bg-[var(--accent)] px-4 py-2 text-white hover:opacity-90">
+          + Tạo CV mới
+        </button>
+      </form>
+
+      {resumes && resumes.length > 0 ? (
+        <ul className="divide-y rounded-lg border bg-white">
+          {resumes.map((r) => (
+            <li key={r.id} className="flex items-center justify-between px-4 py-3">
+              <Link href={`/app/${r.id}`} className="font-medium hover:underline">{r.title}</Link>
+              <span className="text-xs text-neutral-400">
+                {new Date(r.updated_at).toLocaleString("vi-VN")}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-neutral-500">Chưa có CV nào. Bấm “Tạo CV mới” để bắt đầu.</p>
+      )}
+    </main>
+  );
+}
