@@ -54,7 +54,8 @@ export async function GET() {
       headless: true,
     });
     const page = await browser.newPage();
-    await page.setContent(HTML, { waitUntil: "networkidle0" });
+    await page.setContent(HTML, { waitUntil: "load" });
+    await page.evaluate(() => (document as unknown as { fonts: { ready: Promise<unknown> } }).fonts.ready);
     const pdf = await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true });
     await browser.close();
     return new NextResponse(Buffer.from(pdf), {
