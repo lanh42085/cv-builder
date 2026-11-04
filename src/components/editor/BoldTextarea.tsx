@@ -14,7 +14,7 @@ export function BoldTextarea({ value, onValueChange, className, ...rest }: Props
     if (!el) return;
     const r = toggleBold(value, el.selectionStart, el.selectionEnd);
     onValueChange(r.value);
-    requestAnimationFrame(() => { el.focus(); el.setSelectionRange(r.start, r.end); });
+    requestAnimationFrame(() => el.focus());
   }
 
   return (

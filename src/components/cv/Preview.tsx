@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { CvData } from "@/lib/cv/schema";
 import { toView } from "@/lib/cv/view";
-import { toggleBold } from "@/lib/cv/inline";
-import { getText, setText, visibleToSource } from "@/lib/cv/paths";
+import { toggleBoldVisible } from "@/lib/cv/inline";
+import { getText, setText } from "@/lib/cv/paths";
 import { CvTemplate } from "./CvTemplate";
 
 type Sel = { path: string; start: number; end: number; x: number; y: number };
@@ -42,11 +42,7 @@ export function Preview({ cv, set }: { cv: CvData; set?: (fn: (cv: CvData) => Cv
 
   function applyBold() {
     if (!sel || !set) return;
-    set((c) => {
-      const src = getText(c, sel.path);
-      const a = visibleToSource(src, sel.start), b = visibleToSource(src, sel.end);
-      return setText(c, sel.path, toggleBold(src, a, b).value);
-    });
+    set((c) => setText(c, sel.path, toggleBoldVisible(getText(c, sel.path), sel.start, sel.end)));
     setSel(null);
     window.getSelection()?.removeAllRanges();
   }

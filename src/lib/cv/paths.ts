@@ -34,15 +34,3 @@ export function setText(cv: CvData, path: string, value: string): CvData {
   }
   return next as unknown as CvData;
 }
-
-/** Offset trong chữ hiển thị (đã bỏ **) → offset trong chuỗi gốc (còn **). */
-export function visibleToSource(src: string, vis: number): number {
-  let v = 0, i = 0;
-  while (i < src.length && v < vis) {
-    if (src.startsWith("**", i)) { i += 2; continue; }
-    i++; v++;
-  }
-  // Nếu đang đứng ngay trước một cặp ** thì nhảy qua, để không cắt vào marker
-  while (src.startsWith("**", i) && v === vis && i + 2 <= src.length) i += 2;
-  return i;
-}
