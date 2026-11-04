@@ -20,7 +20,7 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
     about: v.aboutMe ? <Section title="About me" accent={accent}><p style={{ margin: 0, textAlign: "justify" }}>{v.aboutMe}</p></Section> : null,
     skills: (v.skills.hard || v.skills.soft) ? (
       <Section title="Technical skills" accent={accent}>
-        <ul style={{ margin: 0, paddingLeft: 16 }}>
+        <ul style={{ margin: 0, paddingLeft: 16, listStyle: "disc" }}>
           {v.skills.hard && <li><b>Hard skills:</b> {v.skills.hard}</li>}
           {v.skills.soft && <li><b>Soft skills:</b> {v.skills.soft}</li>}
         </ul>
@@ -64,12 +64,12 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
             <div key={i} style={{ marginBottom: 5 }}>
               <div style={{ fontWeight: 700 }}>{school}</div>
               <TwoSide left={<i>{rest.join(" – ")}</i>} right={e.years ? <i>{e.years}</i> : null} />
-              {e.note && <ul style={{ margin: "1px 0 0", paddingLeft: 16 }}><li>{e.note}</li></ul>}
+              {e.note && <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}><li>{e.note}</li></ul>}
             </div>
           );
         })}
         {v.achievements.length > 0 && (
-          <ul style={{ margin: "2px 0 0", paddingLeft: 16 }}>
+          <ul style={{ margin: "2px 0 0", paddingLeft: 16, listStyle: "disc" }}>
             {v.achievements.map((a, i) => <li key={i}>{a.text}{a.link ? <> – <A href={a.link}>{a.link}</A></> : null}</li>)}
           </ul>
         )}
@@ -142,7 +142,7 @@ export function Bullets({ items }: { items: string[] }) {
   const xs = items.filter((s) => s && s.trim());
   if (xs.length === 0) return null;
   return (
-    <ul style={{ margin: "1px 0 0", paddingLeft: 16 }}>
+    <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}>
       {xs.map((b, i) => <li key={i} style={{ marginBottom: 1, textAlign: "justify" }}>{b}</li>)}
     </ul>
   );
