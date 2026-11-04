@@ -1,12 +1,14 @@
-import { renderToStaticMarkup } from "react-dom/server.edge";
+import { renderToReadableStream } from "react-dom/server.edge";
 import { createElement } from "react";
 import type { CvData } from "./schema";
 import { toView } from "./view";
 import { AtsSingle } from "@/components/cv/templates/AtsSingle";
 
 /** HTML hoàn chỉnh của 1 trang CV — dùng cho Chromium in PDF. Cùng component với preview. */
-export function cvToHtml(cv: CvData, accent = "#1f4e79"): string {
-  const body = renderToStaticMarkup(createElement(AtsSingle, { v: toView(cv) }));
+export async function cvToHtml(cv: CvData, accent = "#1f4e79"): Promise<string> {
+  const stream = await renderToReadableStream(createElement(AtsSingle, { v: toView(cv) }));
+  await stream.allReady;
+  const body = await new Response(stream).text();
   return `<!doctype html>
 <html lang="vi"><head><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&display=swap" rel="stylesheet">

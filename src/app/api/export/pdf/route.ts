@@ -24,7 +24,7 @@ export async function GET(req: Request) {
       executablePath: await chromium.executablePath(), headless: true,
     });
     const page = await browser.newPage();
-    await page.setContent(cvToHtml(cv), { waitUntil: "load" });
+    await page.setContent(await cvToHtml(cv), { waitUntil: "load" });
     await page.evaluate(() => (document as unknown as { fonts: { ready: Promise<unknown> } }).fonts.ready);
     const pdf = await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true });
     await browser.close();
