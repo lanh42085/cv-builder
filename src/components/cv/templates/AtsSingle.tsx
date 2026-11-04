@@ -18,11 +18,11 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
   const hasLinks = b.linkedin.trim() || b.github.trim() || b.portfolioUrl.trim();
 
   const sections: Record<SectionKey, React.ReactNode> = {
-    about: v.aboutMe ? <Section title="About me" accent={accent}><p style={{ margin: 0, textAlign: "justify" }}><Inline text={v.aboutMe} /></p></Section> : null,
+    about: v.aboutMe ? <Section title="About me" accent={accent}><p style={{ margin: 0, textAlign: "justify" }}><Inline text={v.aboutMe} src={v.aboutSrc} /></p></Section> : null,
     skills: (v.skills.hard || v.skills.soft) ? (
       <Section title="Technical skills" accent={accent}>
-        <SkillGroup title="Hard skills" raw={v.skills.hard} />
-        <SkillGroup title="Soft skills" raw={v.skills.soft} />
+        <SkillGroup title="Hard skills" raw={v.skills.hard} src="raw.skills.hard" />
+        <SkillGroup title="Soft skills" raw={v.skills.soft} src="raw.skills.soft" />
       </Section>
     ) : null,
     projects: v.projects.length > 0 ? (
@@ -35,7 +35,7 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
               <TwoSide
                 left={<b>{name || "Tên project"}{tools.length > 0 && ` [${tools.join(", ")}]`}</b>}
                 right={p.link ? <A href={p.link} bold>View Project</A> : null} />
-              <Bullets items={p.bullets} />
+              <Bullets items={p.bullets} srcs={p.srcs} />
             </div>
           );
         })}
@@ -49,7 +49,7 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
             <div key={i} style={{ marginBottom: 6 }}>
               <div style={{ fontWeight: 700 }}>{company || "Công ty"}</div>
               <TwoSide left={<i>{role.join(" | ")}</i>} right={e.period ? <i>{e.period}</i> : null} />
-              <Bullets items={e.bullets} />
+              <Bullets items={e.bullets} srcs={e.srcs} />
             </div>
           );
         })}
@@ -63,13 +63,13 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
             <div key={i} style={{ marginBottom: 5 }}>
               <div style={{ fontWeight: 700 }}>{school}</div>
               <TwoSide left={<i>{rest.join(" – ")}</i>} right={e.years ? <i>{e.years}</i> : null} />
-              {e.note && <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}><li><Inline text={e.note} /></li></ul>}
+              {e.note && <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}><li><Inline text={e.note} src={e.noteSrc} /></li></ul>}
             </div>
           );
         })}
         {v.achievements.length > 0 && (
           <ul style={{ margin: "2px 0 0", paddingLeft: 16, listStyle: "disc" }}>
-            {v.achievements.map((a, i) => <li key={i}><Inline text={a.text} />{a.link ? <> – <A href={a.link}>{a.link}</A></> : null}</li>)}
+            {v.achievements.map((a, i) => <li key={i}><Inline text={a.text} src={a.src} />{a.link ? <> – <A href={a.link}>{a.link}</A></> : null}</li>)}
           </ul>
         )}
       </Section>
@@ -105,14 +105,14 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
   );
 }
 
-function SkillGroup({ title, raw }: { title: string; raw: string }) {
+function SkillGroup({ title, raw, src }: { title: string; raw: string; src: string }) {
   const lines = skillLines(raw);
   if (lines.length === 0) return null;
   return (
     <div style={{ marginBottom: 3 }}>
       <div style={{ fontWeight: 700 }}>{title}</div>
       <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}>
-        {lines.map((l, i) => <li key={i}>{l.label ? <><b>{l.label}:</b> <Inline text={l.text} /></> : <Inline text={l.text} />}</li>)}
+        {lines.map((l, i) => <li key={i}>{l.label ? <><b>{l.label}:</b> <Inline text={l.text} src={`${src}@${i}`} /></> : <Inline text={l.text} src={`${src}@${i}`} />}</li>)}
       </ul>
     </div>
   );
@@ -150,12 +150,12 @@ export function Row({ left, right }: { left: string; right: string }) {
   return <TwoSide left={<b>{left}</b>} right={right || null} />;
 }
 
-export function Bullets({ items }: { items: string[] }) {
-  const xs = items.filter((s) => s && s.trim());
+export function Bullets({ items, srcs }: { items: string[]; srcs?: (string | null)[] }) {
+  const xs = items.map((s, i) => ({ s, src: srcs?.[i] ?? null })).filter((x) => x.s && x.s.trim());
   if (xs.length === 0) return null;
   return (
     <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}>
-      {xs.map((b, i) => <li key={i} style={{ marginBottom: 1, textAlign: "justify" }}><Inline text={b} /></li>)}
+      {xs.map((x, i) => <li key={i} style={{ marginBottom: 1, textAlign: "justify" }}><Inline text={x.s} src={x.src} /></li>)}
     </ul>
   );
 }

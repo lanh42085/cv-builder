@@ -10,18 +10,18 @@ export function TwoColumn({ v, style, order }: { v: CvView; style: CvStyle; orde
   const side = { label: { fontSize: 10, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: 0.8, color: accent, margin: "16px 0 6px" } };
 
   const main: Partial<Record<SectionKey, React.ReactNode>> = {
-    about: v.aboutMe ? <Block title="About me" accent={accent}><p style={{ margin: 0, textAlign: "justify" }}><Inline text={v.aboutMe} /></p></Block> : null,
+    about: v.aboutMe ? <Block title="About me" accent={accent}><p style={{ margin: 0, textAlign: "justify" }}><Inline text={v.aboutMe} src={v.aboutSrc} /></p></Block> : null,
     experience: v.experience.length > 0 ? (
       <Block title="Work experience" accent={accent}>
         {v.experience.map((e, i) => (
-          <div key={i} style={{ marginBottom: 10 }}><Row left={e.header || "Công ty | Vị trí"} right={e.period} /><Bullets items={e.bullets} /></div>
+          <div key={i} style={{ marginBottom: 10 }}><Row left={e.header || "Công ty | Vị trí"} right={e.period} /><Bullets items={e.bullets} srcs={e.srcs} /></div>
         ))}
       </Block>
     ) : null,
     projects: v.projects.length > 0 ? (
       <Block title="Projects" accent={accent}>
         {v.projects.map((p, i) => (
-          <div key={i} style={{ marginBottom: 10 }}><Row left={p.header || "Tên project | Tool"} right={p.link} /><Bullets items={p.bullets} /></div>
+          <div key={i} style={{ marginBottom: 10 }}><Row left={p.header || "Tên project | Tool"} right={p.link} /><Bullets items={p.bullets} srcs={p.srcs} /></div>
         ))}
       </Block>
     ) : null,
@@ -42,11 +42,11 @@ export function TwoColumn({ v, style, order }: { v: CvView; style: CvStyle; orde
         {(v.skills.hard || v.skills.soft) && (
           <>
             <div style={side.label}>Skills</div>
-            {[["Hard skills", v.skills.hard], ["Soft skills", v.skills.soft]].map(([t, raw]) => skillLines(raw).length ? (
+            {[["Hard skills", v.skills.hard, "raw.skills.hard"], ["Soft skills", v.skills.soft, "raw.skills.soft"]].map(([t, raw, src]) => skillLines(raw).length ? (
               <div key={t} style={{ marginBottom: 6 }}>
                 <div style={{ fontWeight: 700, fontSize: 10.5 }}>{t}</div>
                 <ul style={{ margin: "1px 0 0", paddingLeft: 14, listStyle: "disc", fontSize: 10 }}>
-                  {skillLines(raw).map((l, i) => <li key={i}>{l.label ? <><b>{l.label}:</b> <Inline text={l.text} /></> : <Inline text={l.text} />}</li>)}
+                  {skillLines(raw).map((l, i) => <li key={i}>{l.label ? <><b>{l.label}:</b> <Inline text={l.text} src={`${src}@${i}`} /></> : <Inline text={l.text} src={`${src}@${i}`} />}</li>)}
                 </ul>
               </div>
             ) : null)}

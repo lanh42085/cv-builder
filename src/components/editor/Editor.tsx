@@ -114,7 +114,7 @@ export function Editor({ id, initialTitle, initialCv }: { id: string; initialTit
         </div>
         <div className="sticky top-0 self-start p-4">
           <StyleBar cv={cv} set={set} />
-          <Preview cv={cv} />
+          <Preview cv={cv} set={set} />
         </div>
       </div>
     </div>
