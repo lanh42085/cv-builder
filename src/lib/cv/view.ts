@@ -51,23 +51,27 @@ export function toView(cv: CvData): CvView {
   const aboutDraft = nonEmpty([cv.raw.aboutMe.whoAmI, cv.raw.aboutMe.strengths, cv.raw.aboutMe.goal]).join(". ");
   const hasGen = Boolean(aboutGen || g.experience.length || g.projects.length);
 
-  const experience = cv.raw.experience.map((e) => {
-    const gen = g.experience.find((x) => x.rawId === e.id);
-    return {
-      header: gen?.header || nonEmpty([e.company, e.role]).join(" | "),
-      period: period(e),
-      bullets: gen?.bullets?.length ? gen.bullets : draftExperience(e),
-    };
-  });
+  const experience = g.experience.length
+    ? g.experience.map((s) => {
+        const e = cv.raw.experience.find((x) => x.id === s.rawId);
+        return { header: s.header, period: e ? period(e) : "", bullets: nonEmpty(s.bullets) };
+      })
+    : cv.raw.experience.map((e) => ({
+        header: nonEmpty([e.company, e.role]).join(" | "),
+        period: period(e),
+        bullets: draftExperience(e),
+      }));
 
-  const projects = cv.raw.projects.map((p) => {
-    const gen = g.projects.find((x) => x.rawId === p.id);
-    return {
-      header: gen?.header || nonEmpty([p.name, p.tools]).join(" | "),
-      link: p.link,
-      bullets: gen?.bullets?.length ? gen.bullets : draftProject(p),
-    };
-  });
+  const projects = g.projects.length
+    ? g.projects.map((s) => {
+        const p = cv.raw.projects.find((x) => x.id === s.rawId);
+        return { header: s.header, link: p?.link ?? "", bullets: nonEmpty(s.bullets) };
+      })
+    : cv.raw.projects.map((p) => ({
+        header: nonEmpty([p.name, p.tools]).join(" | "),
+        link: p.link,
+        bullets: draftProject(p),
+      }));
 
   return {
     basics: cv.basics,

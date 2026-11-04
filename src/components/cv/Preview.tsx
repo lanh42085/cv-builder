@@ -23,7 +23,7 @@ export function Preview({ cv }: { cv: CvData }) {
     <div ref={ref} className="w-full">
       {v.isDraft && (
         <p className="mb-2 text-xs text-neutral-500">
-          Bản nháp dựng từ dữ liệu thô — sau khi bấm “Tạo bằng AI” (bước 5) câu chữ sẽ được viết lại.
+          Bản nháp ghép từ dữ liệu thô. Bấm “Tạo bằng AI” ở các bước About Me, Experience, Projects để AI viết lại câu chữ.
         </p>
       )}
       <div style={{ height: 1123 * scale }} className="overflow-hidden rounded shadow-lg">

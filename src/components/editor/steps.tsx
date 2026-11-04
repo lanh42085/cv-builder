@@ -3,6 +3,7 @@
 import type { CvData } from "@/lib/cv/schema";
 import { emptyAchievement, emptyEducation, emptyExperience, emptyProject } from "@/lib/cv/schema";
 import { AddButton, Field, Intro, ItemCard } from "./fields";
+import { AiAbout, AiSection } from "./AiPanel";
 
 type Props = { cv: CvData; set: (fn: (cv: CvData) => CvData) => void };
 
@@ -50,6 +51,7 @@ export function StepAbout({ cv, set }: Props) {
         placeholder="SQL, Power BI, Excel; có project phân tích dữ liệu thực tế" multiline />
       <Field label="3. Bạn muốn gì" hint="1 câu về hướng đi, gắn với ngành của công ty" value={a.goal} onChange={up("goal")}
         placeholder="Muốn dùng dữ liệu hỗ trợ quyết định kinh doanh" multiline />
+      <AiAbout cv={cv} set={set} />
     </div>
   );
 }
@@ -86,6 +88,7 @@ export function StepExperience({ cv, set }: Props) {
         </ItemCard>
       ))}
       <AddButton onClick={add}>+ Thêm kinh nghiệm</AddButton>
+      <AiSection cv={cv} set={set} kind="experience" />
     </div>
   );
 }
@@ -114,6 +117,7 @@ export function StepProjects({ cv, set }: Props) {
         </ItemCard>
       ))}
       <AddButton onClick={add}>+ Thêm project</AddButton>
+      <AiSection cv={cv} set={set} kind="projects" />
     </div>
   );
 }
