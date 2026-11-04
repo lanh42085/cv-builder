@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { CvData, GeneratedSection } from "@/lib/cv/schema";
+import { BoldTextarea } from "./BoldTextarea";
 
 type Props = { cv: CvData; set: (fn: (cv: CvData) => CvData) => void };
 
@@ -67,9 +68,9 @@ export function AiAbout({ cv, set }: Props) {
           ))}
           <label className="block">
             <div className="mb-1 text-sm font-medium">Bản dùng trong CV (sửa được)</div>
-            <textarea rows={4} value={g.final}
-              className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-[var(--accent)] focus:outline-none"
-              onChange={(e) => set((c) => ({ ...c, generated: { ...c.generated, aboutMe: { ...c.generated.aboutMe, final: e.target.value } } }))} />
+            <BoldTextarea rows={4} value={g.final}
+              className="w-full rounded-md border border-neutral-300 px-3 py-2 pr-8 text-sm focus:border-[var(--accent)] focus:outline-none"
+              onValueChange={(v) => set((c) => ({ ...c, generated: { ...c.generated, aboutMe: { ...c.generated.aboutMe, final: v } } }))} />
           </label>
         </>
       )}
@@ -86,10 +87,10 @@ function SectionsEditor({ sections, onChange }: { sections: GeneratedSection[]; 
         <div key={i} className="grid gap-2 rounded-md border bg-neutral-50 p-3">
           <input value={s.header} onChange={(e) => upd(i, { header: e.target.value })}
             className="rounded-md border border-neutral-300 px-2 py-1 text-sm font-medium focus:border-[var(--accent)] focus:outline-none" />
-          <textarea rows={Math.max(3, s.bullets.length + 1)} value={s.bullets.join("\n")}
-            className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-[var(--accent)] focus:outline-none"
-            onChange={(e) => upd(i, { bullets: e.target.value.split("\n") })} />
-          <div className="text-xs text-neutral-400">Mỗi dòng = 1 bullet</div>
+          <BoldTextarea rows={Math.max(3, s.bullets.length + 1)} value={s.bullets.join("\n")}
+            className="w-full rounded-md border border-neutral-300 px-3 py-2 pr-8 text-sm focus:border-[var(--accent)] focus:outline-none"
+            onValueChange={(v) => upd(i, { bullets: v.split("\n") })} />
+          <div className="text-xs text-neutral-400">Mỗi dòng = 1 bullet · bôi đen rồi bấm B để in đậm</div>
         </div>
       ))}
     </div>

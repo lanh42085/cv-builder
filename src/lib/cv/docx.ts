@@ -2,6 +2,7 @@ import { AlignmentType, Document, Packer, Paragraph, TabStopType, TextRun } from
 import type { CvData } from "./schema";
 import { skillLines, toView } from "./view";
 import { FONTS } from "./style";
+import { parseInline } from "./inline";
 
 /** File Word 1 cột, không bảng — bản để nộp qua hệ thống ATS. Cùng bố cục với template 1 cột. */
 export async function cvToDocx(cv: CvData): Promise<Buffer> {
@@ -22,14 +23,16 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
   });
   const para = (t: string, o: { bold?: boolean; italics?: boolean; size?: number; color?: string; center?: boolean; justify?: boolean } = {}) => new Paragraph({
     alignment: o.center ? AlignmentType.CENTER : o.justify ? AlignmentType.JUSTIFIED : AlignmentType.LEFT,
-    spacing: { after: 20 }, children: [run(t, o)],
+    spacing: { after: 20 }, children: runs(t, o),
   });
   const twoSide = (left: string, right: string, o: { bold?: boolean; italics?: boolean } = {}) => new Paragraph({
     tabStops: [{ type: TabStopType.RIGHT, position: RIGHT }], spacing: { before: 60, after: 10 },
     children: [run(left, o), run(right ? `\t${right}` : "", { italics: true })],
   });
+  const runs = (t: string, o: { bold?: boolean; italics?: boolean; size?: number; color?: string } = {}) =>
+    parseInline(t).map((r) => run(r.text, { ...o, bold: o.bold || r.bold }));
   const bullet = (t: string) => new Paragraph({
-    bullet: { level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: 20 }, children: [run(t)],
+    bullet: { level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: 20 }, children: runs(t),
   });
   const bulletRuns = (children: TextRun[]) => new Paragraph({
     bullet: { level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: 20 }, children,
@@ -53,7 +56,7 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
         const lines = skillLines(raw);
         if (!lines.length) continue;
         P.push(twoSide(t, "", { bold: true }));
-        lines.forEach((l) => P.push(bulletRuns(l.label ? [run(`${l.label}: `, { bold: true }), run(l.text)] : [run(l.text)])));
+        lines.forEach((l) => P.push(bulletRuns(l.label ? [run(`${l.label}: `, { bold: true }), ...runs(l.text)] : runs(l.text))));
       }
     },
     projects: () => {

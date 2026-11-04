@@ -1,5 +1,6 @@
 import { skillLines, type CvView } from "@/lib/cv/view";
 import type { CvStyle } from "@/lib/cv/style";
+import { Inline } from "@/components/cv/Inline";
 import { FONTS, type SectionKey } from "@/lib/cv/style";
 import { Bullets, Row } from "./AtsSingle";
 
@@ -9,7 +10,7 @@ export function TwoColumn({ v, style, order }: { v: CvView; style: CvStyle; orde
   const side = { label: { fontSize: 10, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: 0.8, color: accent, margin: "16px 0 6px" } };
 
   const main: Partial<Record<SectionKey, React.ReactNode>> = {
-    about: v.aboutMe ? <Block title="About me" accent={accent}><p style={{ margin: 0, textAlign: "justify" }}>{v.aboutMe}</p></Block> : null,
+    about: v.aboutMe ? <Block title="About me" accent={accent}><p style={{ margin: 0, textAlign: "justify" }}><Inline text={v.aboutMe} /></p></Block> : null,
     experience: v.experience.length > 0 ? (
       <Block title="Work experience" accent={accent}>
         {v.experience.map((e, i) => (
@@ -45,7 +46,7 @@ export function TwoColumn({ v, style, order }: { v: CvView; style: CvStyle; orde
               <div key={t} style={{ marginBottom: 6 }}>
                 <div style={{ fontWeight: 700, fontSize: 10.5 }}>{t}</div>
                 <ul style={{ margin: "1px 0 0", paddingLeft: 14, listStyle: "disc", fontSize: 10 }}>
-                  {skillLines(raw).map((l, i) => <li key={i}>{l.label ? <><b>{l.label}:</b> {l.text}</> : l.text}</li>)}
+                  {skillLines(raw).map((l, i) => <li key={i}>{l.label ? <><b>{l.label}:</b> <Inline text={l.text} /></> : <Inline text={l.text} />}</li>)}
                 </ul>
               </div>
             ) : null)}

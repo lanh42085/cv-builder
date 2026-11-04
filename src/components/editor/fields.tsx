@@ -1,5 +1,7 @@
 "use client";
 
+import { BoldTextarea } from "./BoldTextarea";
+
 /** Ô nhập dùng chung: nhãn · gợi ý (cột "Gợi ý" của sheet) · ví dụ mờ. */
 export function Field({ label, hint, value, onChange, placeholder, multiline, type = "text" }: {
   label: string; hint?: string; value: string; onChange: (v: string) => void;
@@ -11,7 +13,7 @@ export function Field({ label, hint, value, onChange, placeholder, multiline, ty
       <div className="mb-1 text-sm font-medium">{label}</div>
       {hint && <div className="mb-1 text-xs text-neutral-500">{hint}</div>}
       {multiline ? (
-        <textarea className={cls} rows={4} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
+        <BoldTextarea className={cls + " pr-8"} rows={4} value={value} placeholder={placeholder} onValueChange={onChange} />
       ) : (
         <input className={cls} type={type} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
       )}

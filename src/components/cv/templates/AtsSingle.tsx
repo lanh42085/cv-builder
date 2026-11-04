@@ -1,5 +1,6 @@
 import { skillLines, type CvView } from "@/lib/cv/view";
 import type { CvStyle } from "@/lib/cv/style";
+import { Inline } from "@/components/cv/Inline";
 import { FONTS, type SectionKey } from "@/lib/cv/style";
 
 const LINK = "#1a56db";
@@ -17,7 +18,7 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
   const hasLinks = b.linkedin.trim() || b.github.trim() || b.portfolioUrl.trim();
 
   const sections: Record<SectionKey, React.ReactNode> = {
-    about: v.aboutMe ? <Section title="About me" accent={accent}><p style={{ margin: 0, textAlign: "justify" }}>{v.aboutMe}</p></Section> : null,
+    about: v.aboutMe ? <Section title="About me" accent={accent}><p style={{ margin: 0, textAlign: "justify" }}><Inline text={v.aboutMe} /></p></Section> : null,
     skills: (v.skills.hard || v.skills.soft) ? (
       <Section title="Technical skills" accent={accent}>
         <SkillGroup title="Hard skills" raw={v.skills.hard} />
@@ -62,13 +63,13 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
             <div key={i} style={{ marginBottom: 5 }}>
               <div style={{ fontWeight: 700 }}>{school}</div>
               <TwoSide left={<i>{rest.join(" – ")}</i>} right={e.years ? <i>{e.years}</i> : null} />
-              {e.note && <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}><li>{e.note}</li></ul>}
+              {e.note && <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}><li><Inline text={e.note} /></li></ul>}
             </div>
           );
         })}
         {v.achievements.length > 0 && (
           <ul style={{ margin: "2px 0 0", paddingLeft: 16, listStyle: "disc" }}>
-            {v.achievements.map((a, i) => <li key={i}>{a.text}{a.link ? <> – <A href={a.link}>{a.link}</A></> : null}</li>)}
+            {v.achievements.map((a, i) => <li key={i}><Inline text={a.text} />{a.link ? <> – <A href={a.link}>{a.link}</A></> : null}</li>)}
           </ul>
         )}
       </Section>
@@ -111,7 +112,7 @@ function SkillGroup({ title, raw }: { title: string; raw: string }) {
     <div style={{ marginBottom: 3 }}>
       <div style={{ fontWeight: 700 }}>{title}</div>
       <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}>
-        {lines.map((l, i) => <li key={i}>{l.label ? <><b>{l.label}:</b> {l.text}</> : l.text}</li>)}
+        {lines.map((l, i) => <li key={i}>{l.label ? <><b>{l.label}:</b> <Inline text={l.text} /></> : <Inline text={l.text} />}</li>)}
       </ul>
     </div>
   );
@@ -154,7 +155,7 @@ export function Bullets({ items }: { items: string[] }) {
   if (xs.length === 0) return null;
   return (
     <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}>
-      {xs.map((b, i) => <li key={i} style={{ marginBottom: 1, textAlign: "justify" }}>{b}</li>)}
+      {xs.map((b, i) => <li key={i} style={{ marginBottom: 1, textAlign: "justify" }}><Inline text={b} /></li>)}
     </ul>
   );
 }
