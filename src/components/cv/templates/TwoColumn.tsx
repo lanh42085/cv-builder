@@ -1,4 +1,4 @@
-import type { CvView } from "@/lib/cv/view";
+import { skillLines, type CvView } from "@/lib/cv/view";
 import type { CvStyle } from "@/lib/cv/style";
 import { FONTS, type SectionKey } from "@/lib/cv/style";
 import { Bullets, Row } from "./AtsSingle";
@@ -41,8 +41,14 @@ export function TwoColumn({ v, style, order }: { v: CvView; style: CvStyle; orde
         {(v.skills.hard || v.skills.soft) && (
           <>
             <div style={side.label}>Skills</div>
-            {v.skills.hard && <div style={{ marginBottom: 6 }}><b>Hard:</b> {v.skills.hard}</div>}
-            {v.skills.soft && <div><b>Soft:</b> {v.skills.soft}</div>}
+            {[["Hard skills", v.skills.hard], ["Soft skills", v.skills.soft]].map(([t, raw]) => skillLines(raw).length ? (
+              <div key={t} style={{ marginBottom: 6 }}>
+                <div style={{ fontWeight: 700, fontSize: 10.5 }}>{t}</div>
+                <ul style={{ margin: "1px 0 0", paddingLeft: 14, listStyle: "disc", fontSize: 10 }}>
+                  {skillLines(raw).map((l, i) => <li key={i}>{l.label ? <><b>{l.label}:</b> {l.text}</> : l.text}</li>)}
+                </ul>
+              </div>
+            ) : null)}
           </>
         )}
         {v.education.length > 0 && (

@@ -164,9 +164,11 @@ export function StepSkills({ cv, set }: Props) {
   const up = (k: "hard" | "soft") => (v: string) => set((c) => ({ ...c, raw: { ...c.raw, skills: { ...c.raw.skills, [k]: v } } }));
   return (
     <div className="grid gap-3">
-      <Intro>Chỉ ghi skill đã học VÀ có bằng chứng (project/công việc). Cách nhau bằng dấu phẩy.</Intro>
-      <Field label="Hard skill" value={s.hard} onChange={up("hard")} placeholder="SQL, Power BI, Excel (Pivot, Power Query), Python" multiline />
-      <Field label="Soft skill" value={s.soft} onChange={up("soft")} placeholder="Analytical thinking, problem solving, attention to detail" multiline />
+      <Intro>Chỉ ghi skill đã học VÀ có bằng chứng (project/công việc). Mỗi dòng = 1 bullet trên CV. Viết dạng “Nhóm: chi tiết” thì phần Nhóm tự in đậm.</Intro>
+      <Field label="Hard skill" hint="Mỗi dòng 1 ý" value={s.hard} onChange={up("hard")}
+        placeholder={"Database & Querying: SQL (PostgreSQL, BigQuery, CTEs, Window Functions)\nBI & Visualization: Power BI (DAX, Power Query)\nProgramming: Python (pandas, NumPy)"} multiline />
+      <Field label="Soft skill" hint="Mỗi dòng 1 ý" value={s.soft} onChange={up("soft")}
+        placeholder={"Problem solving (5W1H, Issue Tree)\nAnalytical thinking\nCommunication with stakeholders"} multiline />
     </div>
   );
 }

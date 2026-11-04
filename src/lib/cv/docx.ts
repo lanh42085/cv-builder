@@ -1,6 +1,6 @@
 import { AlignmentType, Document, Packer, Paragraph, TabStopType, TextRun } from "docx";
 import type { CvData } from "./schema";
-import { toView } from "./view";
+import { skillLines, toView } from "./view";
 import { FONTS } from "./style";
 
 /** File Word 1 cột, không bảng — bản để nộp qua hệ thống ATS. Cùng bố cục với template 1 cột. */
@@ -31,6 +31,9 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
   const bullet = (t: string) => new Paragraph({
     bullet: { level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: 20 }, children: [run(t)],
   });
+  const bulletRuns = (children: TextRun[]) => new Paragraph({
+    bullet: { level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: 20 }, children,
+  });
 
   const b = v.basics;
   const line1 = [b.location, b.phone, b.email].filter((x) => x.trim()).join("  |  ");
@@ -46,8 +49,12 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
     skills: () => {
       if (!v.skills.hard && !v.skills.soft) return;
       P.push(heading("Technical skills"));
-      if (v.skills.hard) P.push(bullet(`Hard skills: ${v.skills.hard}`));
-      if (v.skills.soft) P.push(bullet(`Soft skills: ${v.skills.soft}`));
+      for (const [t, raw] of [["Hard skills", v.skills.hard], ["Soft skills", v.skills.soft]] as const) {
+        const lines = skillLines(raw);
+        if (!lines.length) continue;
+        P.push(twoSide(t, "", { bold: true }));
+        lines.forEach((l) => P.push(bulletRuns(l.label ? [run(`${l.label}: `, { bold: true }), run(l.text)] : [run(l.text)])));
+      }
     },
     projects: () => {
       if (!v.projects.length) return;

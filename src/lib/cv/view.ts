@@ -90,3 +90,11 @@ export function toView(cv: CvData): CvView {
     isDraft: !hasGen,
   };
 }
+
+/** "a\nb: c" → [{label:"", text:"a"}, {label:"b", text:"c"}] — mỗi dòng 1 bullet, "Nhóm: chi tiết" tách nhãn. */
+export function skillLines(raw: string): { label: string; text: string }[] {
+  return raw.split("\n").map((l) => l.replace(/^[-•*]\s*/, "").trim()).filter(Boolean).map((l) => {
+    const m = l.match(/^([^:：]{1,40})[:：]\s*(.+)$/);
+    return m ? { label: m[1].trim(), text: m[2].trim() } : { label: "", text: l };
+  });
+}

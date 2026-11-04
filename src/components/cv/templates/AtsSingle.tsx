@@ -1,4 +1,4 @@
-import type { CvView } from "@/lib/cv/view";
+import { skillLines, type CvView } from "@/lib/cv/view";
 import type { CvStyle } from "@/lib/cv/style";
 import { FONTS, type SectionKey } from "@/lib/cv/style";
 
@@ -20,10 +20,8 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
     about: v.aboutMe ? <Section title="About me" accent={accent}><p style={{ margin: 0, textAlign: "justify" }}>{v.aboutMe}</p></Section> : null,
     skills: (v.skills.hard || v.skills.soft) ? (
       <Section title="Technical skills" accent={accent}>
-        <ul style={{ margin: 0, paddingLeft: 16, listStyle: "disc" }}>
-          {v.skills.hard && <li><b>Hard skills:</b> {v.skills.hard}</li>}
-          {v.skills.soft && <li><b>Soft skills:</b> {v.skills.soft}</li>}
-        </ul>
+        <SkillGroup title="Hard skills" raw={v.skills.hard} />
+        <SkillGroup title="Soft skills" raw={v.skills.soft} />
       </Section>
     ) : null,
     projects: v.projects.length > 0 ? (
@@ -102,6 +100,19 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
       </div>
 
       {order.map((k) => <div key={k}>{sections[k]}</div>)}
+    </div>
+  );
+}
+
+function SkillGroup({ title, raw }: { title: string; raw: string }) {
+  const lines = skillLines(raw);
+  if (lines.length === 0) return null;
+  return (
+    <div style={{ marginBottom: 3 }}>
+      <div style={{ fontWeight: 700 }}>{title}</div>
+      <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}>
+        {lines.map((l, i) => <li key={i}>{l.label ? <><b>{l.label}:</b> {l.text}</> : l.text}</li>)}
+      </ul>
     </div>
   );
 }

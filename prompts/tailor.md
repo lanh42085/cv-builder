@@ -27,8 +27,10 @@ Tên project | Tool
 - Bullet
 
 SKILLS
-- Hard skills: ...
-- Soft skills: ...
+Hard skills:
+- <mỗi dòng 1 ý, giữ nguyên số dòng như CV hiện tại>
+Soft skills:
+- <mỗi dòng 1 ý>
 
 KEYWORD ĐÃ LỒNG
 - <keyword> – <vị trí dùng>

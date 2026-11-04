@@ -26,8 +26,8 @@ export function cvToPlainText(cv: CvData): string {
   }
   if (v.skills.hard || v.skills.soft) {
     out.push("SKILLS");
-    if (v.skills.hard) out.push(`- Hard skills: ${v.skills.hard}`);
-    if (v.skills.soft) out.push(`- Soft skills: ${v.skills.soft}`);
+    if (v.skills.hard) { out.push("Hard skills:"); v.skills.hard.split("\n").filter((l) => l.trim()).forEach((l) => out.push(`- ${l.replace(/^[-•*]\s*/, "").trim()}`)); }
+    if (v.skills.soft) { out.push("Soft skills:"); v.skills.soft.split("\n").filter((l) => l.trim()).forEach((l) => out.push(`- ${l.replace(/^[-•*]\s*/, "").trim()}`)); }
   }
   return out.join("\n");
 }
@@ -46,11 +46,26 @@ function splitSections(text: string): Record<string, string> {
   return map;
 }
 
+/** "Hard skills:\n- a\n- b\nSoft skills:\n- c" (hoặc 1 dòng "Hard skills: a, b") → {hard, soft} nhiều dòng. */
+function parseSkills(text: string): { hard?: string; soft?: string } {
+  const out: { hard?: string; soft?: string } = {};
+  let cur: "hard" | "soft" | null = null;
+  for (const raw of text.split("\n")) {
+    const line = raw.replace(/^[-•*]\s*/, "").trim();
+    if (!line) continue;
+    const m = line.match(/^(hard|soft)\s*skills?\s*[:：]?\s*(.*)$/i);
+    if (m) { cur = m[1].toLowerCase() as "hard" | "soft"; out[cur] = m[2].trim(); continue; }
+    if (cur) out[cur] = [out[cur], line].filter(Boolean).join("\n");
+  }
+  return out;
+}
+
 export function parseTailored(text: string, cv: CvData): Tailored | null {
   const s = splitSections(text);
   if (!s["ABOUT ME"] && !s["WORK EXPERIENCE"]) return null;
-  const hard = s["SKILLS"]?.match(/hard skills?\s*:\s*(.*)/i)?.[1]?.trim() ?? cv.raw.skills.hard;
-  const soft = s["SKILLS"]?.match(/soft skills?\s*:\s*(.*)/i)?.[1]?.trim() ?? cv.raw.skills.soft;
+  const sk = parseSkills(s["SKILLS"] ?? "");
+  const hard = sk.hard ?? cv.raw.skills.hard;
+  const soft = sk.soft ?? cv.raw.skills.soft;
   const expBlocks = parseBlocks(s["WORK EXPERIENCE"] ?? "").map((b) => ({ header: b.header.split("|").slice(0, 2).map((x) => x.trim()).join(" | "), bullets: b.bullets }));
   const prjBlocks = parseBlocks(s["PROJECTS"] ?? "").map((b) => ({ header: b.header.split("|").slice(0, 2).map((x) => x.trim()).join(" | "), bullets: b.bullets }));
   return {
