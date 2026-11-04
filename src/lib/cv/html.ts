@@ -1,4 +1,4 @@
-import { renderToStaticMarkup } from "react-dom/server";
+import { renderToStaticMarkup } from "react-dom/server.edge";
 import { createElement } from "react";
 import type { CvData } from "./schema";
 import { toView } from "./view";
