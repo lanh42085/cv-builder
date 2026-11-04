@@ -61,7 +61,7 @@ function splitNotes(text: string): { body: string; notes: string } {
 }
 
 /** Khối "Header | ...\n- bullet\n- bullet" lặp lại → mảng {header, bullets}. */
-function parseBlocks(body: string): { header: string; bullets: string[] }[] {
+export function parseBlocks(body: string): { header: string; bullets: string[] }[] {
   const blocks: { header: string; bullets: string[] }[] = [];
   for (const raw of body.split("\n")) {
     const line = raw.trim();
@@ -80,7 +80,7 @@ function parseBlocks(body: string): { header: string; bullets: string[] }[] {
 const norm = (s: string) => s.toLowerCase().replace(/\s+/g, " ").trim();
 
 /** Gắn mỗi khối AI trả về với dòng thô (rawId) bằng tên; không khớp thì theo thứ tự. */
-function attachRawIds(blocks: { header: string; bullets: string[] }[], names: { id: string; name: string }[]): GeneratedSection[] {
+export function attachRawIds(blocks: { header: string; bullets: string[] }[], names: { id: string; name: string }[]): GeneratedSection[] {
   const used = new Set<string>();
   return blocks.map((b, i) => {
     const h = norm(b.header);

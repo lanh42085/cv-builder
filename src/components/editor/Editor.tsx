@@ -83,6 +83,10 @@ export function Editor({ id, initialTitle, initialCv }: { id: string; initialTit
             className="rounded-md border px-3 py-1.5 text-sm hover:bg-neutral-100 disabled:opacity-50">
             {exporting === "docx" ? "Đang tạo…" : "Tải DOCX"}
           </button>
+          <Link href={`/app/${id}/jobs`} onClick={() => { if (timer.current) { clearTimeout(timer.current); flush(); } }}
+            className="rounded-md border border-[var(--accent)] px-3 py-1.5 text-sm text-[var(--accent)] hover:bg-blue-50">
+            Tùy biến theo JD →
+          </Link>
         </div>
       </header>
 
