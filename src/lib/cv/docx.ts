@@ -52,7 +52,7 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
     projects: () => {
       if (!v.projects.length) return;
       P.push(heading("Portfolio projects"));
-      v.projects.forEach((p, i) => {
+      v.projects.forEach((p) => {
         const [name, ...tools] = p.header.split("|").map((x) => x.trim());
         P.push(twoSide(`${name}${tools.length ? ` [${tools.join(", ")}]` : ""}`, p.link ? `View Project: ${p.link}` : "", { bold: true }));
         p.bullets.forEach((x) => P.push(bullet(x)));
