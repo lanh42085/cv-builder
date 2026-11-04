@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { createResume } from "./actions";
+import { createResume, removeResume } from "./actions";
 
 export default async function AppPage() {
   const supabase = await createClient();
@@ -36,9 +36,13 @@ export default async function AppPage() {
           {resumes.map((r) => (
             <li key={r.id} className="flex items-center justify-between px-4 py-3">
               <Link href={`/app/${r.id}`} className="font-medium hover:underline">{r.title}</Link>
-              <span className="text-xs text-neutral-400">
-                {new Date(r.updated_at).toLocaleString("vi-VN")}
-              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-neutral-400">{new Date(r.updated_at).toLocaleString("vi-VN")}</span>
+                <form action={removeResume}>
+                  <input type="hidden" name="id" value={r.id} />
+                  <button className="text-xs text-neutral-400 hover:text-red-600">Xoá</button>
+                </form>
+              </div>
             </li>
           ))}
         </ul>
