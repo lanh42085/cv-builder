@@ -15,6 +15,7 @@ export function Editor({ id, initialTitle, initialCv }: { id: string; initialTit
   const [step, setStep] = useState(0);
   const [save, setSave] = useState<SaveState>("saved");
   const [exporting, setExporting] = useState<"pdf" | "docx" | null>(null);
+  const [savedAt, setSavedAt] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latest = useRef({ cv, title });
   latest.current = { cv, title };
@@ -23,6 +24,7 @@ export function Editor({ id, initialTitle, initialCv }: { id: string; initialTit
     setSave("saving");
     const res = await saveResume(id, latest.current.title, latest.current.cv);
     setSave(res.ok ? "saved" : "error");
+    if (res.ok) setSavedAt(new Date().toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }));
   }, [id]);
 
   const schedule = useCallback(() => {
@@ -66,8 +68,13 @@ export function Editor({ id, initialTitle, initialCv }: { id: string; initialTit
         </div>
         <div className="flex items-center gap-3">
           <span className={"text-xs " + (save === "error" ? "text-red-600" : "text-neutral-500")}>
-            {{ saved: "Đã lưu", dirty: "Đang gõ…", saving: "Đang lưu…", error: "Lưu lỗi — thử lại" }[save]}
+            {{ saved: savedAt ? `Đã lưu lúc ${savedAt}` : "Đã lưu", dirty: "Chưa lưu", saving: "Đang lưu…", error: "Lưu lỗi — bấm Lưu để thử lại" }[save]}
           </span>
+          <button type="button" onClick={() => { if (timer.current) clearTimeout(timer.current); flush(); }}
+            disabled={save === "saving"}
+            className={"rounded-md border px-3 py-1.5 text-sm disabled:opacity-50 " + (save === "dirty" || save === "error" ? "border-[var(--accent)] text-[var(--accent)] hover:bg-blue-50" : "hover:bg-neutral-100")}>
+            Lưu
+          </button>
           <button type="button" onClick={() => download("pdf")} disabled={exporting !== null}
             className="rounded-md bg-[var(--accent)] px-3 py-1.5 text-sm text-white hover:opacity-90 disabled:opacity-50">
             {exporting === "pdf" ? "Đang tạo PDF…" : "Tải PDF"}
