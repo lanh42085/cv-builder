@@ -18,8 +18,7 @@ export async function createResume() {
   revalidatePath("/app");
 }
 
-export async function removeResume(formData: FormData) {
-  const id = String(formData.get("id") ?? "");
+export async function removeResume(id: string) {
   if (!id) return;
   const supabase = await createClient();
   await supabase.from("resumes").delete().eq("id", id);

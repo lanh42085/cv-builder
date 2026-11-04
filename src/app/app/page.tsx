@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { createResume, removeResume } from "./actions";
+import { createResume } from "./actions";
+import { DeleteButton } from "./delete-button";
 
 export default async function AppPage() {
   const supabase = await createClient();
@@ -38,10 +39,7 @@ export default async function AppPage() {
               <Link href={`/app/${r.id}`} className="font-medium hover:underline">{r.title}</Link>
               <div className="flex items-center gap-3">
                 <span className="text-xs text-neutral-400">{new Date(r.updated_at).toLocaleString("vi-VN")}</span>
-                <form action={removeResume}>
-                  <input type="hidden" name="id" value={r.id} />
-                  <button className="text-xs text-neutral-400 hover:text-red-600">Xoá</button>
-                </form>
+                <DeleteButton id={r.id} title={r.title} />
               </div>
             </li>
           ))}
