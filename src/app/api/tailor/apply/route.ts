@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   try {
     const template = await readFile(path.join(process.cwd(), "prompts", "tailor.md"), "utf8");
     const prompt = template.replace("{{KEYWORDS}}", keywordOutput.trim()).replace("{{DATA}}", cvToPlainText(cv));
-    const text = await ask(prompt, 2500);
+    const text = await ask(prompt, 8000);
     const tailored = parseTailored(text, cv);
     if (!tailored) return NextResponse.json({ error: "AI trả về không đúng định dạng, thử lại.", raw: text }, { status: 502 });
 

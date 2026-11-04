@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     async start(controller) {
       try {
         const s = anthropic().messages.stream({
-          model: MODEL, max_tokens: 4000, system,
+          model: MODEL, max_tokens: 8000, system,
           messages: messages.map((m) => ({ role: m.role, content: m.content })),
         });
         for await (const ev of s) {
