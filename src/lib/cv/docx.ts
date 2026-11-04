@@ -16,17 +16,26 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
     border: { bottom: { style: "single", size: 6, color: ACCENT, space: 1 } },
     children: [new TextRun({ text: text.toUpperCase(), bold: true, size: 22, font: FONT, color: ACCENT })],
   });
-  const row = (left: string, right: string) => new Paragraph({
+  const row = (left: string, right: string, upper = false) => new Paragraph({
     tabStops: [{ type: TabStopType.RIGHT, position: RIGHT }],
-    spacing: { before: 80, after: 20 },
-    children: [new TextRun({ text: left, bold: true, size: 21, font: FONT }), new TextRun({ text: right ? `\t${right}` : "", size: 21, font: FONT })],
+    spacing: { before: 80, after: 10 },
+    children: [new TextRun({ text: upper ? left.toUpperCase() : left, bold: true, size: 21, font: FONT }),
+               new TextRun({ text: right ? `\t${right}` : "", italics: true, size: 21, font: FONT })],
   });
+  const sub = (t: string) => new Paragraph({ spacing: { after: 10 }, children: [new TextRun({ text: t, italics: true, size: 21, font: FONT })] });
+  const entry = (header: string, right: string, bullets: string[]) => {
+    const [main, ...rest] = header.split("|").map((x) => x.trim());
+    const out = [row(main || "—", right, true)];
+    if (rest.length) out.push(sub(rest.join(" | ")));
+    bullets.forEach((b) => out.push(bullet(b)));
+    return out;
+  };
   const bullet = (text: string) => new Paragraph({
     bullet: { level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: 20 },
     children: [new TextRun({ text, size: 21, font: FONT })],
   });
-  const text = (t: string, opts: { bold?: boolean; size?: number; color?: string; justify?: boolean } = {}) => new Paragraph({
-    alignment: opts.justify ? AlignmentType.JUSTIFIED : AlignmentType.LEFT, spacing: { after: 20 },
+  const text = (t: string, opts: { bold?: boolean; size?: number; color?: string; justify?: boolean; center?: boolean } = {}) => new Paragraph({
+    alignment: opts.center ? AlignmentType.CENTER : opts.justify ? AlignmentType.JUSTIFIED : AlignmentType.LEFT, spacing: { after: 20 },
     children: [new TextRun({ text: t, bold: opts.bold, size: opts.size ?? 21, font: FONT, color: opts.color })],
   });
 
@@ -40,11 +49,11 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
 
   if (v.experience.length) {
     P.push(heading("Work experience"));
-    for (const e of v.experience) { P.push(row(e.header, e.period)); e.bullets.forEach((b) => P.push(bullet(b))); }
+    for (const e of v.experience) P.push(...entry(e.header, e.period, e.bullets));
   }
   if (v.projects.length) {
     P.push(heading("Projects"));
-    for (const p of v.projects) { P.push(row(p.header, p.link)); p.bullets.forEach((b) => P.push(bullet(b))); }
+    for (const p of v.projects) P.push(...entry(p.header, p.link, p.bullets));
   }
   if (v.skills.hard || v.skills.soft) {
     P.push(heading("Skills"));
@@ -52,8 +61,13 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
     if (v.skills.soft) P.push(bullet(`Soft skills: ${v.skills.soft}`));
   }
   if (v.education.length) {
-    P.push(heading("Educational background"));
-    for (const e of v.education) { P.push(row(e.line, e.years)); if (e.note) P.push(text(e.note)); }
+    P.push(heading("Education"));
+    for (const e of v.education) {
+      const [school, ...rest] = e.line.split(" – ");
+      P.push(row(school, e.years, true));
+      if (rest.length) P.push(sub(rest.join(" – ")));
+      if (e.note) P.push(text(e.note));
+    }
   }
   if (v.achievements.length) {
     P.push(heading("Achievements & certification"));
