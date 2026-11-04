@@ -34,7 +34,7 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
           return (
             <div key={i} style={{ marginBottom: 6 }}>
               <TwoSide
-                left={<b>{i + 1}. {name || "Tên project"}{tools.length > 0 && ` [${tools.join(", ")}]`}</b>}
+                left={<b>{name || "Tên project"}{tools.length > 0 && ` [${tools.join(", ")}]`}</b>}
                 right={p.link ? <A href={p.link} bold>View Project</A> : null} />
               <Bullets items={p.bullets} />
             </div>

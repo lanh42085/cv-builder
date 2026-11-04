@@ -1,9 +1,20 @@
 "use client";
 
+import { useState } from "react";
+
 import type { CvData } from "@/lib/cv/schema";
 import { ACCENTS, FONTS, SECTION_LABELS, TEMPLATES, type FontId, type SectionKey, type TemplateId } from "@/lib/cv/style";
 
 export function StyleBar({ cv, set }: { cv: CvData; set: (fn: (cv: CvData) => CvData) => void }) {
+  const [drag, setDrag] = useState<number | null>(null);
+  const [over, setOver] = useState<number | null>(null);
+  const reorder = (from: number, to: number) => set((c) => {
+    if (from === to) return c;
+    const next = [...c.sectionOrder];
+    const [item] = next.splice(from, 1);
+    next.splice(to, 0, item);
+    return { ...c, sectionOrder: next };
+  });
   const sel = "rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs focus:border-[var(--accent)] focus:outline-none";
   return (
     <div className="mb-3 flex flex-wrap items-center gap-3 rounded-lg border bg-white px-3 py-2">
@@ -28,11 +39,18 @@ export function StyleBar({ cv, set }: { cv: CvData; set: (fn: (cv: CvData) => Cv
       </div>
       <span className="text-[11px] text-neutral-400">{TEMPLATES[cv.templateId].hint}</span>
       <details className="w-full">
-        <summary className="cursor-pointer text-xs text-neutral-600 hover:text-neutral-900">Thứ tự các mục ▾</summary>
+        <summary className="cursor-pointer text-xs text-neutral-600 hover:text-neutral-900">Thứ tự các mục ▾ <span className="text-neutral-400">(kéo thả hoặc bấm mũi tên)</span></summary>
         <ol className="mt-2 grid gap-1">
           {cv.sectionOrder.map((k, i) => (
-            <li key={k} className="flex items-center justify-between rounded border bg-neutral-50 px-2 py-1 text-xs">
-              <span>{i + 1}. {SECTION_LABELS[k]}</span>
+            <li key={k} draggable
+              onDragStart={(e) => { setDrag(i); e.dataTransfer.effectAllowed = "move"; }}
+              onDragOver={(e) => { e.preventDefault(); setOver(i); }}
+              onDragLeave={() => setOver(null)}
+              onDrop={(e) => { e.preventDefault(); if (drag !== null) reorder(drag, i); setDrag(null); setOver(null); }}
+              onDragEnd={() => { setDrag(null); setOver(null); }}
+              className={"flex cursor-grab items-center justify-between rounded border px-2 py-1 text-xs active:cursor-grabbing " +
+                (over === i && drag !== i ? "border-[var(--accent)] bg-blue-50" : "bg-neutral-50") + (drag === i ? " opacity-40" : "")}>
+              <span><span className="mr-2 text-neutral-400">⋮⋮</span>{i + 1}. {SECTION_LABELS[k]}</span>
               <span className="flex gap-1">
                 <button type="button" disabled={i === 0} onClick={() => set((c) => ({ ...c, sectionOrder: move(c.sectionOrder, i, -1) }))}
                   className="rounded border px-1.5 hover:bg-white disabled:opacity-30">▲</button>
