@@ -26,8 +26,8 @@ export function cvToPlainText(cv: CvData): string {
   }
   if (v.skills.hard || v.skills.soft) {
     out.push("SKILLS");
-    if (v.skills.hard) { out.push("Hard skills:"); v.skills.hard.split("\n").filter((l) => l.trim()).forEach((l) => out.push(`- ${l.replace(/^[-•*]\s*/, "").trim()}`)); }
-    if (v.skills.soft) { out.push("Soft skills:"); v.skills.soft.split("\n").filter((l) => l.trim()).forEach((l) => out.push(`- ${l.replace(/^[-•*]\s*/, "").trim()}`)); }
+    if (v.skills.hard) { out.push("Hard skills:"); v.skills.hard.split("\n").filter((l) => l.trim()).forEach((l) => out.push(`- ${l.replace(/^(?:[-•]\s*|\*\s+)/, "").trim()}`)); }
+    if (v.skills.soft) { out.push("Soft skills:"); v.skills.soft.split("\n").filter((l) => l.trim()).forEach((l) => out.push(`- ${l.replace(/^(?:[-•]\s*|\*\s+)/, "").trim()}`)); }
   }
   return out.join("\n");
 }
@@ -51,7 +51,7 @@ function parseSkills(text: string): { hard?: string; soft?: string } {
   const out: { hard?: string; soft?: string } = {};
   let cur: "hard" | "soft" | null = null;
   for (const raw of text.split("\n")) {
-    const line = raw.replace(/^[-•*]\s*/, "").trim();
+    const line = raw.replace(/^(?:[-•]\s*|\*\s+)/, "").trim();
     if (!line) continue;
     const m = line.match(/^(hard|soft)\s*skills?\s*[:：]?\s*(.*)$/i);
     if (m) { cur = m[1].toLowerCase() as "hard" | "soft"; out[cur] = m[2].trim(); continue; }
