@@ -16,7 +16,7 @@ export async function GET(req: Request) {
   const cv = normalizeCv(resume.data);
   try {
     const buf = await cvToDocx(cv);
-    return new NextResponse(buf, {
+    return new NextResponse(new Uint8Array(buf), {
       headers: {
         "content-type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "content-disposition": `attachment; filename="${safeFileName(cv, "docx")}"`,
