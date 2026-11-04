@@ -98,7 +98,7 @@ export function Editor({ id, initialTitle, initialCv }: { id: string; initialTit
           </nav>
           <div className="p-4">
             <h2 className="mb-3 text-lg font-semibold">{step + 1}. {STEPS[step]}</h2>
-            <StepView cv={cv} set={set} />
+            <StepView cv={cv} set={set} resumeId={id} />
             <div className="mt-6 flex justify-between">
               <button type="button" disabled={step === 0} onClick={() => setStep(step - 1)}
                 className="rounded-md border px-3 py-2 text-sm disabled:opacity-40">← Trước</button>

@@ -5,8 +5,10 @@ import { emptyAchievement, emptyEducation, emptyExperience, emptyProject, emptyT
 import type { ExperienceItem, ExperienceTask } from "@/lib/cv/schema";
 import { AddButton, Field, Intro, ItemCard } from "./fields";
 import { AiAbout, AiSection } from "./AiPanel";
+import { BrainstormPanel } from "./BrainstormPanel";
+import { useState } from "react";
 
-type Props = { cv: CvData; set: (fn: (cv: CvData) => CvData) => void };
+type Props = { cv: CvData; set: (fn: (cv: CvData) => CvData) => void; resumeId: string };
 
 export const STEPS = [
   "Thông tin cá nhân",
@@ -57,8 +59,9 @@ export function StepAbout({ cv, set }: Props) {
   );
 }
 
-export function StepExperience({ cv, set }: Props) {
+export function StepExperience({ cv, set, resumeId }: Props) {
   const items = cv.raw.experience;
+  const [chat, setChat] = useState<{ eid: string; tid: string } | null>(null);
   const upItem = (id: string, patch: Partial<ExperienceItem>) =>
     set((c) => ({ ...c, raw: { ...c.raw, experience: c.raw.experience.map((e) => (e.id === id ? { ...e, ...patch } : e)) } }));
   const upTask = (eid: string, tid: string, patch: Partial<ExperienceTask>) =>
@@ -93,9 +96,15 @@ export function StepExperience({ cv, set }: Props) {
             <div key={t.id} className="grid gap-3 rounded-md border-l-4 border-[var(--accent)]/40 bg-white p-3">
               <div className="flex items-center justify-between">
                 <div className="text-sm font-medium">Việc {j + 1}</div>
-                {e.tasks.length > 1 && (
-                  <button type="button" onClick={() => removeTask(e.id, t.id)} className="text-xs text-red-600 hover:underline">Xoá việc này</button>
-                )}
+                <div className="flex items-center gap-3">
+                  <button type="button" onClick={() => setChat({ eid: e.id, tid: t.id })}
+                    className="rounded-full border border-[var(--accent)] px-3 py-1 text-xs text-[var(--accent)] hover:bg-blue-50">
+                    Chưa biết viết gì? Để AI hỏi
+                  </button>
+                  {e.tasks.length > 1 && (
+                    <button type="button" onClick={() => removeTask(e.id, t.id)} className="text-xs text-red-600 hover:underline">Xoá việc này</button>
+                  )}
+                </div>
               </div>
               <Field label="Problem – Vấn đề là gì?" hint="Bối cảnh / vấn đề" value={t.problem} onChange={(v) => upTask(e.id, t.id, { problem: v })} multiline />
               <Field label="What – Làm gì?" hint="Nhiệm vụ cụ thể của BẠN" value={t.what} onChange={(v) => upTask(e.id, t.id, { what: v })} multiline />
@@ -110,6 +119,13 @@ export function StepExperience({ cv, set }: Props) {
       ))}
       <AddButton onClick={add}>+ Thêm công ty</AddButton>
       <AiSection cv={cv} set={set} kind="experience" />
+      {chat && (() => {
+        const task = items.find((e) => e.id === chat.eid)?.tasks.find((t) => t.id === chat.tid);
+        return task ? (
+          <BrainstormPanel resumeId={resumeId} task={task} onClose={() => setChat(null)}
+            onFill={(r) => upTask(chat.eid, chat.tid, r)} />
+        ) : null;
+      })()}
     </div>
   );
 }
