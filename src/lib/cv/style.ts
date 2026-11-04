@@ -17,9 +17,9 @@ export const TEMPLATES: Record<TemplateId, { label: string; hint: string }> = {
   "two-column": { label: "Cột đôi — có sidebar", hint: "Nhìn đẹp hơn, gửi trực tiếp cho người" },
 };
 
-export const ACCENTS = ["#1f4e79", "#0f766e", "#7c3aed", "#b91c1c", "#c2410c", "#374151", "#0369a1", "#15803d"];
+export const ACCENTS = ["#111111", "#1f4e79", "#0f766e", "#7c3aed", "#b91c1c", "#c2410c", "#374151", "#0369a1", "#15803d"];
 
-export const DEFAULT_STYLE: CvStyle = { font: "be-vietnam-pro", accent: "#1f4e79" };
+export const DEFAULT_STYLE: CvStyle = { font: "be-vietnam-pro", accent: "#111111" };
 
 export function normalizeStyle(s: unknown): CvStyle {
   const o = (s ?? {}) as Partial<CvStyle>;

@@ -19,7 +19,7 @@ export function StyleBar({ cv, set }: { cv: CvData; set: (fn: (cv: CvData) => Cv
       </label>
       <div className="flex items-center gap-1 text-xs text-neutral-600">Màu
         {ACCENTS.map((c) => (
-          <button key={c} type="button" title={c} onClick={() => set((x) => ({ ...x, style: { ...x.style, accent: c } }))}
+          <button key={c} type="button" title={c === "#111111" ? "Đen — không màu nhấn" : c} onClick={() => set((x) => ({ ...x, style: { ...x.style, accent: c } }))}
             className={"h-5 w-5 rounded-full border-2 " + (cv.style.accent === c ? "border-neutral-900" : "border-transparent")} style={{ background: c }} />
         ))}
         <input type="color" value={cv.style.accent} title="Màu tự chọn"
