@@ -1,21 +1,21 @@
 import { renderToReadableStream } from "react-dom/server.edge";
 import { createElement } from "react";
 import type { CvData } from "./schema";
-import { toView } from "./view";
-import { AtsSingle } from "@/components/cv/templates/AtsSingle";
+import { CvTemplate } from "@/components/cv/CvTemplate";
+import { googleFontsHref } from "./style";
 
 /** HTML hoàn chỉnh của 1 trang CV — dùng cho Chromium in PDF. Cùng component với preview. */
-export async function cvToHtml(cv: CvData, accent = "#1f4e79"): Promise<string> {
-  const stream = await renderToReadableStream(createElement(AtsSingle, { v: toView(cv) }));
+export async function cvToHtml(cv: CvData): Promise<string> {
+  const fontHref = googleFontsHref(cv.style.font);
+  const stream = await renderToReadableStream(createElement(CvTemplate, { cv }));
   await stream.allReady;
   const body = await new Response(stream).text();
   return `<!doctype html>
 <html lang="vi"><head><meta charset="utf-8">
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+${fontHref ? `<link href="${fontHref}" rel="stylesheet">` : ""}
 <style>
   @page { size: A4; margin: 0; }
   html, body { margin: 0; padding: 0; background: #fff; }
-  :root { --accent: ${accent}; }
   .cv-page { page-break-after: always; }
   li, section > div { break-inside: avoid; }
 </style></head>

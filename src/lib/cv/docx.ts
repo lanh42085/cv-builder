@@ -1,18 +1,20 @@
 import { AlignmentType, Document, Packer, Paragraph, TabStopType, TextRun } from "docx";
 import type { CvData } from "./schema";
 import { toView } from "./view";
+import { FONTS } from "./style";
 
 /** File Word 1 cột, không bảng, không cột — bản để nộp qua hệ thống ATS. */
 export async function cvToDocx(cv: CvData): Promise<Buffer> {
   const v = toView(cv);
-  const FONT = "Arial";
+  const FONT = FONTS[cv.style.font].docx;
+  const ACCENT = cv.style.accent.replace("#", "").toUpperCase();
   const RIGHT = 9638; // twips ~ lề phải A4 với margin 2cm
   const P: Paragraph[] = [];
 
   const heading = (text: string) => new Paragraph({
     spacing: { before: 220, after: 60 },
-    border: { bottom: { style: "single", size: 6, color: "1F4E79", space: 1 } },
-    children: [new TextRun({ text: text.toUpperCase(), bold: true, size: 22, font: FONT, color: "1F4E79" })],
+    border: { bottom: { style: "single", size: 6, color: ACCENT, space: 1 } },
+    children: [new TextRun({ text: text.toUpperCase(), bold: true, size: 22, font: FONT, color: ACCENT })],
   });
   const row = (left: string, right: string) => new Paragraph({
     tabStops: [{ type: TabStopType.RIGHT, position: RIGHT }],
@@ -29,7 +31,7 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
   });
 
   const contact = [v.basics.phone, v.basics.email, v.basics.linkedin, v.basics.github, v.basics.portfolioUrl].filter((s) => s.trim()).join(" | ");
-  P.push(text(v.basics.fullName.toUpperCase() || "HO VA TEN", { bold: true, size: 36, color: "1F4E79" }));
+  P.push(text(v.basics.fullName.toUpperCase() || "HO VA TEN", { bold: true, size: 36, color: ACCENT }));
   P.push(text(v.basics.headline || "Data Analyst", { bold: true, size: 24 }));
   if (contact) P.push(text(contact, { size: 19, color: "555555" }));
   if (v.basics.location) P.push(text(v.basics.location, { size: 19, color: "555555" }));

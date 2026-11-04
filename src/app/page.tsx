@@ -12,7 +12,7 @@ export default function Home() {
       <Link href="/login" className="mt-2 rounded-lg bg-[var(--accent)] px-5 py-3 text-white hover:opacity-90">
         Bắt đầu — đăng nhập Google
       </Link>
-      <p className="text-sm text-neutral-400">Bước 7 / 8 — tùy biến theo JD</p>
+      <p className="text-sm text-neutral-400">Bước 7 / 8 — tùy biến theo JD + phong cách</p>
     </main>
   );
 }

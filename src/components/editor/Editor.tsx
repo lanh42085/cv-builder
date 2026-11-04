@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CvData } from "@/lib/cv/schema";
 import { Preview } from "@/components/cv/Preview";
+import { StyleBar } from "@/components/cv/StyleBar";
 import { saveResume } from "@/app/app/[id]/actions";
 import { STEPS, StepAbout, StepAchievements, StepBasics, StepEducation, StepExperience, StepProjects, StepSkills } from "./steps";
 
@@ -112,6 +113,7 @@ export function Editor({ id, initialTitle, initialCv }: { id: string; initialTit
           </div>
         </div>
         <div className="sticky top-0 self-start p-4">
+          <StyleBar cv={cv} set={set} />
           <Preview cv={cv} />
         </div>
       </div>
