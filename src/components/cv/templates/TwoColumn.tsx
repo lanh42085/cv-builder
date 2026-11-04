@@ -1,12 +1,30 @@
 import type { CvView } from "@/lib/cv/view";
 import type { CvStyle } from "@/lib/cv/style";
-import { FONTS } from "@/lib/cv/style";
+import { FONTS, type SectionKey } from "@/lib/cv/style";
 import { Bullets, Row } from "./AtsSingle";
 
 /** Template cột đôi: sidebar trái (liên hệ, skills, học vấn, chứng chỉ) · cột phải (about, experience, projects). */
-export function TwoColumn({ v, style }: { v: CvView; style: CvStyle }) {
+export function TwoColumn({ v, style, order }: { v: CvView; style: CvStyle; order: SectionKey[] }) {
   const accent = style.accent;
   const side = { label: { fontSize: 10, fontWeight: 700, textTransform: "uppercase" as const, letterSpacing: 0.8, color: accent, margin: "16px 0 6px" } };
+
+  const main: Partial<Record<SectionKey, React.ReactNode>> = {
+    about: v.aboutMe ? <Block title="About me" accent={accent}><p style={{ margin: 0, textAlign: "justify" }}>{v.aboutMe}</p></Block> : null,
+    experience: v.experience.length > 0 ? (
+      <Block title="Work experience" accent={accent}>
+        {v.experience.map((e, i) => (
+          <div key={i} style={{ marginBottom: 10 }}><Row left={e.header || "Công ty | Vị trí"} right={e.period} /><Bullets items={e.bullets} /></div>
+        ))}
+      </Block>
+    ) : null,
+    projects: v.projects.length > 0 ? (
+      <Block title="Projects" accent={accent}>
+        {v.projects.map((p, i) => (
+          <div key={i} style={{ marginBottom: 10 }}><Row left={p.header || "Tên project | Tool"} right={p.link} /><Bullets items={p.bullets} /></div>
+        ))}
+      </Block>
+    ) : null,
+  };
 
   return (
     <div className="cv-page" style={{ width: 794, minHeight: 1123, display: "flex", boxSizing: "border-box",
@@ -45,21 +63,7 @@ export function TwoColumn({ v, style }: { v: CvView; style: CvStyle }) {
 
       {/* Main */}
       <main style={{ flex: 1, padding: "48px 36px", boxSizing: "border-box" }}>
-        {v.aboutMe && <Block title="About me" accent={accent}><p style={{ margin: 0, textAlign: "justify" }}>{v.aboutMe}</p></Block>}
-        {v.experience.length > 0 && (
-          <Block title="Work experience" accent={accent}>
-            {v.experience.map((e, i) => (
-              <div key={i} style={{ marginBottom: 10 }}><Row left={e.header || "Công ty | Vị trí"} right={e.period} /><Bullets items={e.bullets} /></div>
-            ))}
-          </Block>
-        )}
-        {v.projects.length > 0 && (
-          <Block title="Projects" accent={accent}>
-            {v.projects.map((p, i) => (
-              <div key={i} style={{ marginBottom: 10 }}><Row left={p.header || "Tên project | Tool"} right={p.link} /><Bullets items={p.bullets} /></div>
-            ))}
-          </Block>
-        )}
+        {order.map((k) => <div key={k}>{main[k]}</div>)}
       </main>
     </div>
   );

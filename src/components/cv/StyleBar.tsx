@@ -1,7 +1,7 @@
 "use client";
 
 import type { CvData } from "@/lib/cv/schema";
-import { ACCENTS, FONTS, TEMPLATES, type FontId, type TemplateId } from "@/lib/cv/style";
+import { ACCENTS, FONTS, SECTION_LABELS, TEMPLATES, type FontId, type SectionKey, type TemplateId } from "@/lib/cv/style";
 
 export function StyleBar({ cv, set }: { cv: CvData; set: (fn: (cv: CvData) => CvData) => void }) {
   const sel = "rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs focus:border-[var(--accent)] focus:outline-none";
@@ -27,6 +27,31 @@ export function StyleBar({ cv, set }: { cv: CvData; set: (fn: (cv: CvData) => Cv
           className="h-6 w-8 cursor-pointer rounded border bg-white p-0" />
       </div>
       <span className="text-[11px] text-neutral-400">{TEMPLATES[cv.templateId].hint}</span>
+      <details className="w-full">
+        <summary className="cursor-pointer text-xs text-neutral-600 hover:text-neutral-900">Thứ tự các mục ▾</summary>
+        <ol className="mt-2 grid gap-1">
+          {cv.sectionOrder.map((k, i) => (
+            <li key={k} className="flex items-center justify-between rounded border bg-neutral-50 px-2 py-1 text-xs">
+              <span>{i + 1}. {SECTION_LABELS[k]}</span>
+              <span className="flex gap-1">
+                <button type="button" disabled={i === 0} onClick={() => set((c) => ({ ...c, sectionOrder: move(c.sectionOrder, i, -1) }))}
+                  className="rounded border px-1.5 hover:bg-white disabled:opacity-30">▲</button>
+                <button type="button" disabled={i === cv.sectionOrder.length - 1} onClick={() => set((c) => ({ ...c, sectionOrder: move(c.sectionOrder, i, 1) }))}
+                  className="rounded border px-1.5 hover:bg-white disabled:opacity-30">▼</button>
+              </span>
+            </li>
+          ))}
+        </ol>
+        {cv.templateId === "two-column" && <p className="mt-1 text-[11px] text-neutral-400">Mẫu cột đôi: Skills và Education luôn ở sidebar.</p>}
+      </details>
     </div>
   );
+}
+
+function move(order: SectionKey[], i: number, d: -1 | 1): SectionKey[] {
+  const j = i + d;
+  if (j < 0 || j >= order.length) return order;
+  const next = [...order];
+  [next[i], next[j]] = [next[j], next[i]];
+  return next;
 }

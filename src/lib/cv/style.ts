@@ -39,3 +39,19 @@ export function fontsHrefAll(): string {
   const fams = Object.values(FONTS).filter((f) => f.google).map((f) => `family=${f.google}`).join("&");
   return `https://fonts.googleapis.com/css2?${fams}&display=swap`;
 }
+
+/** Các mục của CV và thứ tự hiển thị. */
+export type SectionKey = "about" | "skills" | "projects" | "experience" | "education";
+export const SECTION_LABELS: Record<SectionKey, string> = {
+  about: "About me", skills: "Technical skills", projects: "Portfolio projects",
+  experience: "Professional experience", education: "Education & certifications",
+};
+export const DEFAULT_ORDER: SectionKey[] = ["about", "skills", "projects", "experience", "education"];
+
+export function normalizeOrder(o: unknown): SectionKey[] {
+  const arr = Array.isArray(o) ? (o as unknown[]).filter((k): k is SectionKey => typeof k === "string" && k in SECTION_LABELS) : [];
+  const seen = new Set<SectionKey>();
+  const out: SectionKey[] = [];
+  for (const k of [...arr, ...DEFAULT_ORDER]) if (!seen.has(k)) { seen.add(k); out.push(k); }
+  return out;
+}

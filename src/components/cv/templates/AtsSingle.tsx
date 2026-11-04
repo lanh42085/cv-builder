@@ -1,6 +1,6 @@
 import type { CvView } from "@/lib/cv/view";
 import type { CvStyle } from "@/lib/cv/style";
-import { FONTS } from "@/lib/cv/style";
+import { FONTS, type SectionKey } from "@/lib/cv/style";
 
 const LINK = "#1a56db";
 
@@ -10,11 +10,72 @@ const LINK = "#1a56db";
  * Thứ tự: About → Skills → Projects → Experience → Education & Certifications.
  * Kích thước cố định A4 (794×1123 px @96dpi). Dùng chung cho preview và PDF.
  */
-export function AtsSingle({ v, style }: { v: CvView; style: CvStyle }) {
+export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; order: SectionKey[] }) {
   const accent = style.accent;
   const b = v.basics;
   const line1 = [b.location, b.phone, b.email].map((s) => s.trim()).filter(Boolean);
   const hasLinks = b.linkedin.trim() || b.github.trim() || b.portfolioUrl.trim();
+
+  const sections: Record<SectionKey, React.ReactNode> = {
+    about: v.aboutMe ? <Section title="About me" accent={accent}><p style={{ margin: 0, textAlign: "justify" }}>{v.aboutMe}</p></Section> : null,
+    skills: (v.skills.hard || v.skills.soft) ? (
+      <Section title="Technical skills" accent={accent}>
+        <ul style={{ margin: 0, paddingLeft: 16 }}>
+          {v.skills.hard && <li><b>Hard skills:</b> {v.skills.hard}</li>}
+          {v.skills.soft && <li><b>Soft skills:</b> {v.skills.soft}</li>}
+        </ul>
+      </Section>
+    ) : null,
+    projects: v.projects.length > 0 ? (
+      <Section title="Portfolio projects" accent={accent}
+        right={b.github.trim() ? <A href={b.github} bold>Github Overview</A> : undefined}>
+        {v.projects.map((p, i) => {
+          const [name, ...tools] = p.header.split("|").map((s) => s.trim());
+          return (
+            <div key={i} style={{ marginBottom: 6 }}>
+              <TwoSide
+                left={<b>{i + 1}. {name || "Tên project"}{tools.length > 0 && ` [${tools.join(", ")}]`}</b>}
+                right={p.link ? <A href={p.link} bold>View Project</A> : null} />
+              <Bullets items={p.bullets} />
+            </div>
+          );
+        })}
+      </Section>
+    ) : null,
+    experience: v.experience.length > 0 ? (
+      <Section title="Professional experience" accent={accent}>
+        {v.experience.map((e, i) => {
+          const [company, ...role] = e.header.split("|").map((s) => s.trim());
+          return (
+            <div key={i} style={{ marginBottom: 6 }}>
+              <div style={{ fontWeight: 700 }}>{company || "Công ty"}</div>
+              <TwoSide left={<i>{role.join(" | ")}</i>} right={e.period ? <i>{e.period}</i> : null} />
+              <Bullets items={e.bullets} />
+            </div>
+          );
+        })}
+      </Section>
+    ) : null,
+    education: (v.education.length > 0 || v.achievements.length > 0) ? (
+      <Section title="Education & certifications" accent={accent}>
+        {v.education.map((e, i) => {
+          const [school, ...rest] = e.line.split(" – ");
+          return (
+            <div key={i} style={{ marginBottom: 5 }}>
+              <div style={{ fontWeight: 700 }}>{school}</div>
+              <TwoSide left={<i>{rest.join(" – ")}</i>} right={e.years ? <i>{e.years}</i> : null} />
+              {e.note && <ul style={{ margin: "1px 0 0", paddingLeft: 16 }}><li>{e.note}</li></ul>}
+            </div>
+          );
+        })}
+        {v.achievements.length > 0 && (
+          <ul style={{ margin: "2px 0 0", paddingLeft: 16 }}>
+            {v.achievements.map((a, i) => <li key={i}>{a.text}{a.link ? <> – <A href={a.link}>{a.link}</A></> : null}</li>)}
+          </ul>
+        )}
+      </Section>
+    ) : null,
+  };
 
   return (
     <div className="cv-page" style={{ width: 794, minHeight: 1123, padding: "44px 52px", boxSizing: "border-box",
@@ -40,68 +101,7 @@ export function AtsSingle({ v, style }: { v: CvView; style: CvStyle }) {
         )}
       </div>
 
-      {v.aboutMe && <Section title="About me" accent={accent}><p style={{ margin: 0, textAlign: "justify" }}>{v.aboutMe}</p></Section>}
-
-      {(v.skills.hard || v.skills.soft) && (
-        <Section title="Technical skills" accent={accent}>
-          <ul style={{ margin: 0, paddingLeft: 16 }}>
-            {v.skills.hard && <li><b>Hard skills:</b> {v.skills.hard}</li>}
-            {v.skills.soft && <li><b>Soft skills:</b> {v.skills.soft}</li>}
-          </ul>
-        </Section>
-      )}
-
-      {v.projects.length > 0 && (
-        <Section title="Portfolio projects" accent={accent}
-          right={b.github.trim() ? <A href={b.github} bold>Github Overview</A> : undefined}>
-          {v.projects.map((p, i) => {
-            const [name, ...tools] = p.header.split("|").map((s) => s.trim());
-            return (
-              <div key={i} style={{ marginBottom: 6 }}>
-                <TwoSide
-                  left={<b>{i + 1}. {name || "Tên project"}{tools.length > 0 && ` [${tools.join(", ")}]`}</b>}
-                  right={p.link ? <A href={p.link} bold>View Project</A> : null} />
-                <Bullets items={p.bullets} />
-              </div>
-            );
-          })}
-        </Section>
-      )}
-
-      {v.experience.length > 0 && (
-        <Section title="Professional experience" accent={accent}>
-          {v.experience.map((e, i) => {
-            const [company, ...role] = e.header.split("|").map((s) => s.trim());
-            return (
-              <div key={i} style={{ marginBottom: 6 }}>
-                <div style={{ fontWeight: 700 }}>{company || "Công ty"}</div>
-                <TwoSide left={<i>{role.join(" | ")}</i>} right={e.period ? <i>{e.period}</i> : null} />
-                <Bullets items={e.bullets} />
-              </div>
-            );
-          })}
-        </Section>
-      )}
-
-      {(v.education.length > 0 || v.achievements.length > 0) && (
-        <Section title="Education & certifications" accent={accent}>
-          {v.education.map((e, i) => {
-            const [school, ...rest] = e.line.split(" – ");
-            return (
-              <div key={i} style={{ marginBottom: 5 }}>
-                <div style={{ fontWeight: 700 }}>{school}</div>
-                <TwoSide left={<i>{rest.join(" – ")}</i>} right={e.years ? <i>{e.years}</i> : null} />
-                {e.note && <ul style={{ margin: "1px 0 0", paddingLeft: 16 }}><li>{e.note}</li></ul>}
-              </div>
-            );
-          })}
-          {v.achievements.length > 0 && (
-            <ul style={{ margin: "2px 0 0", paddingLeft: 16 }}>
-              {v.achievements.map((a, i) => <li key={i}>{a.text}{a.link ? <> – <A href={a.link}>{a.link}</A></> : null}</li>)}
-            </ul>
-          )}
-        </Section>
-      )}
+      {order.map((k) => <div key={k}>{sections[k]}</div>)}
     </div>
   );
 }

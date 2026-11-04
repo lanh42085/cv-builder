@@ -1,5 +1,5 @@
 /** Kiểu dữ liệu CV — phản chiếu đúng 7 phần của sheet "CV & Linkedin". */
-import { DEFAULT_STYLE, normalizeStyle, type CvStyle, type TemplateId } from "./style";
+import { DEFAULT_ORDER, DEFAULT_STYLE, normalizeOrder, normalizeStyle, type CvStyle, type SectionKey, type TemplateId } from "./style";
 
 export type Basics = {
   fullName: string;
@@ -64,6 +64,7 @@ export type CvData = {
   templateId: TemplateId;
   cvLanguage: "en" | "vi";
   style: CvStyle;
+  sectionOrder: SectionKey[];
   basics: Basics;
   raw: {
     aboutMe: AboutRaw;
@@ -102,6 +103,7 @@ export function emptyCv(): CvData {
     templateId: "ats-single",
     cvLanguage: "en",
     style: { ...DEFAULT_STYLE },
+    sectionOrder: [...DEFAULT_ORDER],
     basics: { fullName: "", headline: "Data Analyst", email: "", phone: "", location: "", linkedin: "", github: "", portfolioUrl: "" },
     raw: {
       aboutMe: { whoAmI: "", strengths: "", goal: "" },
@@ -138,6 +140,7 @@ export function normalizeCv(input: unknown): CvData {
     ...base,
     templateId: d.templateId === "two-column" ? "two-column" : "ats-single",
     style: normalizeStyle(d.style),
+    sectionOrder: normalizeOrder(d.sectionOrder),
     cvLanguage: d.cvLanguage ?? base.cvLanguage,
     basics: { ...base.basics, ...(d.basics ?? {}) },
     raw: {

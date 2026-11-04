@@ -41,43 +41,46 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
   if (line1) P.push(para(line1, { size: 20, center: true }));
   if (line2) P.push(para(line2, { size: 20, center: true }));
 
-  if (v.aboutMe) { P.push(heading("About me")); P.push(para(v.aboutMe, { justify: true })); }
-
-  if (v.skills.hard || v.skills.soft) {
-    P.push(heading("Technical skills"));
-    if (v.skills.hard) P.push(bullet(`Hard skills: ${v.skills.hard}`));
-    if (v.skills.soft) P.push(bullet(`Soft skills: ${v.skills.soft}`));
-  }
-
-  if (v.projects.length) {
-    P.push(heading("Portfolio projects"));
-    v.projects.forEach((p, i) => {
-      const [name, ...tools] = p.header.split("|").map((x) => x.trim());
-      P.push(twoSide(`${i + 1}. ${name}${tools.length ? ` [${tools.join(", ")}]` : ""}`, p.link ? `View Project: ${p.link}` : "", { bold: true }));
-      p.bullets.forEach((x) => P.push(bullet(x)));
-    });
-  }
-
-  if (v.experience.length) {
-    P.push(heading("Professional experience"));
-    for (const e of v.experience) {
-      const [company, ...role] = e.header.split("|").map((x) => x.trim());
-      P.push(twoSide(company, "", { bold: true }));
-      P.push(twoSide(role.join(" | "), e.period, { italics: true }));
-      e.bullets.forEach((x) => P.push(bullet(x)));
-    }
-  }
-
-  if (v.education.length || v.achievements.length) {
-    P.push(heading("Education & certifications"));
-    for (const e of v.education) {
-      const [school, ...rest] = e.line.split(" – ");
-      P.push(twoSide(school, "", { bold: true }));
-      P.push(twoSide(rest.join(" – "), e.years, { italics: true }));
-      if (e.note) P.push(bullet(e.note));
-    }
-    v.achievements.forEach((a) => P.push(bullet(a.text + (a.link ? ` – ${a.link}` : ""))));
-  }
+  const render: Record<string, () => void> = {
+    about: () => { if (v.aboutMe) { P.push(heading("About me")); P.push(para(v.aboutMe, { justify: true })); } },
+    skills: () => {
+      if (!v.skills.hard && !v.skills.soft) return;
+      P.push(heading("Technical skills"));
+      if (v.skills.hard) P.push(bullet(`Hard skills: ${v.skills.hard}`));
+      if (v.skills.soft) P.push(bullet(`Soft skills: ${v.skills.soft}`));
+    },
+    projects: () => {
+      if (!v.projects.length) return;
+      P.push(heading("Portfolio projects"));
+      v.projects.forEach((p, i) => {
+        const [name, ...tools] = p.header.split("|").map((x) => x.trim());
+        P.push(twoSide(`${i + 1}. ${name}${tools.length ? ` [${tools.join(", ")}]` : ""}`, p.link ? `View Project: ${p.link}` : "", { bold: true }));
+        p.bullets.forEach((x) => P.push(bullet(x)));
+      });
+    },
+    experience: () => {
+      if (!v.experience.length) return;
+      P.push(heading("Professional experience"));
+      for (const e of v.experience) {
+        const [company, ...role] = e.header.split("|").map((x) => x.trim());
+        P.push(twoSide(company, "", { bold: true }));
+        P.push(twoSide(role.join(" | "), e.period, { italics: true }));
+        e.bullets.forEach((x) => P.push(bullet(x)));
+      }
+    },
+    education: () => {
+      if (!v.education.length && !v.achievements.length) return;
+      P.push(heading("Education & certifications"));
+      for (const e of v.education) {
+        const [school, ...rest] = e.line.split(" – ");
+        P.push(twoSide(school, "", { bold: true }));
+        P.push(twoSide(rest.join(" – "), e.years, { italics: true }));
+        if (e.note) P.push(bullet(e.note));
+      }
+      v.achievements.forEach((a) => P.push(bullet(a.text + (a.link ? ` – ${a.link}` : ""))));
+    },
+  };
+  for (const k of cv.sectionOrder) render[k]?.();
 
   const doc = new Document({
     styles: { default: { document: { run: { font: FONT, size: SZ } } } },
