@@ -1,10 +1,11 @@
 /** Phong cách CV: template · font · màu nhấn. Dùng chung cho preview, PDF, DOCX. */
 
-export type FontId = "be-vietnam-pro" | "inter" | "roboto" | "arial" | "georgia";
+export type FontId = "times" | "be-vietnam-pro" | "inter" | "roboto" | "arial" | "georgia";
 export type TemplateId = "ats-single" | "two-column";
 export type CvStyle = { font: FontId; accent: string };
 
 export const FONTS: Record<FontId, { label: string; family: string; google?: string; docx: string }> = {
+  times: { label: "Times New Roman (có chân)", family: '"Times New Roman", Times, serif', docx: "Times New Roman" },
   "be-vietnam-pro": { label: "Be Vietnam Pro", family: '"Be Vietnam Pro", Arial, sans-serif', google: "Be+Vietnam+Pro:wght@400;600;700", docx: "Arial" },
   inter: { label: "Inter", family: 'Inter, Arial, sans-serif', google: "Inter:wght@400;600;700", docx: "Arial" },
   roboto: { label: "Roboto", family: 'Roboto, Arial, sans-serif', google: "Roboto:wght@400;500;700", docx: "Arial" },
@@ -19,7 +20,7 @@ export const TEMPLATES: Record<TemplateId, { label: string; hint: string }> = {
 
 export const ACCENTS = ["#111111", "#1f4e79", "#0f766e", "#7c3aed", "#b91c1c", "#c2410c", "#374151", "#0369a1", "#15803d"];
 
-export const DEFAULT_STYLE: CvStyle = { font: "be-vietnam-pro", accent: "#111111" };
+export const DEFAULT_STYLE: CvStyle = { font: "times", accent: "#111111" };
 
 export function normalizeStyle(s: unknown): CvStyle {
   const o = (s ?? {}) as Partial<CvStyle>;

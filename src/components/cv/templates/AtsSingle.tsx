@@ -2,112 +2,147 @@ import type { CvView } from "@/lib/cv/view";
 import type { CvStyle } from "@/lib/cv/style";
 import { FONTS } from "@/lib/cv/style";
 
+const LINK = "#1a56db";
+
 /**
- * Template 1 cột, chuẩn ATS, kiểu cổ điển: tên căn giữa, tiêu đề mục in hoa gạch chân mảnh,
- * tên công ty in hoa đậm, chức danh in nghiêng, thời gian sát lề phải.
+ * Template 1 cột chuẩn ATS, kiểu cổ điển: tên căn giữa, link xanh, tiêu đề mục in hoa gạch chân,
+ * project đánh số có "View Project", công ty đậm + chức danh nghiêng + thời gian sát phải.
+ * Thứ tự: About → Skills → Projects → Experience → Education & Certifications.
  * Kích thước cố định A4 (794×1123 px @96dpi). Dùng chung cho preview và PDF.
  */
 export function AtsSingle({ v, style }: { v: CvView; style: CvStyle }) {
   const accent = style.accent;
-  const contact = [v.basics.location, v.basics.phone, v.basics.email, v.basics.linkedin, v.basics.github, v.basics.portfolioUrl]
-    .map((s) => s.trim()).filter(Boolean).join(" | ");
+  const b = v.basics;
+  const line1 = [b.location, b.phone, b.email].map((s) => s.trim()).filter(Boolean);
+  const hasLinks = b.linkedin.trim() || b.github.trim() || b.portfolioUrl.trim();
 
   return (
-    <div className="cv-page" style={{ width: 794, minHeight: 1123, padding: "48px 56px", boxSizing: "border-box",
-      background: "#fff", color: "#111", fontFamily: FONTS[style.font].family, fontSize: 10.5, lineHeight: 1.3 }}>
+    <div className="cv-page" style={{ width: 794, minHeight: 1123, padding: "44px 52px", boxSizing: "border-box",
+      background: "#fff", color: "#111", fontFamily: FONTS[style.font].family, fontSize: 11, lineHeight: 1.3 }}>
       <div style={{ textAlign: "center" }}>
-        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: accent, letterSpacing: 0.5 }}>
-          {v.basics.fullName.toUpperCase() || "HỌ VÀ TÊN"}
+        <h1 style={{ margin: 0, fontSize: 19, fontWeight: 700, color: accent, letterSpacing: 0.3 }}>
+          {b.fullName.toUpperCase() || "HỌ VÀ TÊN"}
         </h1>
-        <div style={{ fontSize: 11, fontWeight: 600, marginTop: 1 }}>{v.basics.headline || "Data Analyst"}</div>
-        {contact && <div style={{ fontSize: 10, marginTop: 2 }}>{contact}</div>}
+        <div style={{ fontSize: 12, marginTop: 1 }}>{b.headline || "Data Analyst"}</div>
+        {line1.length > 0 && (
+          <div style={{ fontSize: 10.5, marginTop: 2 }}>
+            {line1.map((s, i) => <span key={i}>{i > 0 && <Sep />}{s === b.email.trim() ? <A href={`mailto:${s}`}>{s}</A> : s}</span>)}
+          </div>
+        )}
+        {hasLinks && (
+          <div style={{ fontSize: 10.5 }}>
+            {b.linkedin.trim() && <span>LinkedIn: <A href={b.linkedin}>{b.linkedin.trim()}</A></span>}
+            {b.linkedin.trim() && b.github.trim() && <Sep />}
+            {b.github.trim() && <span>GitHub: <A href={b.github}>{b.github.trim()}</A></span>}
+            {(b.linkedin.trim() || b.github.trim()) && b.portfolioUrl.trim() && <Sep />}
+            {b.portfolioUrl.trim() && <span>Portfolio: <A href={b.portfolioUrl}>{b.portfolioUrl.trim()}</A></span>}
+          </div>
+        )}
       </div>
 
       {v.aboutMe && <Section title="About me" accent={accent}><p style={{ margin: 0, textAlign: "justify" }}>{v.aboutMe}</p></Section>}
 
-      {v.experience.length > 0 && (
-        <Section title="Work experience" accent={accent}>
-          {v.experience.map((e, i) => <Entry key={i} header={e.header} right={e.period} bullets={e.bullets} />)}
+      {(v.skills.hard || v.skills.soft) && (
+        <Section title="Technical skills" accent={accent}>
+          <ul style={{ margin: 0, paddingLeft: 16 }}>
+            {v.skills.hard && <li><b>Hard skills:</b> {v.skills.hard}</li>}
+            {v.skills.soft && <li><b>Soft skills:</b> {v.skills.soft}</li>}
+          </ul>
         </Section>
       )}
 
       {v.projects.length > 0 && (
-        <Section title="Projects" accent={accent}>
-          {v.projects.map((p, i) => <Entry key={i} header={p.header} right={p.link} bullets={p.bullets} />)}
-        </Section>
-      )}
-
-      {(v.skills.hard || v.skills.soft) && (
-        <Section title="Skills" accent={accent}>
-          {v.skills.hard && <div><b>Hard skills:</b> {v.skills.hard}</div>}
-          {v.skills.soft && <div><b>Soft skills:</b> {v.skills.soft}</div>}
-        </Section>
-      )}
-
-      {v.education.length > 0 && (
-        <Section title="Education" accent={accent}>
-          {v.education.map((e, i) => {
-            const [school, ...rest] = e.line.split(" – ");
+        <Section title="Portfolio projects" accent={accent}
+          right={b.github.trim() ? <A href={b.github} bold>Github Overview</A> : undefined}>
+          {v.projects.map((p, i) => {
+            const [name, ...tools] = p.header.split("|").map((s) => s.trim());
             return (
               <div key={i} style={{ marginBottom: 6 }}>
-                <TwoSide left={<b style={{ textTransform: "uppercase" }}>{school}</b>} right={e.years} />
-                {rest.length > 0 && <div style={{ fontStyle: "italic" }}>{rest.join(" – ")}</div>}
-                {e.note && <div>{e.note}</div>}
+                <TwoSide
+                  left={<b>{i + 1}. {name || "Tên project"}{tools.length > 0 && ` [${tools.join(", ")}]`}</b>}
+                  right={p.link ? <A href={p.link} bold>View Project</A> : null} />
+                <Bullets items={p.bullets} />
               </div>
             );
           })}
         </Section>
       )}
 
-      {v.achievements.length > 0 && (
-        <Section title="Achievements & certification" accent={accent}>
-          <Bullets items={v.achievements.map((a) => a.text + (a.link ? ` – ${a.link}` : ""))} />
+      {v.experience.length > 0 && (
+        <Section title="Professional experience" accent={accent}>
+          {v.experience.map((e, i) => {
+            const [company, ...role] = e.header.split("|").map((s) => s.trim());
+            return (
+              <div key={i} style={{ marginBottom: 6 }}>
+                <div style={{ fontWeight: 700 }}>{company || "Công ty"}</div>
+                <TwoSide left={<i>{role.join(" | ")}</i>} right={e.period ? <i>{e.period}</i> : null} />
+                <Bullets items={e.bullets} />
+              </div>
+            );
+          })}
+        </Section>
+      )}
+
+      {(v.education.length > 0 || v.achievements.length > 0) && (
+        <Section title="Education & certifications" accent={accent}>
+          {v.education.map((e, i) => {
+            const [school, ...rest] = e.line.split(" – ");
+            return (
+              <div key={i} style={{ marginBottom: 5 }}>
+                <div style={{ fontWeight: 700 }}>{school}</div>
+                <TwoSide left={<i>{rest.join(" – ")}</i>} right={e.years ? <i>{e.years}</i> : null} />
+                {e.note && <ul style={{ margin: "1px 0 0", paddingLeft: 16 }}><li>{e.note}</li></ul>}
+              </div>
+            );
+          })}
+          {v.achievements.length > 0 && (
+            <ul style={{ margin: "2px 0 0", paddingLeft: 16 }}>
+              {v.achievements.map((a, i) => <li key={i}>{a.text}{a.link ? <> – <A href={a.link}>{a.link}</A></> : null}</li>)}
+            </ul>
+          )}
         </Section>
       )}
     </div>
   );
 }
 
-/** Mục có header dạng "Tên | Phụ" → dòng 1: TÊN in hoa đậm + bên phải; dòng 2: phụ in nghiêng. */
-function Entry({ header, right, bullets }: { header: string; right: string; bullets: string[] }) {
-  const [main, ...rest] = header.split("|").map((s) => s.trim());
-  return (
-    <div style={{ marginBottom: 7 }}>
-      <TwoSide left={<b style={{ textTransform: "uppercase" }}>{main || "—"}</b>} right={right} />
-      {rest.length > 0 && <div style={{ fontStyle: "italic" }}>{rest.join(" | ")}</div>}
-      <Bullets items={bullets} />
-    </div>
-  );
+function A({ href, children, bold }: { href: string; children: React.ReactNode; bold?: boolean }) {
+  const url = /^https?:\/\//i.test(href) || href.startsWith("mailto:") ? href : `https://${href.trim()}`;
+  return <a href={url} style={{ color: LINK, textDecoration: "underline", fontWeight: bold ? 700 : undefined }}>{children}</a>;
 }
+function Sep() { return <span style={{ color: "#666", margin: "0 6px" }}>|</span>; }
 
-export function Section({ title, accent, children }: { title: string; accent: string; children: React.ReactNode }) {
+export function Section({ title, accent, right, children }: { title: string; accent: string; right?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section style={{ marginTop: 11 }}>
-      <h2 style={{ margin: "0 0 4px", fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4,
-        color: accent, borderBottom: `1px solid ${accent}`, paddingBottom: 1 }}>{title}</h2>
+    <section style={{ marginTop: 10 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline",
+        borderBottom: `1.2px solid ${accent}`, paddingBottom: 1, marginBottom: 4 }}>
+        <h2 style={{ margin: 0, fontSize: 12.5, fontWeight: 700, textTransform: "uppercase", color: accent }}>{title}</h2>
+        {right && <span style={{ fontSize: 11 }}>{right}</span>}
+      </div>
       {children}
     </section>
   );
 }
 
-function TwoSide({ left, right }: { left: React.ReactNode; right: string }) {
+function TwoSide({ left, right }: { left: React.ReactNode; right: React.ReactNode }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}>
       <span>{left}</span>
-      {right && <span style={{ whiteSpace: "nowrap", fontStyle: "italic" }}>{right}</span>}
+      {right && <span style={{ whiteSpace: "nowrap" }}>{right}</span>}
     </div>
   );
 }
 
 export function Row({ left, right }: { left: string; right: string }) {
-  return <TwoSide left={<b>{left}</b>} right={right} />;
+  return <TwoSide left={<b>{left}</b>} right={right || null} />;
 }
 
 export function Bullets({ items }: { items: string[] }) {
   const xs = items.filter((s) => s && s.trim());
   if (xs.length === 0) return null;
   return (
-    <ul style={{ margin: "2px 0 0", paddingLeft: 14 }}>
+    <ul style={{ margin: "1px 0 0", paddingLeft: 16 }}>
       {xs.map((b, i) => <li key={i} style={{ marginBottom: 1, textAlign: "justify" }}>{b}</li>)}
     </ul>
   );
