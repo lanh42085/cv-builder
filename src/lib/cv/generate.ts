@@ -1,5 +1,5 @@
 import type { CvData, GeneratedSection } from "./schema";
-import { toPlainTable } from "@/lib/prompts";
+import { toPlainTable } from "./table";
 import { fmtMonth } from "./view";
 
 /** Dựng bảng dữ liệu plain text đúng tên cột của sheet để đưa vào prompt. */
