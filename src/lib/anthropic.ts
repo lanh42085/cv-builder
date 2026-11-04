@@ -19,8 +19,10 @@ export async function ask(prompt: string, maxTokens = 1024): Promise<string> {
     max_tokens: maxTokens,
     messages: [{ role: "user", content: prompt }],
   });
-  return res.content
+  const text = res.content
     .filter((b) => b.type === "text")
     .map((b) => (b as { text: string }).text)
     .join("\n");
+  console.log(`[ask] stop=${res.stop_reason} out=${res.usage.output_tokens} chars=${text.length} head=${JSON.stringify(text.slice(0, 80))}`);
+  return text;
 }
