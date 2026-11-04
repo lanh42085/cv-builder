@@ -33,12 +33,14 @@ export function period(e: ExperienceItem): string {
 }
 
 function draftExperience(e: ExperienceItem): string[] {
-  const out: string[] = [];
-  if (e.what) out.push(e.what + (e.forWho ? ` (cho ${e.forWho})` : ""));
-  if (e.how) out.push(e.how);
-  const r = nonEmpty([e.outcome, e.impact]).join(" — ");
-  if (r) out.push(r);
-  return out;
+  return e.tasks.map((t) => {
+    const parts = [
+      t.what ? t.what + (t.forWho ? ` (cho ${t.forWho})` : "") : "",
+      t.how,
+      nonEmpty([t.outcome, t.impact]).join(" — "),
+    ];
+    return nonEmpty(parts).join(". ");
+  }).filter(Boolean);
 }
 
 function draftProject(p: ProjectItem): string[] {

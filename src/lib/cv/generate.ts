@@ -13,17 +13,17 @@ export function aboutTable(cv: CvData): string {
 }
 
 export function experienceTable(cv: CvData): string {
-  return toPlainTable(cv.raw.experience.map((e) => ({
+  return toPlainTable(cv.raw.experience.flatMap((e) => e.tasks.map((t) => ({
     "Công ty": e.company,
     "Vị trí": e.role,
     "Thời gian": `${fmtMonth(e.startDate)} – ${e.current ? "Present" : fmtMonth(e.endDate)}`,
-    "Problem – Vấn đề là gì?": e.problem,
-    "What – Làm gì?": e.what,
-    "For Who? Cho ai": e.forWho,
-    "How - Làm như thế nào?": e.how,
-    "Outcome - Mô tả thành phẩm": e.outcome,
-    "Impact - Ảnh hưởng tích cực tạo ra?": e.impact,
-  })));
+    "Problem – Vấn đề là gì?": t.problem,
+    "What – Làm gì?": t.what,
+    "For Who? Cho ai": t.forWho,
+    "How - Làm như thế nào?": t.how,
+    "Outcome - Mô tả thành phẩm": t.outcome,
+    "Impact - Ảnh hưởng tích cực tạo ra?": t.impact,
+  }))));
 }
 
 export function projectsTable(cv: CvData): string {

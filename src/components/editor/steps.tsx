@@ -1,7 +1,8 @@
 "use client";
 
 import type { CvData } from "@/lib/cv/schema";
-import { emptyAchievement, emptyEducation, emptyExperience, emptyProject } from "@/lib/cv/schema";
+import { emptyAchievement, emptyEducation, emptyExperience, emptyProject, emptyTask } from "@/lib/cv/schema";
+import type { ExperienceItem, ExperienceTask } from "@/lib/cv/schema";
 import { AddButton, Field, Intro, ItemCard } from "./fields";
 import { AiAbout, AiSection } from "./AiPanel";
 
@@ -58,16 +59,23 @@ export function StepAbout({ cv, set }: Props) {
 
 export function StepExperience({ cv, set }: Props) {
   const items = cv.raw.experience;
-  const upItem = (id: string, patch: Partial<CvData["raw"]["experience"][number]>) =>
+  const upItem = (id: string, patch: Partial<ExperienceItem>) =>
     set((c) => ({ ...c, raw: { ...c.raw, experience: c.raw.experience.map((e) => (e.id === id ? { ...e, ...patch } : e)) } }));
+  const upTask = (eid: string, tid: string, patch: Partial<ExperienceTask>) =>
+    set((c) => ({ ...c, raw: { ...c.raw, experience: c.raw.experience.map((e) =>
+      e.id === eid ? { ...e, tasks: e.tasks.map((t) => (t.id === tid ? { ...t, ...patch } : t)) } : e) } }));
+  const addTask = (eid: string) =>
+    set((c) => ({ ...c, raw: { ...c.raw, experience: c.raw.experience.map((e) => (e.id === eid ? { ...e, tasks: [...e.tasks, emptyTask()] } : e)) } }));
+  const removeTask = (eid: string, tid: string) =>
+    set((c) => ({ ...c, raw: { ...c.raw, experience: c.raw.experience.map((e) => (e.id === eid ? { ...e, tasks: e.tasks.filter((t) => t.id !== tid) } : e)) } }));
   const remove = (id: string) => set((c) => ({ ...c, raw: { ...c.raw, experience: c.raw.experience.filter((e) => e.id !== id) } }));
   const add = () => set((c) => ({ ...c, raw: { ...c.raw, experience: [...c.raw.experience, emptyExperience()] } }));
 
   return (
     <div className="grid gap-4">
-      <Intro>Mỗi thẻ = 1 kinh nghiệm/thành tựu nổi bật. Một công ty có nhiều thành tựu thì tạo nhiều thẻ cùng tên công ty. Việc gần nhất xếp trên. Viết bằng lời của bạn, chưa cần hay, chưa cần nhìn JD.</Intro>
+      <Intro>Mỗi thẻ lớn = 1 công ty. Trong mỗi công ty liệt kê từng việc / thành tựu nổi bật, mỗi việc một bảng — AI sẽ viết mỗi việc thành đúng 1 bullet. Công ty gần nhất xếp trên. Viết bằng lời của bạn, chưa cần hay, chưa cần nhìn JD.</Intro>
       {items.map((e, i) => (
-        <ItemCard key={e.id} title={`Kinh nghiệm ${i + 1}${e.company ? ` — ${e.company}` : ""}`} onRemove={() => remove(e.id)}>
+        <ItemCard key={e.id} title={`Công ty ${i + 1}${e.company ? ` — ${e.company}` : ""}`} onRemove={() => remove(e.id)}>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Công ty" value={e.company} onChange={(v) => upItem(e.id, { company: v })} />
             <Field label="Vị trí" hint="Giữ chức danh gốc" value={e.role} onChange={(v) => upItem(e.id, { role: v })} />
@@ -79,15 +87,28 @@ export function StepExperience({ cv, set }: Props) {
               <input type="checkbox" checked={e.current} onChange={(ev) => upItem(e.id, { current: ev.target.checked })} /> Đang làm
             </label>
           </div>
-          <Field label="Problem – Vấn đề là gì?" hint="Bối cảnh / vấn đề" value={e.problem} onChange={(v) => upItem(e.id, { problem: v })} multiline />
-          <Field label="What – Làm gì?" hint="Nhiệm vụ cụ thể của BẠN" value={e.what} onChange={(v) => upItem(e.id, { what: v })} multiline />
-          <Field label="For Who – Cho ai?" hint="Team / phòng ban dùng kết quả" value={e.forWho} onChange={(v) => upItem(e.id, { forWho: v })} />
-          <Field label="How – Làm như thế nào?" hint="Tool gì, phương pháp gì" value={e.how} onChange={(v) => upItem(e.id, { how: v })} multiline />
-          <Field label="Outcome – Thành phẩm" hint="Ví dụ: báo cáo dòng tiền, dashboard..." value={e.outcome} onChange={(v) => upItem(e.id, { outcome: v })} />
-          <Field label="Impact – Ảnh hưởng tích cực" hint="Kết quả đo được (%, giờ, tiền). Chưa có số → để trống, KHÔNG bịa" value={e.impact} onChange={(v) => upItem(e.id, { impact: v })} />
+
+          <div className="mt-1 text-sm font-medium text-neutral-700">Các việc / thành tựu tại công ty này</div>
+          {e.tasks.map((t, j) => (
+            <div key={t.id} className="grid gap-3 rounded-md border-l-4 border-[var(--accent)]/40 bg-white p-3">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-medium">Việc {j + 1}</div>
+                {e.tasks.length > 1 && (
+                  <button type="button" onClick={() => removeTask(e.id, t.id)} className="text-xs text-red-600 hover:underline">Xoá việc này</button>
+                )}
+              </div>
+              <Field label="Problem – Vấn đề là gì?" hint="Bối cảnh / vấn đề" value={t.problem} onChange={(v) => upTask(e.id, t.id, { problem: v })} multiline />
+              <Field label="What – Làm gì?" hint="Nhiệm vụ cụ thể của BẠN" value={t.what} onChange={(v) => upTask(e.id, t.id, { what: v })} multiline />
+              <Field label="For Who – Cho ai?" hint="Team / phòng ban dùng kết quả" value={t.forWho} onChange={(v) => upTask(e.id, t.id, { forWho: v })} />
+              <Field label="How – Làm như thế nào?" hint="Tool gì, phương pháp gì" value={t.how} onChange={(v) => upTask(e.id, t.id, { how: v })} multiline />
+              <Field label="Outcome – Thành phẩm" hint="Ví dụ: báo cáo dòng tiền, dashboard..." value={t.outcome} onChange={(v) => upTask(e.id, t.id, { outcome: v })} />
+              <Field label="Impact – Ảnh hưởng tích cực" hint="Kết quả đo được (%, giờ, tiền). Chưa có số → để trống, KHÔNG bịa" value={t.impact} onChange={(v) => upTask(e.id, t.id, { impact: v })} />
+            </div>
+          ))}
+          <AddButton onClick={() => addTask(e.id)}>+ Thêm việc / thành tựu tại công ty này</AddButton>
         </ItemCard>
       ))}
-      <AddButton onClick={add}>+ Thêm kinh nghiệm</AddButton>
+      <AddButton onClick={add}>+ Thêm công ty</AddButton>
       <AiSection cv={cv} set={set} kind="experience" />
     </div>
   );

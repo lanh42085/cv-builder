@@ -13,6 +13,18 @@ export type Basics = {
 
 export type AboutRaw = { whoAmI: string; strengths: string; goal: string };
 
+/** Một việc / thành tựu trong một công ty — một dòng STAR của sheet. */
+export type ExperienceTask = {
+  id: string;
+  problem: string;
+  what: string;
+  forWho: string;
+  how: string;
+  outcome: string;
+  impact: string;
+};
+
+/** Một công ty; một công ty có nhiều việc. */
 export type ExperienceItem = {
   id: string;
   company: string;
@@ -20,12 +32,7 @@ export type ExperienceItem = {
   startDate: string; // YYYY-MM
   endDate: string;   // YYYY-MM, rỗng khi current
   current: boolean;
-  problem: string;
-  what: string;
-  forWho: string;
-  how: string;
-  outcome: string;
-  impact: string;
+  tasks: ExperienceTask[];
 };
 
 export type ProjectItem = {
@@ -71,9 +78,11 @@ export function newId(): string {
   return Math.random().toString(36).slice(2, 10);
 }
 
+export function emptyTask(): ExperienceTask {
+  return { id: newId(), problem: "", what: "", forWho: "", how: "", outcome: "", impact: "" };
+}
 export function emptyExperience(): ExperienceItem {
-  return { id: newId(), company: "", role: "", startDate: "", endDate: "", current: false,
-    problem: "", what: "", forWho: "", how: "", outcome: "", impact: "" };
+  return { id: newId(), company: "", role: "", startDate: "", endDate: "", current: false, tasks: [emptyTask()] };
 }
 export function emptyProject(): ProjectItem {
   return { id: newId(), name: "", tools: "", link: "", situation: "", task: "", action: "", result: "" };
@@ -103,6 +112,18 @@ export function emptyCv(): CvData {
   };
 }
 
+/** Dòng cũ (STAR nằm ngay trên công ty) → chuyển thành 1 công ty có 1 việc. */
+function normalizeExperience(e: unknown): ExperienceItem {
+  const o = (e ?? {}) as Partial<ExperienceItem> & Partial<ExperienceTask>;
+  const base = emptyExperience();
+  const tasks = Array.isArray(o.tasks) && o.tasks.length
+    ? o.tasks.map((t) => ({ ...emptyTask(), ...t }))
+    : [{ ...emptyTask(), problem: o.problem ?? "", what: o.what ?? "", forWho: o.forWho ?? "",
+         how: o.how ?? "", outcome: o.outcome ?? "", impact: o.impact ?? "" }];
+  return { id: o.id ?? base.id, company: o.company ?? "", role: o.role ?? "", startDate: o.startDate ?? "",
+    endDate: o.endDate ?? "", current: Boolean(o.current), tasks };
+}
+
 /** Ghép dữ liệu đọc từ DB (có thể thiếu field) lên bộ mặc định, để code không bao giờ gặp undefined. */
 export function normalizeCv(input: unknown): CvData {
   const base = emptyCv();
@@ -117,7 +138,7 @@ export function normalizeCv(input: unknown): CvData {
     basics: { ...base.basics, ...(d.basics ?? {}) },
     raw: {
       aboutMe: { ...base.raw.aboutMe, ...(raw.aboutMe ?? {}) },
-      experience: Array.isArray(raw.experience) ? raw.experience.map((e) => ({ ...emptyExperience(), ...e })) : [],
+      experience: Array.isArray(raw.experience) ? raw.experience.map(normalizeExperience) : [],
       projects: Array.isArray(raw.projects) ? raw.projects.map((p) => ({ ...emptyProject(), ...p })) : [],
       skills: { ...base.raw.skills, ...(raw.skills ?? {}) },
       education: Array.isArray(raw.education) ? raw.education.map((e) => ({ ...emptyEducation(), ...e })) : [],
