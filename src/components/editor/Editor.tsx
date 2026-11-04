@@ -14,6 +14,7 @@ export function Editor({ id, initialTitle, initialCv }: { id: string; initialTit
   const [title, setTitle] = useState(initialTitle);
   const [step, setStep] = useState(0);
   const [save, setSave] = useState<SaveState>("saved");
+  const [exporting, setExporting] = useState<"pdf" | "docx" | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latest = useRef({ cv, title });
   latest.current = { cv, title };
@@ -37,6 +38,22 @@ export function Editor({ id, initialTitle, initialCv }: { id: string; initialTit
 
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
 
+  /** Lưu bản mới nhất rồi mới tải, để file không thiếu chữ vừa gõ. */
+  async function download(kind: "pdf" | "docx") {
+    setExporting(kind);
+    if (timer.current) clearTimeout(timer.current);
+    await flush();
+    const res = await fetch(`/api/export/${kind}?id=${id}`);
+    if (!res.ok) { alert(await res.text()); setExporting(null); return; }
+    const blob = await res.blob();
+    const name = res.headers.get("content-disposition")?.match(/filename="(.+)"/)?.[1] ?? `CV.${kind}`;
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement("a"), { href: url, download: name });
+    a.click();
+    URL.revokeObjectURL(url);
+    setExporting(null);
+  }
+
   const StepView = [StepBasics, StepAbout, StepExperience, StepProjects, StepSkills, StepEducation, StepAchievements][step];
 
   return (
@@ -47,9 +64,19 @@ export function Editor({ id, initialTitle, initialCv }: { id: string; initialTit
           <input value={title} onChange={(e) => { setTitle(e.target.value); schedule(); }}
             className="rounded px-2 py-1 text-sm font-medium hover:bg-neutral-100 focus:bg-neutral-100 focus:outline-none" />
         </div>
-        <span className={"text-xs " + (save === "error" ? "text-red-600" : "text-neutral-500")}>
-          {{ saved: "Đã lưu", dirty: "Đang gõ…", saving: "Đang lưu…", error: "Lưu lỗi — thử lại" }[save]}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className={"text-xs " + (save === "error" ? "text-red-600" : "text-neutral-500")}>
+            {{ saved: "Đã lưu", dirty: "Đang gõ…", saving: "Đang lưu…", error: "Lưu lỗi — thử lại" }[save]}
+          </span>
+          <button type="button" onClick={() => download("pdf")} disabled={exporting !== null}
+            className="rounded-md bg-[var(--accent)] px-3 py-1.5 text-sm text-white hover:opacity-90 disabled:opacity-50">
+            {exporting === "pdf" ? "Đang tạo PDF…" : "Tải PDF"}
+          </button>
+          <button type="button" onClick={() => download("docx")} disabled={exporting !== null}
+            className="rounded-md border px-3 py-1.5 text-sm hover:bg-neutral-100 disabled:opacity-50">
+            {exporting === "docx" ? "Đang tạo…" : "Tải DOCX"}
+          </button>
+        </div>
       </header>
 
       <div className="grid flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
