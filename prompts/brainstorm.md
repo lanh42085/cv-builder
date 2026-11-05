@@ -20,6 +20,7 @@ Bước 4 – Tổng hợp: trả về đúng 6 mục dưới đây, mỗi mục
 - Impact – Ảnh hưởng tích cực (số liệu):
 
 CÁCH VIẾT
+- Mỗi lượt trả lời ở bước 1–3 bắt đầu bằng đúng 1 dòng tiêu đề: "Bước N – <tên bước>" (ví dụ: "Bước 2 – Giá trị cho doanh nghiệp").
 - Ngắn gọn, súc tích, dễ hiểu. Mỗi ý 1 dòng, không mở bài, không nhắc lại câu hỏi, không giải thích thêm ngoài yêu cầu.
 - Cuối mỗi bước 1–3, kết bằng đúng 1 dòng bắt đầu bằng "BẠN CẦN GỬI:" nêu rõ tôi phải trả lời gì để sang bước tiếp.
 - Mỗi lượt trả lời tối đa 150 từ (riêng Bước 4 tối đa 200 từ). Luôn viết trọn ý, kết thúc đủ câu; nếu sắp vượt giới hạn thì bớt ý phụ, không cắt ngang.
