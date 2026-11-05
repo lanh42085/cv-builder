@@ -97,7 +97,7 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
     const isDraft = toView(cv).isDraft;
     const btn = "rounded-md border bg-white px-2.5 py-1 text-sm shadow-lg hover:border-[var(--accent)] hover:text-[var(--accent)]";
     return (
-      <div ref={ref} className="relative w-full" onMouseUp={onMouseUp}>
+      <div ref={ref} className="relative mx-auto w-full max-w-[860px]" onMouseUp={onMouseUp}>
         {isDraft && (
           <p className="mb-2 text-xs text-neutral-500">
             Bản nháp ghép từ dữ liệu thô. Bấm “Tạo bằng AI” ở các bước About Me, Experience, Projects để AI viết lại câu chữ.

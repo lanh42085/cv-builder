@@ -90,8 +90,8 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
   const textarea = "w-full rounded-lg border-0 bg-[#eef6f4] px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:bg-[#e3f0ec] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30";
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#e6f4f1]">
-      <header className="flex items-center justify-between border-b bg-white px-4 py-2">
+    <div className="flex h-screen flex-col bg-[#e6f4f1]">
+      <header className="flex shrink-0 items-center justify-between border-b bg-white px-4 py-2">
         <div className="flex items-center gap-3">
           <Link href={`/app/${resumeId}`} className="text-sm text-neutral-500 hover:text-neutral-900">← Sửa CV gốc</Link>
           <span className="text-sm font-medium">{title} — tùy biến theo job</span>
@@ -112,8 +112,8 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
         )}
       </header>
 
-      <div className="grid flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="p-3">
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="min-h-0 overflow-y-auto p-3">
           <div className="overflow-hidden rounded-xl bg-white p-6 shadow-sm lg:p-8">
           {mode === "customize" ? (<>
             <h2 className="text-2xl font-bold text-neutral-900">Tùy chỉnh chữ & bố cục</h2>
@@ -193,7 +193,7 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
           </>)}
           </div>
         </div>
-        <div className="sticky top-0 self-start p-3">
+        <div className="min-h-0 overflow-y-auto p-3">
           <Preview cv={shown} />
         </div>
       </div>

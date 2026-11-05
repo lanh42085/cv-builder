@@ -78,8 +78,8 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
   ];
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#e6f4f1]">
-      <header className="flex items-center justify-between border-b bg-white px-4 py-2">
+    <div className="flex h-screen flex-col bg-[#e6f4f1]">
+      <header className="flex shrink-0 items-center justify-between border-b bg-white px-4 py-2">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 text-sm font-medium" style={{ color: "var(--navy)" }}><Image src="/logo.png" alt="UniGap" width={26} height={28} /> UniGap <span style={{ color: "var(--accent)" }}>CV Builder</span></Link>
           <input value={title} onChange={(e) => { setTitle(e.target.value); schedule(); }}
@@ -118,8 +118,8 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
         </div>
       </header>
 
-      <div className="grid flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="p-3">
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="min-h-0 overflow-y-auto p-3">
           <div className="overflow-hidden rounded-xl bg-white shadow-sm">
             {mode === "customize" ? (
               <div className="p-6 lg:p-8">
@@ -169,7 +169,7 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
             </>)}
           </div>
         </div>
-        <div className="sticky top-0 self-start p-3">
+        <div className="min-h-0 overflow-y-auto p-3">
           <StyleBar cv={cv} set={set} canFormat={canFormat} onFormat={(f) => previewRef.current?.format(f)} />
           <Preview ref={previewRef} cv={cv} set={set} onSelectionChange={setCanFormat} />
         </div>
