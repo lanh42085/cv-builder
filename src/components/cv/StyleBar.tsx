@@ -29,7 +29,7 @@ export function StyleBar({ cv, set, onFormat, canFormat }: { cv: CvData; set: (f
         </div>
       )}
       <details className="w-full">
-        <summary className="cursor-pointer text-xs text-neutral-600 hover:text-neutral-900">Thứ tự các mục ▾ <span className="text-neutral-400">(kéo thả hoặc bấm mũi tên)</span></summary>
+        <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-lg bg-[#1fa4b8] px-4 py-2 text-sm font-semibold text-white hover:opacity-90">↕ Thứ tự các mục <span className="text-xs font-normal opacity-80">kéo thả hoặc bấm mũi tên</span></summary>
         <ol className="mt-2 grid gap-1">
           {cv.sectionOrder.map((k: SectionKey, i) => (
             <li key={k} draggable
