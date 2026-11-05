@@ -2,10 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { isAdminEmail } from "@/lib/admin";
 
 /** Avatar tròn góc phải; bấm mở menu: email + Đăng xuất. */
-export function AccountMenu({ email, avatarUrl, name }: { email: string; avatarUrl?: string | null; name?: string | null }) {
+export function AccountMenu({ email, avatarUrl, name, isAdmin }: { email: string; avatarUrl?: string | null; name?: string | null; isAdmin?: boolean }) {
   const initial = (name || email || "?").trim().charAt(0).toUpperCase();
   return (
     <details className="relative">
@@ -21,7 +20,7 @@ export function AccountMenu({ email, avatarUrl, name }: { email: string; avatarU
           {name && <div className="font-medium">{name}</div>}
           <div className="truncate text-xs text-neutral-500">{email}</div>
         </div>
-        {isAdminEmail(email) && <Link href="/admin" className="block rounded-lg px-3 py-2 hover:bg-neutral-100">Quản lý học viên</Link>}
+        {isAdmin && <Link href="/admin" className="block rounded-lg px-3 py-2 hover:bg-neutral-100">Quản lý học viên</Link>}
         <form action="/auth/signout" method="post">
           <button className="w-full rounded-lg px-3 py-2 text-left hover:bg-neutral-100">Đăng xuất</button>
         </form>

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { isAdminEmail } from "@/lib/admin";
+import { isOwner } from "@/lib/admin";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -11,9 +11,9 @@ export async function GET(request: Request) {
     if (!error) {
       const { data: { user } } = await supabase.auth.getUser();
       const email = (user?.email ?? "").toLowerCase();
-      // Chỉ email trong danh sách cho phép (hoặc admin) mới được vào
+      // Chỉ email trong danh sách cho phép (hoặc email gốc) mới được vào
       const { data: ok } = await supabase.from("allowed_emails").select("email").eq("email", email).maybeSingle();
-      if (!ok && !isAdminEmail(email)) {
+      if (!ok && !isOwner(email)) {
         await supabase.auth.signOut();
         return NextResponse.redirect(`${origin}/login?error=denied`);
       }

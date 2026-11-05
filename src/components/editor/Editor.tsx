@@ -114,7 +114,7 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
             className="rounded-md border border-[var(--accent)] px-3 py-1.5 text-sm text-[var(--accent)] hover:bg-[var(--mint)]">
             Tùy biến theo JD →
           </Link>
-          <AccountMenu email={user.email} name={user.name} avatarUrl={user.avatarUrl} />
+          <AccountMenu email={user.email} name={user.name} avatarUrl={user.avatarUrl} isAdmin={user.isAdmin} />
         </div>
       </header>
 

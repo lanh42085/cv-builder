@@ -17,7 +17,7 @@ export default async function Home() {
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Brand />
         {user ? (
-          <AccountMenu email={user.email} name={user.name} avatarUrl={user.avatarUrl} />
+          <AccountMenu email={user.email} name={user.name} avatarUrl={user.avatarUrl} isAdmin={user.isAdmin} />
         ) : (
           <Link href="/login" className="rounded-full border px-5 py-2 text-sm font-medium hover:bg-neutral-50" style={{ borderColor: "var(--accent)", color: "var(--accent)" }}>
             Đăng nhập

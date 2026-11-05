@@ -1,6 +1,6 @@
 import { createClient } from "./server";
 
-export type SessionUser = { id: string; email: string; name: string | null; avatarUrl: string | null };
+export type SessionUser = { id: string; email: string; name: string | null; avatarUrl: string | null; isAdmin: boolean };
 
 /** Người dùng hiện tại (null nếu chưa đăng nhập), kèm tên và ảnh từ Google. */
 export async function getSessionUser(): Promise<SessionUser | null> {
@@ -8,5 +8,8 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
   const m = (user.user_metadata ?? {}) as Record<string, string | undefined>;
-  return { id: user.id, email: user.email ?? "", name: m.full_name ?? m.name ?? null, avatarUrl: m.avatar_url ?? m.picture ?? null };
+  const email = (user.email ?? "").toLowerCase();
+  let isAdmin = email === "lananh.laxi@gmail.com";
+  if (!isAdmin) { const { data } = await supabase.rpc("is_admin"); isAdmin = data === true; }
+  return { id: user.id, email: user.email ?? "", name: m.full_name ?? m.name ?? null, avatarUrl: m.avatar_url ?? m.picture ?? null, isAdmin };
 }

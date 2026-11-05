@@ -32,16 +32,19 @@ export async function middleware(request: NextRequest) {
   // Thu quyền: email bị xóa khỏi danh sách thì lần vào sau bị đăng xuất
   if (user && (path.startsWith("/app") || path.startsWith("/admin"))) {
     const email = (user.email ?? "").toLowerCase();
-    if (email !== "lananh.laxi@gmail.com") {
-      const { data: ok } = await supabase.from("allowed_emails").select("email").eq("email", email).maybeSingle();
+    const owner = email === "lananh.laxi@gmail.com";
+    let role: string | null = owner ? "admin" : null;
+    if (!owner) {
+      const { data: ok } = await supabase.from("allowed_emails").select("role").eq("email", email).maybeSingle();
       if (!ok) {
         await supabase.auth.signOut();
         const url = request.nextUrl.clone();
         url.pathname = "/login"; url.search = "?error=denied";
         return NextResponse.redirect(url);
       }
+      role = ok.role;
     }
-    if (path.startsWith("/admin") && email !== "lananh.laxi@gmail.com") {
+    if (path.startsWith("/admin") && role !== "admin") {
       const url = request.nextUrl.clone(); url.pathname = "/"; url.search = "";
       return NextResponse.redirect(url);
     }
