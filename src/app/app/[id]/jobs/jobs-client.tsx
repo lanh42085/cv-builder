@@ -89,6 +89,16 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
     setBusy(null);
   }
 
+  async function rename() {
+    if (!selected) return;
+    const name = prompt("Tên job mới:", selected.job_title)?.trim();
+    if (!name || name === selected.job_title) return;
+    const r = await fetch(`/api/jobs/${selected.id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ job_title: name }) });
+    if (!r.ok) { setError((await r.json()).error); return; }
+    const job: Job = { ...selected, job_title: name };
+    setJobs(jobs.map((x) => (x.id === job.id ? job : x))); setSelected(job);
+  }
+
   async function remove() {
     if (!selected || !confirm(`Xóa bản "${selected.job_title}"?`)) return;
     setBusy("del"); setError(null);
@@ -181,6 +191,8 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
                   className="rounded-lg bg-[#1fa4b8] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
                   {busy === "redo" ? "AI đang lồng lại…" : "↻ Làm lại theo CV gốc hiện tại"}
                 </button>
+                <button type="button" onClick={rename} disabled={busy !== null}
+                  className="rounded-lg border px-4 py-2 text-sm hover:bg-neutral-50 disabled:opacity-50">✎ Đổi tên job</button>
                 <button type="button" onClick={remove} disabled={busy !== null}
                   className="rounded-lg border border-red-200 px-4 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50">
                   {busy === "del" ? "Đang xóa…" : "Xóa job"}

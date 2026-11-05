@@ -34,3 +34,28 @@ export function setText(cv: CvData, path: string, value: string): CvData {
   }
   return next as unknown as CvData;
 }
+
+/** Xoá phần tử/dòng mà path trỏ tới (bullet trong mảng, dòng "@i" trong chuỗi nhiều dòng). Không áp dụng được → trả về cv cũ. */
+export function removeAt(cv: CvData, path: string): CvData {
+  const [p, line] = path.split("@");
+  const next = structuredClone(cv) as unknown as Record<string, unknown>;
+  const segs = p.split(".");
+  let cur: Record<string, unknown> = next;
+  for (const seg of segs.slice(0, -1)) {
+    const n = cur[seg];
+    if (n == null || typeof n !== "object") return cv;
+    cur = n as Record<string, unknown>;
+  }
+  const last = segs[segs.length - 1];
+  if (line !== undefined) {
+    const lines = String(cur[last] ?? "").split("\n");
+    lines.splice(Number(line), 1);
+    cur[last] = lines.join("\n");
+    return next as unknown as CvData;
+  }
+  if (Array.isArray(cur) && /^\d+$/.test(last)) {
+    (cur as unknown as unknown[]).splice(Number(last), 1);
+    return next as unknown as CvData;
+  }
+  return cv;
+}
