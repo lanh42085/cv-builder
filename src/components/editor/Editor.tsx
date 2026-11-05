@@ -78,7 +78,7 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
   ];
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#eef1f8]">
+    <div className="flex min-h-screen flex-col bg-[#e6f4f1]">
       <header className="flex items-center justify-between border-b bg-white px-4 py-2">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 text-sm font-medium" style={{ color: "var(--navy)" }}><Image src="/logo.png" alt="UniGap" width={26} height={28} /> UniGap <span style={{ color: "var(--accent)" }}>CV Builder</span></Link>

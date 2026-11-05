@@ -18,7 +18,7 @@ export function CustomizePanel({ cv, set }: Props) {
   const setSize = (k: keyof CvSizes, v: number) => set((c) => ({ ...c, style: { ...c.style, sizes: { ...c.style.sizes, [k]: v } } }));
   const setLayout = (patch: Partial<CvLayout>) => set((c) => ({ ...c, style: { ...c.style, layout: { ...c.style.layout, ...patch } } }));
   const L = st.layout;
-  const sel = "w-full rounded-lg border-0 bg-[#eff2f9] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30";
+  const sel = "w-full rounded-lg border-0 bg-[#eef6f4] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30";
 
   return (
     <div className="grid gap-8">

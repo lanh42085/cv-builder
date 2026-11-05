@@ -2,7 +2,7 @@
 
 import { BoldTextarea } from "./BoldTextarea";
 
-export const INPUT = "w-full rounded-lg border-0 bg-[#eff2f9] px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:bg-[#e6ebf7] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30";
+export const INPUT = "w-full rounded-lg border-0 bg-[#eef6f4] px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:bg-[#e3f0ec] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30";
 
 /** Ô nhập dùng chung: nhãn · gợi ý (cột "Gợi ý" của sheet) · ví dụ mờ. */
 export function Field({ label, hint, value, onChange, placeholder, multiline, compact, type = "text" }: {

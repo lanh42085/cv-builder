@@ -77,7 +77,7 @@ export function BrainstormPanel({ resumeId, task, onFill, onClose }: Props) {
               <div className="mb-1 text-sm font-medium">Việc bạn đã làm, viết thô bằng lời của bạn</div>
               <div className="mb-1 text-xs text-neutral-500">Ví dụ: Gộp dữ liệu kế toán của 5 công ty con bằng Power Query để làm báo cáo hằng ngày</div>
               <textarea rows={4} value={taskRaw} onChange={(e) => setTaskRaw(e.target.value)}
-                className="w-full rounded-lg border-0 bg-[#eff2f9] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30" />
+                className="w-full rounded-lg border-0 bg-[#eef6f4] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30" />
             </label>
             <button type="button" disabled={!taskRaw.trim() || streaming} onClick={() => send()}
               className="rounded-md bg-[var(--accent)] px-4 py-2 text-sm text-white disabled:opacity-50">
@@ -109,7 +109,7 @@ export function BrainstormPanel({ resumeId, task, onFill, onClose }: Props) {
         <form className="flex gap-2 border-t p-3" onSubmit={(e) => { e.preventDefault(); if (input.trim() && !streaming) send(input.trim()); }}>
           <textarea rows={2} value={input} onChange={(e) => setInput(e.target.value)} placeholder="Trả lời AI… (không có số liệu thì nói “không có số, tổng hợp luôn”)"
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (input.trim() && !streaming) send(input.trim()); } }}
-            className="flex-1 rounded-lg border-0 bg-[#eff2f9] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30" />
+            className="flex-1 rounded-lg border-0 bg-[#eef6f4] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30" />
           <button type="submit" disabled={streaming || !input.trim()} className="rounded-md bg-[var(--accent)] px-4 text-sm text-white disabled:opacity-50">Gửi</button>
         </form>
       )}

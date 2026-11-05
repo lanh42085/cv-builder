@@ -69,7 +69,7 @@ export function AiAbout({ cv, set }: Props) {
           <label className="block">
             <div className="mb-1 text-sm font-medium">Bản dùng trong CV (sửa được)</div>
             <BoldTextarea value={g.final}
-              className="w-full rounded-lg border-0 bg-[#eff2f9] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
+              className="w-full rounded-lg border-0 bg-[#eef6f4] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
               onValueChange={(v) => set((c) => ({ ...c, generated: { ...c.generated, aboutMe: { ...c.generated.aboutMe, final: v } } }))} />
           </label>
         </>
@@ -86,9 +86,9 @@ function SectionsEditor({ sections, onChange }: { sections: GeneratedSection[]; 
       {sections.map((s, i) => (
         <div key={i} className="grid gap-2 rounded-lg border border-neutral-200 bg-white p-3">
           <input value={s.header} onChange={(e) => upd(i, { header: e.target.value })}
-            className="rounded-lg border-0 bg-[#eff2f9] px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30" />
+            className="rounded-lg border-0 bg-[#eef6f4] px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30" />
           <BoldTextarea value={s.bullets.join("\n")}
-            className="w-full rounded-lg border-0 bg-[#eff2f9] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
+            className="w-full rounded-lg border-0 bg-[#eef6f4] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
             onValueChange={(v) => upd(i, { bullets: v.split("\n") })} />
           <div className="text-xs text-neutral-400">Mỗi dòng = 1 bullet</div>
         </div>
