@@ -75,7 +75,7 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
       v.projects.forEach((p) => {
         const [name, ...tools] = p.header.split("|").map((x) => x.trim());
         P.push(twoSide(`${name}${tools.length ? ` [${tools.join(", ")}]` : ""}`, p.link ? `View Project: ${p.link}` : "", { bold: true }));
-        p.bullets.forEach((x) => P.push(bullet(x)));
+        p.bullets.filter((x) => x.trim()).forEach((x) => P.push(bullet(x)));
       });
     },
     experience: () => {
@@ -85,7 +85,7 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
         const [company, ...role] = e.header.split("|").map((x) => x.trim());
         P.push(twoSide(company, "", { bold: true }));
         P.push(twoSide(role.join(" | "), e.period, { italics: true }));
-        e.bullets.forEach((x) => P.push(bullet(x)));
+        e.bullets.filter((x) => x.trim()).forEach((x) => P.push(bullet(x)));
       }
     },
     education: () => {
