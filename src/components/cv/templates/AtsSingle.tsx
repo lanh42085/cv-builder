@@ -1,6 +1,7 @@
 import { skillLines, type CvView } from "@/lib/cv/view";
 import type { CvStyle } from "@/lib/cv/style";
-import { Inline } from "@/components/cv/Inline";
+import { AddAfter, EditCtx, Inline } from "@/components/cv/Inline";
+import { useContext } from "react";
 import { FONTS, PAGE, inch, pt, type SectionKey } from "@/lib/cv/style";
 
 const LINK = "#1a56db";
@@ -116,13 +117,14 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
 }
 
 function SkillGroup({ title, raw, src }: { title: string; raw: string; src: string }) {
-  const lines = skillLines(raw);
+  const editing = useContext(EditCtx) !== null;
+  const lines = skillLines(raw, editing);
   if (lines.length === 0) return null;
   return (
     <div style={{ marginBottom: 3 }}>
       <div style={{ fontWeight: 700 }} data-block>{title}</div>
       <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}>
-        {lines.map((l, i) => <li key={i} data-block>{l.label ? <><b>{l.label}:</b> <Inline text={l.text} src={`${src}@${i}`} /></> : <Inline text={l.text} src={`${src}@${i}`} />}</li>)}
+        {lines.map((l, i) => <li key={i} data-block className="group" style={{ position: "relative" }}>{l.label ? <><b>{l.label}:</b> <Inline text={l.text} src={`${src}@${i}`} /></> : <Inline text={l.text} src={`${src}@${i}`} />}<AddAfter path={`${src}@${i}`} /></li>)}
       </ul>
     </div>
   );
@@ -161,11 +163,12 @@ export function Row({ left, right }: { left: string; right: string }) {
 }
 
 export function Bullets({ items, srcs }: { items: string[]; srcs?: (string | null)[] }) {
-  const xs = items.map((s, i) => ({ s, src: srcs?.[i] ?? null })).filter((x) => x.s && x.s.trim());
+  const editing = useContext(EditCtx) !== null;
+  const xs = items.map((s, i) => ({ s, src: srcs?.[i] ?? null })).filter((x) => (editing && x.src) || (x.s && x.s.trim()));
   if (xs.length === 0) return null;
   return (
     <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}>
-      {xs.map((x, i) => <li key={i} data-block style={{ marginBottom: "var(--gap-inner, 1px)", textAlign: "justify" }}><Inline text={x.s} src={x.src} /></li>)}
+      {xs.map((x, i) => <li key={i} data-block className="group" style={{ marginBottom: "var(--gap-inner, 1px)", textAlign: "justify", position: "relative" }}><Inline text={x.s} src={x.src} />{x.src && <AddAfter path={x.src} />}</li>)}
     </ul>
   );
 }

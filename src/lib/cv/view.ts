@@ -104,8 +104,8 @@ export function toView(cv: CvData): CvView {
 
 /** "a\nb: c" → [{label:"", text:"a"}, {label:"b", text:"c"}] — mỗi dòng 1 bullet, "Nhóm: chi tiết" tách nhãn.
  *  Nhãn luôn in đậm sẵn nên dấu ** quanh nhãn được bỏ; dấu ** lẻ còn sót trong phần chi tiết được dọn. */
-export function skillLines(raw: string): { label: string; text: string }[] {
-  return raw.split("\n").map((l) => l.replace(/^(?:[-•]\s*|\*\s+)/, "").trim()).filter(Boolean).map((l) => {
+export function skillLines(raw: string, keepEmpty = false): { label: string; text: string }[] {
+  return raw.split("\n").map((l) => l.replace(/^(?:[-•]\s*|\*\s+)/, "").trim()).filter((l) => keepEmpty || l).map((l) => {
     const i = l.search(/[:：]/);
     const before = i >= 0 ? l.slice(0, i).replace(/\*\*|__/g, "").trim() : "";
     if (i < 0 || before.length === 0 || before.length > 40) return { label: "", text: l };

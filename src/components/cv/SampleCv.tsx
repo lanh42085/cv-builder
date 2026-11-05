@@ -1,3 +1,5 @@
+"use client";
+
 import { SAMPLE_CV } from "@/lib/cv/sample";
 import { CvTemplate } from "./CvTemplate";
 

@@ -11,3 +11,6 @@ body {
   @apply bg-neutral-50 text-neutral-900 antialiased;
   font-family: var(--font-sans), "Be Vietnam Pro", Arial, sans-serif;
 }
+
+/* Dòng trống đang sửa trực tiếp trên preview */
+[data-src][contenteditable]:empty::before { content: "(gõ nội dung)"; color: #9ca3af; font-weight: 400; font-style: normal; }
