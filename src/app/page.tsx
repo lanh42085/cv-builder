@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Brand } from "@/components/Brand";
 import { AccountMenu } from "@/components/AccountMenu";
-import { SampleCv } from "@/components/cv/SampleCv";
+import { HeroCv } from "@/components/cv/SampleCv";
 import { getSessionUser } from "@/lib/supabase/user";
 
 const STEPS = [
@@ -47,7 +47,7 @@ export default async function Home() {
           </ul>
         </div>
         <div className="hidden justify-center lg:flex">
-          <SampleCv />
+          <HeroCv />
         </div>
       </section>
 
