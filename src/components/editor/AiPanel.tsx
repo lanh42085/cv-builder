@@ -68,7 +68,7 @@ export function AiAbout({ cv, set }: Props) {
           ))}
           <label className="block">
             <div className="mb-1 text-sm font-medium">Bản dùng trong CV (sửa được)</div>
-            <BoldTextarea rows={4} value={g.final}
+            <BoldTextarea value={g.final}
               className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-[var(--accent)] focus:outline-none"
               onValueChange={(v) => set((c) => ({ ...c, generated: { ...c.generated, aboutMe: { ...c.generated.aboutMe, final: v } } }))} />
           </label>
@@ -87,7 +87,7 @@ function SectionsEditor({ sections, onChange }: { sections: GeneratedSection[]; 
         <div key={i} className="grid gap-2 rounded-md border bg-neutral-50 p-3">
           <input value={s.header} onChange={(e) => upd(i, { header: e.target.value })}
             className="rounded-md border border-neutral-300 px-2 py-1 text-sm font-medium focus:border-[var(--accent)] focus:outline-none" />
-          <BoldTextarea rows={Math.max(3, s.bullets.length + 1)} value={s.bullets.join("\n")}
+          <BoldTextarea value={s.bullets.join("\n")}
             className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-[var(--accent)] focus:outline-none"
             onValueChange={(v) => upd(i, { bullets: v.split("\n") })} />
           <div className="text-xs text-neutral-400">Mỗi dòng = 1 bullet</div>
