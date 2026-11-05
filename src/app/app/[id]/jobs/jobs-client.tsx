@@ -1,14 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { CvData } from "@/lib/cv/schema";
 import { applyTailored, type Tailored } from "@/lib/cv/tailor";
 import { Preview } from "@/components/cv/Preview";
+import { CustomizePanel } from "@/components/editor/CustomizePanel";
+import { saveResume } from "@/app/app/[id]/actions";
 
 type Job = { id: string; job_title: string; jd_text: string; keyword_output: string | null; tailored: Tailored | null; created_at: string };
 
-export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: string; title: string; cv: CvData; initialJobs: Job[] }) {
+export function JobsClient({ resumeId, title, cv: initialCv, initialJobs }: { resumeId: string; title: string; cv: CvData; initialJobs: Job[] }) {
+  const [cv, setCv] = useState<CvData>(initialCv);
+  const [mode, setMode] = useState<"edit" | "customize">("edit");
+  const [styleSave, setStyleSave] = useState<"saved" | "dirty" | "saving" | "error">("saved");
+  const latest = useRef(cv); latest.current = cv;
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flush = useCallback(async () => {
+    setStyleSave("saving");
+    const r = await saveResume(resumeId, title, latest.current);
+    setStyleSave(r.ok ? "saved" : "error");
+  }, [resumeId, title]);
+  const set = useCallback((fn: (c: CvData) => CvData) => {
+    setCv((c) => fn(c)); setStyleSave("dirty");
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(flush, 1500);
+  }, [flush]);
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
   const [jobs, setJobs] = useState<Job[]>(initialJobs);
   const [selected, setSelected] = useState<Job | null>(initialJobs[0] ?? null);
   const [jobTitle, setJobTitle] = useState("");
@@ -70,6 +88,14 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
           <Link href={`/app/${resumeId}`} className="text-sm text-neutral-500 hover:text-neutral-900">← Sửa CV gốc</Link>
           <span className="text-sm font-medium">{title} — tùy biến theo job</span>
         </div>
+        <div className="flex rounded-full bg-neutral-100 p-1 text-sm">
+          {(["edit", "customize"] as const).map((m) => (
+            <button key={m} type="button" onClick={() => setMode(m)}
+              className={"rounded-full px-4 py-1 " + (mode === m ? "bg-white font-medium shadow" : "text-neutral-500 hover:text-neutral-900")}>
+              {m === "edit" ? "Edit" : "Customize"}
+            </button>
+          ))}
+        </div>
         {selected && (
           <div className="flex gap-2">
             <a href={`/api/export/pdf?id=${resumeId}&job=${selected.id}`} className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90">Tải PDF bản này</a>
@@ -81,6 +107,11 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
       <div className="grid flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="p-3">
           <div className="overflow-hidden rounded-xl bg-white p-6 shadow-sm lg:p-8">
+          {mode === "customize" ? (<>
+            <h2 className="text-2xl font-bold text-neutral-900">Tùy chỉnh chữ & bố cục</h2>
+            <p className="mb-6 mt-1 text-sm text-neutral-500">Dùng chung cho CV gốc và mọi bản theo job. {{ saved: "Đã lưu.", dirty: "Chưa lưu…", saving: "Đang lưu…", error: "Lưu lỗi." }[styleSave]}</p>
+            <CustomizePanel cv={cv} set={set} />
+          </>) : (<>
           <div className="mb-1 flex items-start justify-between gap-4">
             <h2 className="text-2xl font-bold text-neutral-900">Tùy biến theo từng JD</h2>
             <button type="button" onClick={() => setCreating(true)} className="shrink-0 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90">+ Job mới</button>
@@ -151,6 +182,7 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
               </details>
             </div>
           )}
+          </>)}
           </div>
         </div>
         <div className="sticky top-0 self-start p-3">
