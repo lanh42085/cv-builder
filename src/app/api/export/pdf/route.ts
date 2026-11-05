@@ -3,6 +3,7 @@ import chromium from "@sparticuz/chromium";
 import puppeteer from "puppeteer-core";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeCv } from "@/lib/cv/schema";
+import { normalizeStyle } from "@/lib/cv/style";
 import { applyTailored, type Tailored } from "@/lib/cv/tailor";
 import { cvToHtml, safeFileName } from "@/lib/cv/html";
 
@@ -20,8 +21,9 @@ export async function GET(req: Request) {
   if (!resume) return new NextResponse("Không tìm thấy CV", { status: 404 });
   let cv = normalizeCv(resume.data);
   if (job) {
-    const { data: jv } = await supabase.from("job_versions").select("tailored").eq("id", job).single();
+    const { data: jv } = await supabase.from("job_versions").select("tailored, style").eq("id", job).single();
     if (jv?.tailored) cv = applyTailored(cv, jv.tailored as Tailored);
+    if (jv?.style) cv = { ...cv, style: normalizeStyle(jv.style) };
   }
 
   let browser: Awaited<ReturnType<typeof puppeteer.launch>> | null = null;

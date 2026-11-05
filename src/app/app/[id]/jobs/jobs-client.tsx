@@ -6,29 +6,36 @@ import type { CvData } from "@/lib/cv/schema";
 import { applyTailored, type Tailored } from "@/lib/cv/tailor";
 import { Preview } from "@/components/cv/Preview";
 import { CustomizePanel } from "@/components/editor/CustomizePanel";
-import { saveResume } from "@/app/app/[id]/actions";
+import type { CvStyle } from "@/lib/cv/style";
 
-type Job = { id: string; job_title: string; jd_text: string; keyword_output: string | null; tailored: Tailored | null; created_at: string };
+type Job = { id: string; job_title: string; jd_text: string; keyword_output: string | null; tailored: Tailored | null; style: CvStyle | null; created_at: string };
 
-export function JobsClient({ resumeId, title, cv: initialCv, initialJobs }: { resumeId: string; title: string; cv: CvData; initialJobs: Job[] }) {
-  const [cv, setCv] = useState<CvData>(initialCv);
-  const [mode, setMode] = useState<"edit" | "customize">("edit");
-  const [styleSave, setStyleSave] = useState<"saved" | "dirty" | "saving" | "error">("saved");
-  const latest = useRef(cv); latest.current = cv;
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const flush = useCallback(async () => {
-    setStyleSave("saving");
-    const r = await saveResume(resumeId, title, latest.current);
-    setStyleSave(r.ok ? "saved" : "error");
-  }, [resumeId, title]);
-  const set = useCallback((fn: (c: CvData) => CvData) => {
-    setCv((c) => fn(c)); setStyleSave("dirty");
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = setTimeout(flush, 1500);
-  }, [flush]);
-  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: string; title: string; cv: CvData; initialJobs: Job[] }) {
   const [jobs, setJobs] = useState<Job[]>(initialJobs);
   const [selected, setSelected] = useState<Job | null>(initialJobs[0] ?? null);
+  const [mode, setMode] = useState<"edit" | "customize">("edit");
+  const [styleSave, setStyleSave] = useState<"saved" | "dirty" | "saving" | "error">("saved");
+  const latest = useRef(selected); latest.current = selected;
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flush = useCallback(async () => {
+    const j = latest.current; if (!j) return;
+    setStyleSave("saving");
+    const r = await fetch(`/api/jobs/${j.id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ style: j.style }) });
+    setStyleSave(r.ok ? "saved" : "error");
+  }, []);
+  /** Customize trên trang này chỉ sửa kiểu của bản job đang chọn (khởi tạo từ kiểu CV gốc). */
+  const set = useCallback((fn: (c: CvData) => CvData) => {
+    setSelected((j) => {
+      if (!j) return j;
+      const next = { ...j, style: fn({ ...cv, style: j.style ?? cv.style }).style };
+      setJobs((list) => list.map((x) => (x.id === next.id ? next : x)));
+      return next;
+    });
+    setStyleSave("dirty");
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(flush, 1500);
+  }, [cv, flush]);
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
   const [jobTitle, setJobTitle] = useState("");
   const [jd, setJd] = useState("");
   const [keywords, setKeywords] = useState("");
@@ -50,7 +57,7 @@ export function JobsClient({ resumeId, title, cv: initialCv, initialJobs }: { re
       body: JSON.stringify({ resumeId, jobTitle, jdText: jd, keywordOutput: keywords }) });
     const j = await r.json();
     if (!r.ok) { setError(j.error); setBusy(null); return; }
-    const job: Job = { id: j.id, job_title: j.jobTitle, jd_text: jd, keyword_output: keywords, tailored: j.tailored, created_at: j.createdAt };
+    const job: Job = { id: j.id, job_title: j.jobTitle, jd_text: jd, keyword_output: keywords, tailored: j.tailored, style: null, created_at: j.createdAt };
     setJobs([job, ...jobs]); setSelected(job); setCreating(false);
     setJobTitle(""); setJd(""); setKeywords("");
     setBusy(null);
@@ -78,7 +85,8 @@ export function JobsClient({ resumeId, title, cv: initialCv, initialJobs }: { re
     setBusy(null);
   }
 
-  const shown = selected?.tailored ? applyTailored(cv, selected.tailored) : cv;
+  const base = selected?.style ? { ...cv, style: selected.style } : cv;
+  const shown = selected?.tailored ? applyTailored(base, selected.tailored) : base;
   const textarea = "w-full rounded-lg border-0 bg-[#eef6f4] px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:bg-[#e3f0ec] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30";
 
   return (
@@ -109,8 +117,8 @@ export function JobsClient({ resumeId, title, cv: initialCv, initialJobs }: { re
           <div className="overflow-hidden rounded-xl bg-white p-6 shadow-sm lg:p-8">
           {mode === "customize" ? (<>
             <h2 className="text-2xl font-bold text-neutral-900">Tùy chỉnh chữ & bố cục</h2>
-            <p className="mb-6 mt-1 text-sm text-neutral-500">Dùng chung cho CV gốc và mọi bản theo job. {{ saved: "Đã lưu.", dirty: "Chưa lưu…", saving: "Đang lưu…", error: "Lưu lỗi." }[styleSave]}</p>
-            <CustomizePanel cv={cv} set={set} />
+            <p className="mb-6 mt-1 text-sm text-neutral-500">{selected ? <>Chỉ áp cho bản <b>{selected.job_title}</b>, không đổi CV gốc. {{ saved: "Đã lưu.", dirty: "Chưa lưu…", saving: "Đang lưu…", error: "Lưu lỗi." }[styleSave]}</> : "Chọn một bản job trước."}</p>
+            {selected && <CustomizePanel cv={base} set={set} />}
           </>) : (<>
           <div className="mb-1 flex items-start justify-between gap-4">
             <h2 className="text-2xl font-bold text-neutral-900">Tùy biến theo từng JD</h2>

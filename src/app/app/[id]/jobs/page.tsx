@@ -11,7 +11,7 @@ export default async function JobsPage({ params }: { params: Promise<{ id: strin
   const { data: resume } = await supabase.from("resumes").select("id, title, data").eq("id", id).single();
   if (!resume) notFound();
   const { data: jobs } = await supabase.from("job_versions")
-    .select("id, job_title, jd_text, keyword_output, tailored, created_at")
+    .select("id, job_title, jd_text, keyword_output, tailored, style, created_at")
     .eq("resume_id", id).order("created_at", { ascending: false });
   return <JobsClient resumeId={resume.id} title={resume.title} cv={normalizeCv(resume.data)} initialJobs={jobs ?? []} />;
 }
