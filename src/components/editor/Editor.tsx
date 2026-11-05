@@ -119,8 +119,8 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
       </header>
 
       <div className="grid flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="p-4 lg:p-6">
-          <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl bg-white shadow-sm">
+        <div className="p-3">
+          <div className="overflow-hidden rounded-xl bg-white shadow-sm">
             {mode === "customize" ? (
               <div className="p-6 lg:p-8">
                 <h2 className="text-2xl font-bold text-neutral-900">Tùy chỉnh chữ & bố cục</h2>
@@ -169,7 +169,7 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
             </>)}
           </div>
         </div>
-        <div className="sticky top-0 self-start p-4 lg:p-6">
+        <div className="sticky top-0 self-start p-3">
           <StyleBar cv={cv} set={set} canFormat={canFormat} onFormat={(f) => previewRef.current?.format(f)} />
           <Preview ref={previewRef} cv={cv} set={set} onSelectionChange={setCanFormat} />
         </div>
