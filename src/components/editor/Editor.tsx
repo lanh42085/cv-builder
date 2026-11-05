@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { CvData } from "@/lib/cv/schema";
 import { Preview, type PreviewHandle } from "@/components/cv/Preview";
 import { StyleBar } from "@/components/cv/StyleBar";
+import { CustomizePanel } from "./CustomizePanel";
 import Image from "next/image";
 import { AccountMenu } from "@/components/AccountMenu";
 import type { SessionUser } from "@/lib/supabase/user";
@@ -22,6 +23,7 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const previewRef = useRef<PreviewHandle>(null);
   const [canFormat, setCanFormat] = useState(false);
+  const [mode, setMode] = useState<"edit" | "customize">("edit");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latest = useRef({ cv, title });
   latest.current = { cv, title };
@@ -72,6 +74,14 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
           <input value={title} onChange={(e) => { setTitle(e.target.value); schedule(); }}
             className="rounded px-2 py-1 text-sm font-medium hover:bg-neutral-100 focus:bg-neutral-100 focus:outline-none" />
         </div>
+        <div className="flex rounded-full bg-neutral-100 p-1 text-sm">
+          {(["edit", "customize"] as const).map((m) => (
+            <button key={m} type="button" onClick={() => setMode(m)}
+              className={"rounded-full px-4 py-1 " + (mode === m ? "bg-white font-medium shadow" : "text-neutral-500 hover:text-neutral-900")}>
+              {m === "edit" ? "Edit" : "Customize"}
+            </button>
+          ))}
+        </div>
         <div className="flex items-center gap-3">
           <span className={"text-xs " + (save === "error" ? "text-red-600" : "text-neutral-500")}>
             {{ saved: savedAt ? `Đã lưu lúc ${savedAt}` : "Đã lưu", dirty: "Chưa lưu", saving: "Đang lưu…", error: "Lưu lỗi — bấm Lưu để thử lại" }[save]}
@@ -99,6 +109,9 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
 
       <div className="grid flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="border-r bg-neutral-50">
+          {mode === "customize" ? (
+            <div className="p-4"><h2 className="mb-4 text-lg font-semibold">Tùy chỉnh chữ & bố cục</h2><CustomizePanel cv={cv} set={set} /></div>
+          ) : (<>
           <nav className="flex flex-wrap gap-1 border-b bg-white px-4 py-2">
             {STEPS.map((s, i) => (
               <button key={s} type="button" onClick={() => setStep(i)}
@@ -117,9 +130,10 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
                 className="rounded-md bg-[var(--accent)] px-3 py-2 text-sm text-white disabled:opacity-40">Tiếp →</button>
             </div>
           </div>
+          </>)}
         </div>
         <div className="sticky top-0 self-start p-4">
-          <StyleBar cv={cv} set={set} canFormat={canFormat} onFormat={(f) => previewRef.current?.format(f)} />
+          <StyleBar canFormat={canFormat} onFormat={(f) => previewRef.current?.format(f)} />
           <Preview ref={previewRef} cv={cv} set={set} onSelectionChange={setCanFormat} />
         </div>
       </div>

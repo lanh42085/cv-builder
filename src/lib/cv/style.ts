@@ -2,7 +2,8 @@
 
 export type FontId = "times" | "be-vietnam-pro" | "inter" | "roboto" | "arial" | "georgia";
 export type TemplateId = "ats-single" | "two-column";
-export type CvStyle = { font: FontId; accent: string };
+export type CvSizes = { name: number; heading: number; body: number; section: number }; // pt
+export type CvStyle = { font: FontId; bodyFont: FontId; accent: string; lineHeight: number; sizes: CvSizes };
 
 export const FONTS: Record<FontId, { label: string; family: string; google?: string; docx: string }> = {
   times: { label: "Times New Roman (có chân)", family: '"Times New Roman", Times, serif', docx: "Times New Roman" },
@@ -20,13 +21,22 @@ export const TEMPLATES: Record<TemplateId, { label: string; hint: string }> = {
 
 export const ACCENTS = ["#111111", "#1f4e79", "#0f766e", "#7c3aed", "#b91c1c", "#c2410c", "#374151", "#0369a1", "#15803d"];
 
-export const DEFAULT_STYLE: CvStyle = { font: "times", accent: "#111111" };
+export const DEFAULT_SIZES: CvSizes = { name: 15, heading: 10.5, body: 10, section: 10.5 };
+export const DEFAULT_STYLE: CvStyle = { font: "times", bodyFont: "times", accent: "#111111", lineHeight: 1.25, sizes: { ...DEFAULT_SIZES } };
+/** pt → px (96 dpi) để template dùng. */
+export const pt = (v: number) => Math.round(v * 96 / 72 * 100) / 100;
 
 export function normalizeStyle(s: unknown): CvStyle {
   const o = (s ?? {}) as Partial<CvStyle>;
   const font = (o.font && o.font in FONTS ? o.font : DEFAULT_STYLE.font) as FontId;
+  const bodyFont = (o.bodyFont && o.bodyFont in FONTS ? o.bodyFont : font) as FontId;
   const accent = typeof o.accent === "string" && /^#[0-9a-fA-F]{6}$/.test(o.accent) ? o.accent : DEFAULT_STYLE.accent;
-  return { font, accent };
+  const lineHeight = typeof o.lineHeight === "number" && o.lineHeight >= 1 && o.lineHeight <= 2 ? o.lineHeight : DEFAULT_STYLE.lineHeight;
+  const sz = (o.sizes ?? {}) as Partial<CvSizes>;
+  const clamp = (v: unknown, d: number) => (typeof v === "number" && v >= 7 && v <= 30 ? v : d);
+  return { font, bodyFont, accent, lineHeight, sizes: {
+    name: clamp(sz.name, DEFAULT_SIZES.name), heading: clamp(sz.heading, DEFAULT_SIZES.heading),
+    body: clamp(sz.body, DEFAULT_SIZES.body), section: clamp(sz.section, DEFAULT_SIZES.section) } };
 }
 
 /** Link Google Fonts cho font web (Arial/Georgia là font hệ thống, không cần). */

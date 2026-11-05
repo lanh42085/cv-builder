@@ -7,45 +7,51 @@ import { parseInline } from "./inline";
 /** File Word 1 cột, không bảng — bản để nộp qua hệ thống ATS. Cùng bố cục với template 1 cột. */
 export async function cvToDocx(cv: CvData): Promise<Buffer> {
   const v = toView(cv);
-  const FONT = FONTS[cv.style.font].docx;
+  const FONT = FONTS[cv.style.bodyFont].docx;
+  const HFONT = FONTS[cv.style.font].docx;
   const ACCENT = cv.style.accent.replace("#", "").toUpperCase();
   const RIGHT = 9638; // twips ~ lề phải A4 với margin 2cm
-  const SZ = 22;      // 11pt
+  const Z = cv.style.sizes;
+  const SZ = Math.round(Z.body * 2);      // half-points
+  const HSZ = Math.round(Z.heading * 2);
+  const SEC = Math.round(Z.section * 2);
+  const NAME = Math.round(Z.name * 2);
+  const LINE = Math.round(cv.style.lineHeight * 240);
   const P: Paragraph[] = [];
 
-  const run = (text: string, o: { bold?: boolean; italics?: boolean; size?: number; color?: string } = {}) =>
-    new TextRun({ text, bold: o.bold, italics: o.italics, size: o.size ?? SZ, font: FONT, color: o.color });
+  const run = (text: string, o: { bold?: boolean; italics?: boolean; size?: number; color?: string; font?: string } = {}) =>
+    new TextRun({ text, bold: o.bold, italics: o.italics, size: o.size ?? SZ, font: o.font ?? FONT, color: o.color });
 
   const heading = (t: string) => new Paragraph({
     spacing: { before: 200, after: 60 },
     border: { bottom: { style: "single", size: 8, color: ACCENT, space: 1 } },
-    children: [run(t.toUpperCase(), { bold: true, size: 25, color: ACCENT })],
+    children: [run(t.toUpperCase(), { bold: true, size: SEC, color: ACCENT, font: HFONT })],
   });
-  const para = (t: string, o: { bold?: boolean; italics?: boolean; size?: number; color?: string; center?: boolean; justify?: boolean } = {}) => new Paragraph({
+  const para = (t: string, o: { bold?: boolean; italics?: boolean; size?: number; color?: string; center?: boolean; justify?: boolean; font?: string } = {}) => new Paragraph({
     alignment: o.center ? AlignmentType.CENTER : o.justify ? AlignmentType.JUSTIFIED : AlignmentType.LEFT,
-    spacing: { after: 20 }, children: runs(t, o),
+    spacing: { after: 20, line: LINE }, children: runs(t, o),
   });
   const twoSide = (left: string, right: string, o: { bold?: boolean; italics?: boolean } = {}) => new Paragraph({
-    tabStops: [{ type: TabStopType.RIGHT, position: RIGHT }], spacing: { before: 60, after: 10 },
-    children: [run(left, o), run(right ? `\t${right}` : "", { italics: true })],
+    tabStops: [{ type: TabStopType.RIGHT, position: RIGHT }], spacing: { before: 60, after: 10, line: LINE },
+    children: [run(left, o.bold ? { ...o, size: HSZ, font: HFONT } : o), run(right ? `\t${right}` : "", { italics: true })],
   });
-  const runs = (t: string, o: { bold?: boolean; italics?: boolean; size?: number; color?: string } = {}) =>
+  const runs = (t: string, o: { bold?: boolean; italics?: boolean; size?: number; color?: string; font?: string } = {}) =>
     parseInline(t).map((r) => run(r.text, { ...o, bold: o.bold || r.bold, italics: o.italics || r.italic }));
   const bullet = (t: string) => new Paragraph({
-    bullet: { level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: 20 }, children: runs(t),
+    bullet: { level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: 20, line: LINE }, children: runs(t),
   });
   const bulletRuns = (children: TextRun[]) => new Paragraph({
-    bullet: { level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: 20 }, children,
+    bullet: { level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: 20, line: LINE }, children,
   });
 
   const b = v.basics;
   const line1 = [b.location, b.phone, b.email].filter((x) => x.trim()).join("  |  ");
   const line2 = [b.linkedin.trim() && `LinkedIn: ${b.linkedin.trim()}`, b.github.trim() && `GitHub: ${b.github.trim()}`,
     b.portfolioUrl.trim() && `Portfolio: ${b.portfolioUrl.trim()}`].filter(Boolean).join("  |  ");
-  P.push(para(b.fullName.toUpperCase() || "HO VA TEN", { bold: true, size: 30, color: ACCENT, center: true }));
-  P.push(para(b.headline || "Data Analyst", { size: 23, center: true }));
-  if (line1) P.push(para(line1, { size: 20, center: true }));
-  if (line2) P.push(para(line2, { size: 20, center: true }));
+  P.push(para(b.fullName.toUpperCase() || "HO VA TEN", { bold: true, size: NAME, color: ACCENT, center: true, font: HFONT }));
+  P.push(para(b.headline || "Data Analyst", { size: HSZ, center: true }));
+  if (line1) P.push(para(line1, { center: true }));
+  if (line2) P.push(para(line2, { center: true }));
 
   const render: Record<string, () => void> = {
     about: () => { if (v.aboutMe) { P.push(heading("About me")); P.push(para(v.aboutMe, { justify: true })); } },

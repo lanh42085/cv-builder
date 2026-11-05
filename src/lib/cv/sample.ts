@@ -7,7 +7,10 @@ export const SAMPLE_CV: CvData = {
   "cvLanguage": "en",
   "style": {
     "font": "times",
-    "accent": "#111111"
+    "bodyFont": "times",
+    "accent": "#111111",
+    "lineHeight": 1.25,
+    "sizes": { "name": 15, "heading": 10.5, "body": 10, "section": 10.5 }
   },
   "sectionOrder": [
     "about",

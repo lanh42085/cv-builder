@@ -29,7 +29,7 @@ export function TwoColumn({ v, style, order }: { v: CvView; style: CvStyle; orde
 
   return (
     <div className="cv-page" style={{ width: 794, minHeight: 1123, display: "flex", boxSizing: "border-box",
-      background: "#fff", color: "#111", fontFamily: FONTS[style.font].family, fontSize: 11, lineHeight: 1.35 }}>
+      background: "#fff", color: "#111", fontFamily: FONTS[style.bodyFont].family, fontSize: 11, lineHeight: style.lineHeight }}>
       {/* Sidebar */}
       <aside style={{ width: 250, minHeight: 1123, padding: "48px 24px", boxSizing: "border-box", background: `${accent}14`, borderRight: `3px solid ${accent}` }}>
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: accent, lineHeight: 1.15 }}>{v.basics.fullName.toUpperCase() || "HỌ VÀ TÊN"}</h1>
