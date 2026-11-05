@@ -61,7 +61,7 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
     about: () => { if (v.aboutMe) { P.push(heading("About me")); P.push(para(v.aboutMe, { justify: true })); } },
     skills: () => {
       if (!v.skills.hard && !v.skills.soft) return;
-      P.push(heading("Technical skills"));
+      P.push(heading("Skills"));
       for (const [t, raw] of [["Hard skills", v.skills.hard], ["Soft skills", v.skills.soft]] as const) {
         const lines = skillLines(raw);
         if (!lines.length) continue;
@@ -71,7 +71,7 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
     },
     projects: () => {
       if (!v.projects.length) return;
-      P.push(heading("Portfolio projects"));
+      P.push(heading("Projects"));
       v.projects.forEach((p) => {
         const [name, ...tools] = p.header.split("|").map((x) => x.trim());
         P.push(twoSide(`${name}${tools.length ? ` [${tools.join(", ")}]` : ""}`, p.link ? `View Project: ${p.link}` : "", { bold: true }));
@@ -80,7 +80,7 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
     },
     experience: () => {
       if (!v.experience.length) return;
-      P.push(heading("Professional experience"));
+      P.push(heading("Experience"));
       for (const e of v.experience) {
         const [company, ...role] = e.header.split("|").map((x) => x.trim());
         P.push(twoSide(company, "", { bold: true }));

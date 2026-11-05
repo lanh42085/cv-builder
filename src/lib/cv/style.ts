@@ -85,8 +85,8 @@ export function fontsHrefAll(): string {
 /** Các mục của CV và thứ tự hiển thị. */
 export type SectionKey = "about" | "skills" | "projects" | "experience" | "education";
 export const SECTION_LABELS: Record<SectionKey, string> = {
-  about: "About me", skills: "Technical skills", projects: "Portfolio projects",
-  experience: "Professional experience", education: "Education & certifications",
+  about: "About me", skills: "Skills", projects: "Projects",
+  experience: "Experience", education: "Education & certifications",
 };
 export const DEFAULT_ORDER: SectionKey[] = ["about", "skills", "projects", "experience", "education"];
 

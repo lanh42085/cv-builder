@@ -23,13 +23,13 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
   const sections: Record<SectionKey, React.ReactNode> = {
     about: v.aboutMe ? <Section title="About me" accent={accent} size={pt(S.section)} font={headFont} gapSection={gap.section} gapTitle={gap.title}><p style={{ margin: 0, textAlign: "justify" }} data-block><Inline text={v.aboutMe} src={v.aboutSrc} /></p></Section> : null,
     skills: (v.skills.hard || v.skills.soft) ? (
-      <Section title="Technical skills" accent={accent} size={pt(S.section)} font={headFont} gapSection={gap.section} gapTitle={gap.title}>
+      <Section title="Skills" accent={accent} size={pt(S.section)} font={headFont} gapSection={gap.section} gapTitle={gap.title}>
         <SkillGroup title="Hard skills" raw={v.skills.hard} src="raw.skills.hard" />
         <SkillGroup title="Soft skills" raw={v.skills.soft} src="raw.skills.soft" />
       </Section>
     ) : null,
     projects: v.projects.length > 0 ? (
-      <Section title="Portfolio projects" accent={accent} size={pt(S.section)} font={headFont} gapSection={gap.section} gapTitle={gap.title}
+      <Section title="Projects" accent={accent} size={pt(S.section)} font={headFont} gapSection={gap.section} gapTitle={gap.title}
         right={b.github.trim() ? <A href={b.github} bold>Github Overview</A> : undefined}>
         {v.projects.map((p, i) => {
           const [name, ...tools] = p.header.split("|").map((s) => s.trim());
@@ -45,7 +45,7 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
       </Section>
     ) : null,
     experience: v.experience.length > 0 ? (
-      <Section title="Professional experience" accent={accent} size={pt(S.section)} font={headFont} gapSection={gap.section} gapTitle={gap.title}>
+      <Section title="Experience" accent={accent} size={pt(S.section)} font={headFont} gapSection={gap.section} gapTitle={gap.title}>
         {v.experience.map((e, i) => {
           const [company, ...role] = e.header.split("|").map((s) => s.trim());
           return (
