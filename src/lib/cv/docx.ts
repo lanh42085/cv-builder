@@ -10,6 +10,7 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
   const FONT = FONTS[cv.style.bodyFont].docx;
   const HFONT = FONTS[cv.style.font].docx;
   const ACCENT = cv.style.accent.replace("#", "").toUpperCase();
+  const L = cv.style.layout;
   const RIGHT = (L.format === "Letter" ? 12240 : 11906) - 2 * Math.round(L.marginX * 1440);
   const Z = cv.style.sizes;
   const SZ = Math.round(Z.body * 2);      // half-points
@@ -17,7 +18,6 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
   const SEC = Math.round(Z.section * 2);
   const NAME = Math.round(Z.name * 2);
   const LINE = Math.round(cv.style.lineHeight * 240);
-  const L = cv.style.layout;
   const TW = (inches: number) => Math.round(inches * 1440);
   const PTW = (p: number) => Math.round(p * 20); // pt → twips
   const PAGE_W = L.format === "Letter" ? 12240 : 11906, PAGE_H = L.format === "Letter" ? 15840 : 16838;
