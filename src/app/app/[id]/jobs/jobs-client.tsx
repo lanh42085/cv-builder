@@ -95,6 +95,7 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
       <header className="flex shrink-0 items-center justify-between border-b bg-white px-4 py-2">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 text-sm font-medium" style={{ color: "var(--navy)" }}><Image src="/logo.png" alt="UniGap" width={26} height={28} /> UniGap <span style={{ color: "var(--accent)" }}>CV Builder</span></Link>
+          <Link href={`/app/${resumeId}`} className="rounded-md border border-[var(--accent)] px-3 py-1.5 text-sm text-[var(--accent)] hover:bg-[var(--mint)]">← Sửa CV gốc</Link>
           <span className="text-sm font-medium">{title} — tùy biến theo JD</span>
         </div>
         <div className="flex rounded-full bg-[#d7efe8] p-1 text-sm">
@@ -110,7 +111,6 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
             <a href={`/api/export/pdf?id=${resumeId}&job=${selected.id}`} className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90">Tải PDF bản này</a>
             <a href={`/api/export/docx?id=${resumeId}&job=${selected.id}`} className="rounded-lg border px-3 py-1.5 text-sm hover:bg-neutral-50">Tải DOCX</a>
           </>)}
-          <Link href={`/app/${resumeId}`} className="rounded-md border border-[var(--accent)] px-3 py-1.5 text-sm text-[var(--accent)] hover:bg-[var(--mint)]">← Sửa CV gốc</Link>
         </div>
       </header>
 
