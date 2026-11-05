@@ -8,14 +8,15 @@ import { applyTailored, type Tailored } from "@/lib/cv/tailor";
 import { Preview, type PreviewHandle } from "@/components/cv/Preview";
 import { StyleBar } from "@/components/cv/StyleBar";
 import { normalizeCv } from "@/lib/cv/schema";
+import { pruneEmpty } from "@/lib/cv/paths";
 import { CustomizePanel } from "@/components/editor/CustomizePanel";
 import type { CvStyle } from "@/lib/cv/style";
 
 type Job = { id: string; job_title: string; jd_text: string; keyword_output: string | null; tailored: Tailored | null; style: CvStyle | null; cv_override: unknown | null; created_at: string };
 
 export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: string; title: string; cv: CvData; initialJobs: Job[] }) {
-  const [jobs, setJobs] = useState<Job[]>(initialJobs);
-  const [selected, setSelected] = useState<Job | null>(initialJobs[0] ?? null);
+  const [jobs, setJobs] = useState<Job[]>(() => initialJobs.map((j) => (j.cv_override ? { ...j, cv_override: pruneEmpty(normalizeCv(j.cv_override)) } : j)));
+  const [selected, setSelected] = useState<Job | null>(() => { const j = initialJobs[0] ?? null; return j?.cv_override ? { ...j, cv_override: pruneEmpty(normalizeCv(j.cv_override)) } : j; });
   const [mode, setMode] = useState<"edit" | "customize">("edit");
   const [styleSave, setStyleSave] = useState<"saved" | "dirty" | "saving" | "error">("saved");
   const latest = useRef(selected); latest.current = selected;

@@ -96,3 +96,12 @@ export function insertAfter(cv: CvData, path: string, value = ""): CvData {
   }
   return cv;
 }
+
+/** Bỏ bullet / dòng skill trống (dòng thêm bằng nút + rồi bỏ dở). */
+export function pruneEmpty(cv: CvData): CvData {
+  const next = structuredClone(cv);
+  for (const sec of [next.generated.experience, next.generated.projects]) for (const s of sec) s.bullets = s.bullets.filter((b) => b.trim());
+  next.raw.skills.hard = next.raw.skills.hard.split("\n").filter((l) => l.trim()).join("\n");
+  next.raw.skills.soft = next.raw.skills.soft.split("\n").filter((l) => l.trim()).join("\n");
+  return next;
+}

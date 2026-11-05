@@ -118,7 +118,7 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
         {set && !isDraft && <p className="mb-2 text-xs text-neutral-400">{editable ? "Mẹo: bấm vào chữ trên trang để sửa trực tiếp (Enter để lưu; rê chuột vào bullet: + thêm dòng dưới, × xoá dòng); bôi đen rồi bấm B (đậm) hoặc I (nghiêng)." : "Mẹo: bôi đen chữ ngay trên trang này rồi bấm B (đậm) hoặc I (nghiêng)."}</p>}
         {/* Bản đo chiều cao (ẩn) */}
         <div style={{ position: "absolute", left: -99999, top: 0, width: PAGE[cv.style.layout.format].w, visibility: "hidden" }} aria-hidden>
-          <div ref={measure}><CvTemplate cv={cv} /></div>
+          <div ref={measure}><CvTemplate cv={cv} edit={editApi} /></div>
         </div>
         <div className="rounded-xl bg-neutral-200/70 p-4">
           {pageSpans.map((sp, i) => {
