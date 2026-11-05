@@ -85,10 +85,10 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
           <input value={title} onChange={(e) => { setTitle(e.target.value); schedule(); }}
             className="rounded px-2 py-1 text-sm font-medium hover:bg-neutral-100 focus:bg-neutral-100 focus:outline-none" />
         </div>
-        <div className="flex rounded-full bg-neutral-100 p-1 text-sm">
+        <div className="flex rounded-full bg-[#d7efe8] p-1 text-sm">
           {(["edit", "customize"] as const).map((m) => (
             <button key={m} type="button" onClick={() => setMode(m)}
-              className={"rounded-full px-4 py-1 " + (mode === m ? "bg-white font-medium shadow" : "text-neutral-500 hover:text-neutral-900")}>
+              className={"rounded-full px-4 py-1.5 font-semibold transition " + (mode === m ? "bg-[var(--accent)] text-white shadow" : "text-[var(--accent-dark)] hover:bg-white/60")}>
               {m === "edit" ? "Edit nội dung" : "Format"}
             </button>
           ))}
