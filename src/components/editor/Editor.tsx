@@ -6,12 +6,14 @@ import type { CvData } from "@/lib/cv/schema";
 import { Preview, type PreviewHandle } from "@/components/cv/Preview";
 import { StyleBar } from "@/components/cv/StyleBar";
 import Image from "next/image";
+import { AccountMenu } from "@/components/AccountMenu";
+import type { SessionUser } from "@/lib/supabase/user";
 import { saveResume } from "@/app/app/[id]/actions";
 import { STEPS, StepAbout, StepAchievements, StepBasics, StepEducation, StepExperience, StepProjects, StepSkills } from "./steps";
 
 type SaveState = "saved" | "dirty" | "saving" | "error";
 
-export function Editor({ id, initialTitle, initialCv }: { id: string; initialTitle: string; initialCv: CvData }) {
+export function Editor({ id, initialTitle, initialCv, user }: { id: string; initialTitle: string; initialCv: CvData; user: SessionUser }) {
   const [cv, setCv] = useState<CvData>(initialCv);
   const [title, setTitle] = useState(initialTitle);
   const [step, setStep] = useState(0);
@@ -66,7 +68,7 @@ export function Editor({ id, initialTitle, initialCv }: { id: string; initialTit
     <div className="flex min-h-screen flex-col">
       <header className="flex items-center justify-between border-b bg-white px-4 py-2">
         <div className="flex items-center gap-3">
-          <Link href="/app" className="flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-900"><Image src="/logo.png" alt="UniGap" width={24} height={26} /> ← CV của tôi</Link>
+          <Link href="/" className="flex items-center gap-2 text-sm font-medium" style={{ color: "var(--navy)" }}><Image src="/logo.png" alt="UniGap" width={26} height={28} /> UniGap <span style={{ color: "var(--accent)" }}>CV Builder</span></Link>
           <input value={title} onChange={(e) => { setTitle(e.target.value); schedule(); }}
             className="rounded px-2 py-1 text-sm font-medium hover:bg-neutral-100 focus:bg-neutral-100 focus:outline-none" />
         </div>
@@ -88,9 +90,10 @@ export function Editor({ id, initialTitle, initialCv }: { id: string; initialTit
             {exporting === "docx" ? "Đang tạo…" : "Tải DOCX"}
           </button>
           <Link href={`/app/${id}/jobs`} onClick={() => { if (timer.current) { clearTimeout(timer.current); flush(); } }}
-            className="rounded-md border border-[var(--accent)] px-3 py-1.5 text-sm text-[var(--accent)] hover:bg-blue-50">
+            className="rounded-md border border-[var(--accent)] px-3 py-1.5 text-sm text-[var(--accent)] hover:bg-[var(--mint)]">
             Tùy biến theo JD →
           </Link>
+          <AccountMenu email={user.email} name={user.name} avatarUrl={user.avatarUrl} />
         </div>
       </header>
 

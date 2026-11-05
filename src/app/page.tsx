@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Brand } from "@/components/Brand";
+import { AccountMenu } from "@/components/AccountMenu";
 import { SampleCv } from "@/components/cv/SampleCv";
+import { getSessionUser } from "@/lib/supabase/user";
 
 const STEPS = [
   { n: "1", title: "Điền dữ liệu thô", text: "7 phần theo đúng khung hướng dẫn của lớp: About Me, Experience (STAR), Projects, Skills… Chưa cần hay, chưa cần tiếng Anh." },
@@ -8,14 +10,19 @@ const STEPS = [
   { n: "3", title: "Tùy biến & tải về", text: "Dán JD, AI lồng keyword rồi tạo bản riêng cho job đó. Tải PDF chuẩn ATS hoặc DOCX để nộp." },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const user = await getSessionUser();
   return (
     <main className="min-h-screen bg-white">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <Brand />
-        <Link href="/login" className="rounded-full px-5 py-2 text-sm font-medium text-white hover:opacity-90" style={{ background: "var(--accent)" }}>
-          Đăng nhập
-        </Link>
+        {user ? (
+          <AccountMenu email={user.email} name={user.name} avatarUrl={user.avatarUrl} />
+        ) : (
+          <Link href="/login" className="rounded-full border px-5 py-2 text-sm font-medium hover:bg-neutral-50" style={{ borderColor: "var(--accent)", color: "var(--accent)" }}>
+            Đăng nhập
+          </Link>
+        )}
       </header>
 
       <section className="mx-auto grid max-w-6xl items-center gap-10 px-6 py-12 lg:grid-cols-2 lg:py-20">
@@ -28,8 +35,8 @@ export default function Home() {
             Điền dữ liệu thô theo khung hướng dẫn, AI viết thành CV Data Analyst chuẩn, tùy biến theo từng JD.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
-            <Link href="/login" className="rounded-full px-7 py-3 text-base font-semibold text-white shadow-lg hover:opacity-90" style={{ background: "var(--accent)" }}>
-              Bắt đầu với Google
+            <Link href="/app" className="rounded-full px-8 py-3 text-base font-semibold text-white shadow-lg hover:opacity-90" style={{ background: "var(--accent)" }}>
+              {user ? "Mở CV của tôi" : "Tạo CV"}
             </Link>
             <span className="text-sm text-neutral-500">Dành cho học viên UniGap · miễn phí</span>
           </div>
