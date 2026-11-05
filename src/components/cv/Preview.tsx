@@ -64,7 +64,7 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
     useEffect(() => {
       const el = ref.current;
       if (!el) return;
-      const ro = new ResizeObserver(([entry]) => setScale(Math.min(1, entry.contentRect.width / PAGE[cv.style.layout.format].w)));
+      const ro = new ResizeObserver(([entry]) => setScale(Math.min(1, (entry.contentRect.width - 32) / PAGE[cv.style.layout.format].w)));
       ro.observe(el);
       return () => ro.disconnect();
     }, [cv.style.layout.format]);

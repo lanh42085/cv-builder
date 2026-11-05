@@ -119,7 +119,7 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
       </header>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="min-h-0 overflow-y-auto p-3">
+        <div className="min-h-0 overflow-y-auto overflow-x-hidden p-3">
           <div className="overflow-hidden rounded-xl bg-white shadow-sm">
             {mode === "customize" ? (
               <div className="p-6 lg:p-8">
@@ -169,7 +169,7 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
             </>)}
           </div>
         </div>
-        <div className="min-h-0 overflow-y-auto p-3">
+        <div className="min-h-0 overflow-y-auto overflow-x-hidden p-3">
           <StyleBar cv={cv} set={set} canFormat={canFormat} onFormat={(f) => previewRef.current?.format(f)} />
           <Preview ref={previewRef} cv={cv} set={set} onSelectionChange={setCanFormat} />
         </div>
