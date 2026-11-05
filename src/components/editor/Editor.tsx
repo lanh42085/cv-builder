@@ -133,7 +133,7 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
           </>)}
         </div>
         <div className="sticky top-0 self-start p-4">
-          <StyleBar canFormat={canFormat} onFormat={(f) => previewRef.current?.format(f)} />
+          <StyleBar cv={cv} set={set} canFormat={canFormat} onFormat={(f) => previewRef.current?.format(f)} />
           <Preview ref={previewRef} cv={cv} set={set} onSelectionChange={setCanFormat} />
         </div>
       </div>

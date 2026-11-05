@@ -16,8 +16,9 @@ ${fontHref ? `<link href="${fontHref}" rel="stylesheet">` : ""}
 <style>
   @page { size: A4; margin: 0; }
   html, body { margin: 0; padding: 0; background: #fff; }
-  .cv-page { page-break-after: always; }
+  .cv-page { min-height: auto !important; }
   li, section > div { break-inside: avoid; }
+  h2 { break-after: avoid; }
 </style></head>
 <body>${body}</body></html>`;
 }

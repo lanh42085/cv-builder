@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from "react";
 import type { CvData } from "@/lib/cv/schema";
 import { toView } from "@/lib/cv/view";
 import { toggleFmtVisible, type Fmt } from "@/lib/cv/inline";
@@ -16,6 +16,16 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
     const ref = useRef<HTMLDivElement>(null);
     const [scale, setScale] = useState(0.6);
     const [sel, setSelState] = useState<Sel | null>(null);
+    const measure = useRef<HTMLDivElement>(null);
+    const [pages, setPages] = useState(1);
+
+    // Đo chiều cao nội dung → số trang A4
+    useLayoutEffect(() => {
+      const el = measure.current;
+      if (!el) return;
+      const h = el.scrollHeight;
+      setPages(Math.max(1, Math.ceil((h - 2) / 1123)));
+    }, [cv]);
     const setSel = (s: Sel | null) => { setSelState(s); onSelectionChange?.(Boolean(s)); };
 
     useEffect(() => {
@@ -61,11 +71,21 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
           </p>
         )}
         {set && !isDraft && <p className="mb-2 text-xs text-neutral-400">Mẹo: bôi đen chữ ngay trên trang này rồi bấm B (đậm) hoặc I (nghiêng).</p>}
-        <div style={{ height: 1123 * scale }} className="overflow-hidden rounded shadow-lg">
-          <div style={{ transform: `scale(${scale})`, transformOrigin: "top left", width: 794 }}>
-            <CvTemplate cv={cv} />
-          </div>
+        {/* Bản đo chiều cao (ẩn) */}
+        <div style={{ position: "absolute", left: -99999, top: 0, width: 794, visibility: "hidden" }} aria-hidden>
+          <div ref={measure}><CvTemplate cv={cv} /></div>
         </div>
+        {Array.from({ length: pages }, (_, i) => (
+          <div key={i} className="relative">
+            {pages > 1 && <div className="mb-1 text-right text-[11px] text-neutral-400">Trang {i + 1} / {pages}</div>}
+            <div style={{ height: 1123 * scale }} className="mb-4 overflow-hidden rounded bg-white shadow-lg">
+              <div style={{ transform: `scale(${scale}) translateY(${-i * 1123}px)`, transformOrigin: "top left", width: 794 }}>
+                <CvTemplate cv={cv} />
+              </div>
+            </div>
+          </div>
+        ))}
+        {pages > 1 && <p className="text-xs text-amber-700">CV đang dài {pages} trang. Với fresher nên gọn 1 trang: rút bullet hoặc giảm cỡ chữ / giãn dòng trong Customize.</p>}
         {sel && (
           <div style={{ left: sel.x, top: sel.y - 36 }} className="absolute z-20 flex -translate-x-1/2 gap-1">
             <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => format("bold")} className={btn + " font-bold"} title="In đậm">B</button>
