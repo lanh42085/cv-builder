@@ -1,7 +1,7 @@
 import { parseInline, serializeInline, type Run } from "@/lib/cv/inline";
 
 /** Khi truyền `edit`, chữ trên CV sửa trực tiếp được (bấm vào gõ, Enter/bấm ra ngoài để lưu). Không dùng hook để render được cả phía server (PDF). */
-export type EditApi = { commit: (path: string, value: string) => void; insert: (path: string) => void };
+export type EditApi = { commit: (path: string, value: string) => void; insert: (path: string) => void; remove: (path: string) => void };
 
 function runsFromDom(el: HTMLElement): Run[] {
   const out: Run[] = [];
@@ -36,12 +36,18 @@ export function Inline({ text, src, edit }: { text: string; src?: string | null;
   );
 }
 
-/** Nút "+" nhỏ (chỉ khi đang sửa trực tiếp) chèn một bullet trống sau bullet có path này. */
+/** Hai nút nhỏ bên trái bullet (chỉ khi đang sửa trực tiếp): + chèn bullet trống phía dưới, × xoá bullet này. */
 export function AddAfter({ path, edit }: { path: string; edit?: EditApi | null }) {
   if (!edit) return null;
+  const btn = (label: string, title: string, color: string, onClick: () => void) => (
+    <button type="button" contentEditable={false} title={title} onMouseDown={(e) => e.preventDefault()} onClick={onClick}
+      style={{ width: 16, height: 16, lineHeight: "14px", fontSize: 12, borderRadius: 8, border: "1px solid #cbd5e1", background: "#fff", color, cursor: "pointer", padding: 0 }}>{label}</button>
+  );
   return (
-    <button type="button" contentEditable={false} title="Thêm bullet dưới dòng này" onMouseDown={(e) => e.preventDefault()} onClick={() => edit.insert(path)}
-      style={{ position: "absolute", right: -22, top: 0, width: 16, height: 16, lineHeight: "14px", fontSize: 12, borderRadius: 8, border: "1px solid #cbd5e1", background: "#fff", color: "#00b090", cursor: "pointer", padding: 0 }}
-      className="opacity-0 group-hover:opacity-100 hover:opacity-100">+</button>
+    <span contentEditable={false} className="opacity-0 group-hover:opacity-100 hover:opacity-100"
+      style={{ position: "absolute", left: -54, top: 0, display: "inline-flex", gap: 3 }}>
+      {btn("+", "Thêm bullet dưới dòng này", "#00b090", () => edit.insert(path))}
+      {btn("×", "Xoá bullet này", "#dc2626", () => edit.remove(path))}
+    </span>
   );
 }

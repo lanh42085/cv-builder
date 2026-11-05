@@ -99,6 +99,7 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
     /** Sửa trực tiếp: giữ nhãn in đậm đầu dòng skill ("**SQL:** ") vì phần hiện ra không gồm nhãn. */
     const editApi = editable && set ? {
       insert: (path: string) => set((c) => insertAfter(c, path, "")),
+      remove: (path: string) => set((c) => removeAt(c, path)),
       commit: (path: string, value: string) => set((c) => {
       // Xoá hết chữ → bỏ luôn bullet / dòng đó (riêng About Me thì để trống)
       if (!value.trim() && !path.startsWith("generated.aboutMe") && !path.includes("#")) { const r = removeAt(c, path); if (r !== c) return r; }
@@ -114,7 +115,7 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
             Bản nháp ghép từ dữ liệu thô. Bấm “Tạo bằng AI” ở các bước About Me, Experience, Projects để AI viết lại câu chữ.
           </p>
         )}
-        {set && !isDraft && <p className="mb-2 text-xs text-neutral-400">{editable ? "Mẹo: bấm vào chữ trên trang để sửa trực tiếp (Enter để lưu; xoá hết chữ rồi Enter = bỏ bullet; rê chuột vào bullet bấm + để thêm); bôi đen rồi bấm B (đậm) hoặc I (nghiêng)." : "Mẹo: bôi đen chữ ngay trên trang này rồi bấm B (đậm) hoặc I (nghiêng)."}</p>}
+        {set && !isDraft && <p className="mb-2 text-xs text-neutral-400">{editable ? "Mẹo: bấm vào chữ trên trang để sửa trực tiếp (Enter để lưu; rê chuột vào bullet: + thêm dòng dưới, × xoá dòng); bôi đen rồi bấm B (đậm) hoặc I (nghiêng)." : "Mẹo: bôi đen chữ ngay trên trang này rồi bấm B (đậm) hoặc I (nghiêng)."}</p>}
         {/* Bản đo chiều cao (ẩn) */}
         <div style={{ position: "absolute", left: -99999, top: 0, width: PAGE[cv.style.layout.format].w, visibility: "hidden" }} aria-hidden>
           <div ref={measure}><CvTemplate cv={cv} /></div>
