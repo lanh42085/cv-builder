@@ -30,7 +30,7 @@ export function StyleBar({ cv, set, onFormat, canFormat }: { cv: CvData; set: (f
       )}
       <details className="w-full">
         <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90">↕ Thứ tự các mục <span className="text-xs font-normal opacity-80">kéo thả hoặc bấm mũi tên</span></summary>
-        <ol className="mt-2 grid gap-1">
+        <ol className="mt-3 grid gap-2">
           {cv.sectionOrder.map((k: SectionKey, i) => (
             <li key={k} draggable
               onDragStart={(e) => { setDrag(i); e.dataTransfer.effectAllowed = "move"; }}
@@ -38,12 +38,18 @@ export function StyleBar({ cv, set, onFormat, canFormat }: { cv: CvData; set: (f
               onDragLeave={() => setOver(null)}
               onDrop={(e) => { e.preventDefault(); if (drag !== null) reorder(drag, i); setDrag(null); setOver(null); }}
               onDragEnd={() => { setDrag(null); setOver(null); }}
-              className={"flex cursor-grab items-center justify-between rounded border px-2 py-1 text-xs active:cursor-grabbing " +
-                (over === i && drag !== i ? "border-[var(--accent)] bg-[var(--mint)]" : "bg-neutral-50") + (drag === i ? " opacity-40" : "")}>
-              <span><span className="mr-2 text-neutral-400">⋮⋮</span>{i + 1}. {SECTION_LABELS[k]}</span>
-              <span className="flex gap-1">
-                <button type="button" disabled={i === 0} onClick={() => move(i, -1)} className="rounded border px-1.5 hover:bg-white disabled:opacity-30">▲</button>
-                <button type="button" disabled={i === cv.sectionOrder.length - 1} onClick={() => move(i, 1)} className="rounded border px-1.5 hover:bg-white disabled:opacity-30">▼</button>
+              className={"flex cursor-grab items-center justify-between rounded-lg px-3 py-2 text-sm transition active:cursor-grabbing " +
+                (over === i && drag !== i ? "bg-[var(--mint)] ring-2 ring-[var(--accent)]" : "bg-[#eef6f4] hover:bg-[#e3f0ec]") + (drag === i ? " opacity-40 shadow-lg" : "")}>
+              <span className="flex items-center gap-3">
+                <span className="text-neutral-300">⋮⋮</span>
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--accent)] text-xs font-bold text-white">{i + 1}</span>
+                <span className="font-medium text-neutral-800">{SECTION_LABELS[k]}</span>
+              </span>
+              <span className="flex gap-1.5">
+                <button type="button" disabled={i === 0} onClick={() => move(i, -1)} aria-label="Lên"
+                  className="flex h-7 w-7 items-center justify-center rounded-full border border-neutral-200 bg-white text-xs text-neutral-600 hover:border-[var(--accent)] hover:text-[var(--accent)] disabled:opacity-25 disabled:hover:border-neutral-200 disabled:hover:text-neutral-600">▲</button>
+                <button type="button" disabled={i === cv.sectionOrder.length - 1} onClick={() => move(i, 1)} aria-label="Xuống"
+                  className="flex h-7 w-7 items-center justify-center rounded-full border border-neutral-200 bg-white text-xs text-neutral-600 hover:border-[var(--accent)] hover:text-[var(--accent)] disabled:opacity-25 disabled:hover:border-neutral-200 disabled:hover:text-neutral-600">▼</button>
               </span>
             </li>
           ))}

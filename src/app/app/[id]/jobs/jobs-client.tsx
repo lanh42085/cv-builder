@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CvData } from "@/lib/cv/schema";
 import { applyTailored, type Tailored } from "@/lib/cv/tailor";
@@ -93,8 +94,8 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
     <div className="flex h-screen flex-col bg-[#e6f4f1]">
       <header className="flex shrink-0 items-center justify-between border-b bg-white px-4 py-2">
         <div className="flex items-center gap-3">
-          <Link href={`/app/${resumeId}`} className="text-sm text-neutral-500 hover:text-neutral-900">← Sửa CV gốc</Link>
-          <span className="text-sm font-medium">{title} — tùy biến theo job</span>
+          <Link href="/" className="flex items-center gap-2 text-sm font-medium" style={{ color: "var(--navy)" }}><Image src="/logo.png" alt="UniGap" width={26} height={28} /> UniGap <span style={{ color: "var(--accent)" }}>CV Builder</span></Link>
+          <span className="text-sm font-medium">{title} — tùy biến theo JD</span>
         </div>
         <div className="flex rounded-full bg-[#d7efe8] p-1 text-sm">
           {(["edit", "customize"] as const).map((m) => (
@@ -104,12 +105,13 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
             </button>
           ))}
         </div>
-        {selected && (
-          <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          {selected && (<>
             <a href={`/api/export/pdf?id=${resumeId}&job=${selected.id}`} className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90">Tải PDF bản này</a>
             <a href={`/api/export/docx?id=${resumeId}&job=${selected.id}`} className="rounded-lg border px-3 py-1.5 text-sm hover:bg-neutral-50">Tải DOCX</a>
-          </div>
-        )}
+          </>)}
+          <Link href={`/app/${resumeId}`} className="rounded-md border border-[var(--accent)] px-3 py-1.5 text-sm text-[var(--accent)] hover:bg-[var(--mint)]">← Sửa CV gốc</Link>
+        </div>
       </header>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
