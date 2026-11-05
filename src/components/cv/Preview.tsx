@@ -22,7 +22,7 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
     const [pageSpans, setPageSpans] = useState<{ start: number; end: number }[]>([{ start: 0, end: Infinity }]);
 
     // Ngắt trang: xếp các khối nguyên tử (data-block) vào trang, giữ lề trên/dưới mọi trang, không cắt giữa khối
-    useLayoutEffect(() => {
+    const paginate = () => {
       const root = measure.current;
       if (!root) return;
       const PG = PAGE[cv.style.layout.format];
@@ -34,7 +34,7 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
         return { top: r.top - rootTop, bottom: r.bottom - rootTop };
       });
       const spans: { start: number; end: number }[] = [];
-      let start = 0; // trang 1: nội dung bắt đầu sau padding-top (= mY) của root
+      let start = 0;
       let limit = mY + avail;
       for (const b of blocks) {
         if (b.bottom > limit + 0.5 && b.top > start + mY + 1) {
@@ -44,8 +44,20 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
         }
       }
       spans.push({ start, end: Infinity });
-      setPageSpans(spans);
-    }, [cv]);
+      setPageSpans((prev) => (JSON.stringify(prev) === JSON.stringify(spans) ? prev : spans));
+    };
+
+    // Đo lại khi dữ liệu đổi, khi font tải xong, và khi chiều cao nội dung đổi
+    useLayoutEffect(() => { paginate(); }, [cv]); // eslint-disable-line react-hooks/exhaustive-deps
+    useEffect(() => {
+      const root = measure.current;
+      if (!root) return;
+      const ro = new ResizeObserver(() => paginate());
+      ro.observe(root);
+      const fonts = (document as unknown as { fonts?: { ready: Promise<unknown> } }).fonts;
+      fonts?.ready.then(() => paginate());
+      return () => ro.disconnect();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
     const pages = pageSpans.length;
     const setSel = (s: Sel | null) => { setSelState(s); onSelectionChange?.(Boolean(s)); };
 
