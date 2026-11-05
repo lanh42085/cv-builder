@@ -122,8 +122,8 @@ export function JobsClient({ resumeId, title, cv: initialCv, initialJobs }: { re
             <div className="mb-5 flex flex-wrap gap-2">
               {jobs.map((j) => (
                 <button key={j.id} type="button" onClick={() => { setSelected(j); setCreating(false); }}
-                  className={"rounded-full px-3 py-1.5 text-xs transition " + (selected?.id === j.id && !creating ? "bg-[var(--navy)] text-white" : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200")}>
-                  {j.job_title} <span className={selected?.id === j.id && !creating ? "opacity-60" : "text-neutral-400"}>· {new Date(j.created_at).toLocaleDateString("vi-VN")}</span>
+                  className={"rounded-full px-4 py-2 text-sm font-semibold transition " + (selected?.id === j.id && !creating ? "bg-[#6c5ce7] text-white" : "bg-[#efeafd] text-[#5a4bd1] hover:bg-[#e3dcfb]")}>
+                  {j.job_title} <span className="font-normal opacity-70">· {new Date(j.created_at).toLocaleDateString("vi-VN")}</span>
                 </button>
               ))}
             </div>
