@@ -21,7 +21,7 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
   const hasLinks = b.linkedin.trim() || b.github.trim() || b.portfolioUrl.trim();
 
   const sections: Record<SectionKey, React.ReactNode> = {
-    about: v.aboutMe ? <Section title="About me" accent={accent} size={pt(S.section)} font={headFont} gapSection={gap.section} gapTitle={gap.title}><p style={{ margin: 0, textAlign: "justify" }}><Inline text={v.aboutMe} src={v.aboutSrc} /></p></Section> : null,
+    about: v.aboutMe ? <Section title="About me" accent={accent} size={pt(S.section)} font={headFont} gapSection={gap.section} gapTitle={gap.title}><p style={{ margin: 0, textAlign: "justify" }} data-block><Inline text={v.aboutMe} src={v.aboutSrc} /></p></Section> : null,
     skills: (v.skills.hard || v.skills.soft) ? (
       <Section title="Technical skills" accent={accent} size={pt(S.section)} font={headFont} gapSection={gap.section} gapTitle={gap.title}>
         <SkillGroup title="Hard skills" raw={v.skills.hard} src="raw.skills.hard" />
@@ -35,7 +35,7 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
           const [name, ...tools] = p.header.split("|").map((s) => s.trim());
           return (
             <div key={i} style={{ marginBottom: gap.block }}>
-              <TwoSide
+              <TwoSide block
                 left={<b style={{ fontSize: pt(S.heading), fontFamily: headFont }}>{name || "Tên project"}{tools.length > 0 && ` [${tools.join(", ")}]`}</b>}
                 right={p.link ? <A href={p.link} bold>View Project</A> : null} />
               <Bullets items={p.bullets} srcs={p.srcs} />
@@ -50,8 +50,8 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
           const [company, ...role] = e.header.split("|").map((s) => s.trim());
           return (
             <div key={i} style={{ marginBottom: gap.block }}>
-              <div style={{ fontWeight: 700, fontSize: pt(S.heading), fontFamily: headFont }}>{company || "Công ty"}</div>
-              <TwoSide left={<i>{role.join(" | ")}</i>} right={e.period ? <i>{e.period}</i> : null} />
+              <div style={{ fontWeight: 700, fontSize: pt(S.heading), fontFamily: headFont }} data-block>{company || "Công ty"}</div>
+              <TwoSide block left={<i>{role.join(" | ")}</i>} right={e.period ? <i>{e.period}</i> : null} />
               <Bullets items={e.bullets} srcs={e.srcs} />
             </div>
           );
@@ -64,14 +64,14 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
           const [school, ...rest] = e.line.split(" – ");
           return (
             <div key={i} style={{ marginBottom: gap.block }}>
-              <div style={{ fontWeight: 700, fontSize: pt(S.heading), fontFamily: headFont }}>{school}</div>
-              <TwoSide left={<i>{rest.join(" – ")}</i>} right={e.years ? <i>{e.years}</i> : null} />
-              {e.note && <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}><li><Inline text={e.note} src={e.noteSrc} /></li></ul>}
+              <div style={{ fontWeight: 700, fontSize: pt(S.heading), fontFamily: headFont }} data-block>{school}</div>
+              <TwoSide block left={<i>{rest.join(" – ")}</i>} right={e.years ? <i>{e.years}</i> : null} />
+              {e.note && <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}><li data-block><Inline text={e.note} src={e.noteSrc} /></li></ul>}
             </div>
           );
         })}
         {v.achievements.length > 0 && (
-          <div style={{ marginTop: 3 }}>
+          <div style={{ marginTop: 3 }} data-block>
             <b>Certifications:</b>{" "}
             {v.achievements.map((a, i) => (
               <span key={i}>
@@ -89,7 +89,7 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
   return (
     <div className="cv-page" style={{ width: PG.w, minHeight: PG.h, padding: `${inch(L.marginY)}px ${inch(L.marginX)}px`, boxSizing: "border-box",
       background: "#fff", color: "#111", fontFamily: bodyFont, fontSize: pt(S.body), lineHeight: style.lineHeight, ["--gap-inner" as string]: `${gap.inner}px` }}>
-      <div style={{ textAlign: "center" }}>
+      <div style={{ textAlign: "center" }} data-block>
         <h1 style={{ margin: 0, fontSize: pt(S.name), fontWeight: 700, color: accent, letterSpacing: 0.3, fontFamily: headFont }}>
           {b.fullName.toUpperCase() || "HỌ VÀ TÊN"}
         </h1>
@@ -120,9 +120,9 @@ function SkillGroup({ title, raw, src }: { title: string; raw: string; src: stri
   if (lines.length === 0) return null;
   return (
     <div style={{ marginBottom: 3 }}>
-      <div style={{ fontWeight: 700 }}>{title}</div>
+      <div style={{ fontWeight: 700 }} data-block>{title}</div>
       <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}>
-        {lines.map((l, i) => <li key={i}>{l.label ? <><b>{l.label}:</b> <Inline text={l.text} src={`${src}@${i}`} /></> : <Inline text={l.text} src={`${src}@${i}`} />}</li>)}
+        {lines.map((l, i) => <li key={i} data-block>{l.label ? <><b>{l.label}:</b> <Inline text={l.text} src={`${src}@${i}`} /></> : <Inline text={l.text} src={`${src}@${i}`} />}</li>)}
       </ul>
     </div>
   );
@@ -137,7 +137,7 @@ function Sep() { return <span style={{ color: "#666", margin: "0 6px" }}>|</span
 export function Section({ title, accent, right, children, size = 14, font, gapSection = 10, gapTitle = 4 }: { title: string; accent: string; right?: React.ReactNode; children: React.ReactNode; size?: number; font?: string; gapSection?: number; gapTitle?: number }) {
   return (
     <section style={{ marginTop: gapSection }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline",
+      <div data-block style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline",
         borderBottom: `1.2px solid ${accent}`, paddingBottom: 1, marginBottom: gapTitle }}>
         <h2 style={{ margin: 0, fontSize: size, fontWeight: 700, textTransform: "uppercase", color: accent, fontFamily: font }}>{title}</h2>
         {right && <span>{right}</span>}
@@ -147,9 +147,9 @@ export function Section({ title, accent, right, children, size = 14, font, gapSe
   );
 }
 
-function TwoSide({ left, right }: { left: React.ReactNode; right: React.ReactNode }) {
+function TwoSide({ left, right, block }: { left: React.ReactNode; right: React.ReactNode; block?: boolean }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}>
+    <div data-block={block ? "" : undefined} style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}>
       <span>{left}</span>
       {right && <span style={{ whiteSpace: "nowrap" }}>{right}</span>}
     </div>
@@ -165,7 +165,7 @@ export function Bullets({ items, srcs }: { items: string[]; srcs?: (string | nul
   if (xs.length === 0) return null;
   return (
     <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}>
-      {xs.map((x, i) => <li key={i} style={{ marginBottom: "var(--gap-inner, 1px)", textAlign: "justify" }}><Inline text={x.s} src={x.src} /></li>)}
+      {xs.map((x, i) => <li key={i} data-block style={{ marginBottom: "var(--gap-inner, 1px)", textAlign: "justify" }}><Inline text={x.s} src={x.src} /></li>)}
     </ul>
   );
 }

@@ -18,15 +18,35 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
     const [scale, setScale] = useState(0.6);
     const [sel, setSelState] = useState<Sel | null>(null);
     const measure = useRef<HTMLDivElement>(null);
-    const [pages, setPages] = useState(1);
+    // Mỗi trang: start = toạ độ (trong nội dung liên tục) hiện ở mép trên vùng lề; end = toạ độ phải che đi
+    const [pageSpans, setPageSpans] = useState<{ start: number; end: number }[]>([{ start: 0, end: Infinity }]);
 
-    // Đo chiều cao nội dung → số trang A4
+    // Ngắt trang: xếp các khối nguyên tử (data-block) vào trang, giữ lề trên/dưới mọi trang, không cắt giữa khối
     useLayoutEffect(() => {
-      const el = measure.current;
-      if (!el) return;
-      const h = el.scrollHeight;
-      setPages(Math.max(1, Math.ceil((h - 2) / PAGE[cv.style.layout.format].h)));
+      const root = measure.current;
+      if (!root) return;
+      const PG = PAGE[cv.style.layout.format];
+      const mY = Math.round(cv.style.layout.marginY * 96);
+      const avail = PG.h - 2 * mY;
+      const rootTop = root.getBoundingClientRect().top;
+      const blocks = Array.from(root.querySelectorAll<HTMLElement>("[data-block]")).map((el) => {
+        const r = el.getBoundingClientRect();
+        return { top: r.top - rootTop, bottom: r.bottom - rootTop };
+      });
+      const spans: { start: number; end: number }[] = [];
+      let start = 0; // trang 1: nội dung bắt đầu sau padding-top (= mY) của root
+      let limit = mY + avail;
+      for (const b of blocks) {
+        if (b.bottom > limit + 0.5 && b.top > start + mY + 1) {
+          spans.push({ start, end: b.top });
+          start = b.top - mY;
+          limit = start + mY + avail;
+        }
+      }
+      spans.push({ start, end: Infinity });
+      setPageSpans(spans);
     }, [cv]);
+    const pages = pageSpans.length;
     const setSel = (s: Sel | null) => { setSelState(s); onSelectionChange?.(Boolean(s)); };
 
     useEffect(() => {
@@ -76,16 +96,28 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
         <div style={{ position: "absolute", left: -99999, top: 0, width: PAGE[cv.style.layout.format].w, visibility: "hidden" }} aria-hidden>
           <div ref={measure}><CvTemplate cv={cv} /></div>
         </div>
-        {Array.from({ length: pages }, (_, i) => (
-          <div key={i} className="relative">
-            {pages > 1 && <div className="mb-1 text-right text-[11px] text-neutral-400">Trang {i + 1} / {pages}</div>}
-            <div style={{ height: PAGE[cv.style.layout.format].h * scale }} className="mb-4 overflow-hidden rounded bg-white shadow-lg">
-              <div style={{ transform: `scale(${scale}) translateY(${-i * PAGE[cv.style.layout.format].h}px)`, transformOrigin: "top left", width: PAGE[cv.style.layout.format].w }}>
-                <CvTemplate cv={cv} />
+        <div className="rounded-xl bg-neutral-200/70 p-4">
+          {pageSpans.map((sp, i) => {
+            const PG = PAGE[cv.style.layout.format];
+            const maskTop = Number.isFinite(sp.end) ? (sp.end - sp.start) : null;
+            return (
+              <div key={i} className="relative" style={{ marginBottom: i < pages - 1 ? 16 : 0 }}>
+                <div style={{ height: PG.h * scale, width: PG.w * scale }} className="relative mx-auto overflow-hidden bg-white shadow-[0_2px_12px_rgba(0,0,0,0.25)] ring-1 ring-neutral-300">
+                  <div style={{ transform: `scale(${scale}) translateY(${-sp.start}px)`, transformOrigin: "top left", width: PG.w }}>
+                    <CvTemplate cv={cv} />
+                  </div>
+                  {maskTop !== null && (
+                    <div className="absolute inset-x-0 bottom-0 bg-white" style={{ top: maskTop * scale }} />
+                  )}
+                </div>
+                <div className="mt-1 flex justify-between text-[11px] text-neutral-500" style={{ width: PG.w * scale, margin: "4px auto 0" }}>
+                  <span>{cv.style.layout.format === "A4" ? "A4 · 210 × 297 mm" : "Letter · 8.5 × 11 in"}</span>
+                  <span>Trang {i + 1} / {pages}</span>
+                </div>
               </div>
-            </div>
-          </div>
-        ))}
+            );
+          })}
+        </div>
         {pages > 1 && <p className="text-xs text-amber-700">CV đang dài {pages} trang. Với fresher nên gọn 1 trang: rút bullet hoặc giảm cỡ chữ / giãn dòng trong Customize.</p>}
         {sel && (
           <div style={{ left: sel.x, top: sel.y - 36 }} className="absolute z-20 flex -translate-x-1/2 gap-1">

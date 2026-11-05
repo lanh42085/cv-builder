@@ -14,11 +14,11 @@ export async function cvToHtml(cv: CvData): Promise<string> {
 <html lang="vi"><head><meta charset="utf-8">
 ${fontHref ? `<link href="${fontHref}" rel="stylesheet">` : ""}
 <style>
-  @page { size: ${cv.style.layout.format}; margin: 0; }
+  @page { size: ${cv.style.layout.format}; margin: ${cv.style.layout.marginY}in ${cv.style.layout.marginX}in; }
   html, body { margin: 0; padding: 0; background: #fff; }
-  .cv-page { min-height: auto !important; }
-  li, section > div { break-inside: avoid; }
-  h2 { break-after: avoid; }
+  .cv-page { min-height: auto !important; padding: 0 !important; width: auto !important; }
+  [data-block] { break-inside: avoid; }
+  section > div:first-child { break-after: avoid; }
 </style></head>
 <body>${body}</body></html>`;
 }
