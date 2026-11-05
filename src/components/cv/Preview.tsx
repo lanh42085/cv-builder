@@ -121,6 +121,9 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
                   {maskTop !== null && (
                     <div className="absolute inset-x-0 bottom-0 bg-white" style={{ top: maskTop * scale }} />
                   )}
+                  {i > 0 && (
+                    <div className="absolute inset-x-0 top-0 bg-white" style={{ height: Math.round(cv.style.layout.marginY * 96) * scale }} />
+                  )}
                 </div>
                 <div className="mt-1 flex justify-between text-[11px] text-neutral-500" style={{ width: PG.w * scale, margin: "4px auto 0" }}>
                   <span>{cv.style.layout.format === "A4" ? "A4 · 210 × 297 mm" : "Letter · 8.5 × 11 in"}</span>
