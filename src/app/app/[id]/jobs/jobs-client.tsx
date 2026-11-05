@@ -144,7 +144,7 @@ export function JobsClient({ resumeId, title, cv: initialCv, initialJobs }: { re
                   <label className="block"><div className="mb-1.5 text-sm text-neutral-500">Keyword & phân tích JD · sửa được trước khi lồng</div>
                     <textarea rows={12} value={keywords} onChange={(e) => setKeywords(e.target.value)} className={textarea + " font-mono text-xs"} /></label>
                   <button type="button" onClick={apply} disabled={busy !== null}
-                    className="rounded-lg bg-[var(--navy)] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
+                    className="rounded-lg bg-[#1fa4b8] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
                     {busy === "apply" ? "AI đang lồng keyword…" : "2. Lồng vào CV → tạo bản riêng"}
                   </button>
                 </>
@@ -155,7 +155,7 @@ export function JobsClient({ resumeId, title, cv: initialCv, initialJobs }: { re
             <div className="grid gap-3">
               <div className="flex flex-wrap items-center gap-2">
                 <button type="button" onClick={redo} disabled={busy !== null}
-                  className="rounded-lg bg-[var(--navy)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
+                  className="rounded-lg bg-[#1fa4b8] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
                   {busy === "redo" ? "AI đang lồng lại…" : "↻ Làm lại theo CV gốc hiện tại"}
                 </button>
                 <button type="button" onClick={remove} disabled={busy !== null}
