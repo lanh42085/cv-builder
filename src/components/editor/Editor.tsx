@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { CvData } from "@/lib/cv/schema";
 import { Preview, type PreviewHandle } from "@/components/cv/Preview";
 import { StyleBar } from "@/components/cv/StyleBar";
+import Image from "next/image";
 import { saveResume } from "@/app/app/[id]/actions";
 import { STEPS, StepAbout, StepAchievements, StepBasics, StepEducation, StepExperience, StepProjects, StepSkills } from "./steps";
 
@@ -65,7 +66,7 @@ export function Editor({ id, initialTitle, initialCv }: { id: string; initialTit
     <div className="flex min-h-screen flex-col">
       <header className="flex items-center justify-between border-b bg-white px-4 py-2">
         <div className="flex items-center gap-3">
-          <Link href="/app" className="text-sm text-neutral-500 hover:text-neutral-900">← CV của tôi</Link>
+          <Link href="/app" className="flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-900"><Image src="/logo.png" alt="UniGap" width={24} height={26} /> ← CV của tôi</Link>
           <input value={title} onChange={(e) => { setTitle(e.target.value); schedule(); }}
             className="rounded px-2 py-1 text-sm font-medium hover:bg-neutral-100 focus:bg-neutral-100 focus:outline-none" />
         </div>

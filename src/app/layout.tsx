@@ -6,8 +6,8 @@ import { fontsHrefAll } from "@/lib/cv/style";
 const font = Be_Vietnam_Pro({ subsets: ["latin", "vietnamese"], weight: ["400", "500", "600", "700"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "CV Builder cho Data Analyst",
-  description: "Tạo CV Data Analyst từ dữ liệu thô, có AI hỗ trợ.",
+  title: "UniGap CV Builder",
+  description: "Điền dữ liệu thô theo khung hướng dẫn, AI viết thành CV Data Analyst chuẩn, tùy biến theo từng JD.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

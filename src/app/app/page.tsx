@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createResume } from "./actions";
 import { DeleteButton } from "./delete-button";
+import { Brand } from "@/components/Brand";
 
 export default async function AppPage() {
   const supabase = await createClient();
@@ -17,9 +18,9 @@ export default async function AppPage() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
       <header className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold" style={{ color: "var(--accent)" }}>CV của tôi</h1>
-          <p className="text-sm text-neutral-500">{user.email}</p>
+        <div className="flex items-center gap-4">
+          <Brand href="/app" size={32} />
+          <span className="text-sm text-neutral-400">{user.email}</span>
         </div>
         <form action="/auth/signout" method="post">
           <button className="text-sm text-neutral-500 hover:text-neutral-900">Đăng xuất</button>

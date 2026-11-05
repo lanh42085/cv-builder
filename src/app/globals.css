@@ -1,7 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --accent: #1f4e79;
+  --accent: #00b090;        /* UniGap teal */
+  --accent-dark: #008f75;
+  --navy: #0b1c40;          /* UniGap navy */
+  --mint: #e9f8f2;
 }
 
 body {
