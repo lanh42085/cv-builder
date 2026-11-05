@@ -89,7 +89,7 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
           {(["edit", "customize"] as const).map((m) => (
             <button key={m} type="button" onClick={() => setMode(m)}
               className={"rounded-full px-4 py-1 " + (mode === m ? "bg-white font-medium shadow" : "text-neutral-500 hover:text-neutral-900")}>
-              {m === "edit" ? "Edit" : "Customize"}
+              {m === "edit" ? "Edit nội dung" : "Format"}
             </button>
           ))}
         </div>
