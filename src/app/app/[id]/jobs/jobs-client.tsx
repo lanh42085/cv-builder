@@ -14,7 +14,7 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
   const [jobTitle, setJobTitle] = useState("");
   const [jd, setJd] = useState("");
   const [keywords, setKeywords] = useState("");
-  const [busy, setBusy] = useState<"kw" | "apply" | null>(null);
+  const [busy, setBusy] = useState<"kw" | "apply" | "redo" | "del" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(initialJobs.length === 0);
 
@@ -35,6 +35,28 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
     const job: Job = { id: j.id, job_title: j.jobTitle, jd_text: jd, keyword_output: keywords, tailored: j.tailored, created_at: j.createdAt };
     setJobs([job, ...jobs]); setSelected(job); setCreating(false);
     setJobTitle(""); setJd(""); setKeywords("");
+    setBusy(null);
+  }
+
+  async function redo() {
+    if (!selected) return;
+    setBusy("redo"); setError(null);
+    const r = await fetch("/api/tailor/apply", { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ resumeId, jobId: selected.id, jobTitle: selected.job_title, jdText: selected.jd_text, keywordOutput: selected.keyword_output ?? "" }) });
+    const j = await r.json();
+    if (!r.ok) { setError(j.error); setBusy(null); return; }
+    const job: Job = { ...selected, tailored: j.tailored };
+    setJobs(jobs.map((x) => (x.id === job.id ? job : x))); setSelected(job);
+    setBusy(null);
+  }
+
+  async function remove() {
+    if (!selected || !confirm(`Xóa bản "${selected.job_title}"?`)) return;
+    setBusy("del"); setError(null);
+    const r = await fetch(`/api/jobs/${selected.id}`, { method: "DELETE" });
+    if (!r.ok) { setError((await r.json()).error); setBusy(null); return; }
+    const rest = jobs.filter((x) => x.id !== selected.id);
+    setJobs(rest); setSelected(rest[0] ?? null); if (!rest.length) setCreating(true);
     setBusy(null);
   }
 
@@ -100,6 +122,17 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
             </div>
           ) : selected?.tailored && (
             <div className="grid gap-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <button type="button" onClick={redo} disabled={busy !== null}
+                  className="rounded-lg bg-[var(--navy)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50">
+                  {busy === "redo" ? "AI đang lồng lại…" : "↻ Làm lại theo CV gốc hiện tại"}
+                </button>
+                <button type="button" onClick={remove} disabled={busy !== null}
+                  className="rounded-lg border border-red-200 px-4 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50">
+                  {busy === "del" ? "Đang xóa…" : "Xóa job"}
+                </button>
+                {error && <span className="text-sm text-red-600">{error}</span>}
+              </div>
               <details className="rounded-xl border border-neutral-200 bg-white p-4 text-sm" open>
                 <summary className="cursor-pointer font-medium">Keyword đã lồng</summary>
                 <pre className="mt-2 whitespace-pre-wrap font-sans">{selected.tailored.keywordsUsed || "(AI không liệt kê)"}</pre>
