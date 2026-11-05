@@ -29,6 +29,23 @@ export async function middleware(request: NextRequest) {
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
+  // Thu quyền: email bị xóa khỏi danh sách thì lần vào sau bị đăng xuất
+  if (user && (path.startsWith("/app") || path.startsWith("/admin"))) {
+    const email = (user.email ?? "").toLowerCase();
+    if (email !== "lananh.laxi@gmail.com") {
+      const { data: ok } = await supabase.from("allowed_emails").select("email").eq("email", email).maybeSingle();
+      if (!ok) {
+        await supabase.auth.signOut();
+        const url = request.nextUrl.clone();
+        url.pathname = "/login"; url.search = "?error=denied";
+        return NextResponse.redirect(url);
+      }
+    }
+    if (path.startsWith("/admin") && email !== "lananh.laxi@gmail.com") {
+      const url = request.nextUrl.clone(); url.pathname = "/"; url.search = "";
+      return NextResponse.redirect(url);
+    }
+  }
   if (user && path === "/login") {
     const url = request.nextUrl.clone();
     url.pathname = "/app";
@@ -38,5 +55,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/app/:path*", "/login"],
+  matcher: ["/app/:path*", "/admin/:path*", "/login"],
 };
