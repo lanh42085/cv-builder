@@ -106,10 +106,10 @@ export function StepExperience({ cv, set, resumeId }: Props) {
                   )}
                 </div>
               </div>
-              <Field label="Problem – Vấn đề là gì?" hint="Bối cảnh / vấn đề" value={t.problem} onChange={(v) => upTask(e.id, t.id, { problem: v })} multiline />
-              <Field label="What – Làm gì?" hint="Nhiệm vụ cụ thể của BẠN" value={t.what} onChange={(v) => upTask(e.id, t.id, { what: v })} multiline />
+              <Field label="Problem – Vấn đề là gì?" hint="Bối cảnh / vấn đề" value={t.problem} onChange={(v) => upTask(e.id, t.id, { problem: v })} multiline compact />
+              <Field label="What – Làm gì?" hint="Nhiệm vụ cụ thể của BẠN" value={t.what} onChange={(v) => upTask(e.id, t.id, { what: v })} multiline compact />
               <Field label="For Who – Cho ai?" hint="Team / phòng ban dùng kết quả" value={t.forWho} onChange={(v) => upTask(e.id, t.id, { forWho: v })} />
-              <Field label="How – Làm như thế nào?" hint="Tool gì, phương pháp gì" value={t.how} onChange={(v) => upTask(e.id, t.id, { how: v })} multiline />
+              <Field label="How – Làm như thế nào?" hint="Tool gì, phương pháp gì" value={t.how} onChange={(v) => upTask(e.id, t.id, { how: v })} multiline compact />
               <Field label="Outcome – Thành phẩm" hint="Ví dụ: báo cáo dòng tiền, dashboard..." value={t.outcome} onChange={(v) => upTask(e.id, t.id, { outcome: v })} />
               <Field label="Impact – Ảnh hưởng tích cực" hint="Kết quả đo được (%, giờ, tiền). Chưa có số → để trống, KHÔNG bịa" value={t.impact} onChange={(v) => upTask(e.id, t.id, { impact: v })} />
             </div>
@@ -147,10 +147,10 @@ export function StepProjects({ cv, set }: Props) {
             <Field label="Tool" value={p.tools} onChange={(v) => upItem(p.id, { tools: v })} placeholder="SQL, Power BI" />
             <Field label="Link" value={p.link} onChange={(v) => upItem(p.id, { link: v })} placeholder="github.com/..." />
           </div>
-          <Field label="S – Situation" hint="Giải quyết bài toán gì? Mục tiêu?" value={p.situation} onChange={(v) => upItem(p.id, { situation: v })} multiline />
-          <Field label="T – Task" hint="Các bước chính để đạt mục tiêu" value={p.task} onChange={(v) => upItem(p.id, { task: v })} multiline />
-          <Field label="A – Action" hint="Tool/technique nào trên nền tảng nào" value={p.action} onChange={(v) => upItem(p.id, { action: v })} multiline />
-          <Field label="R – Result" hint="Insight rút ra? Giải quyết mục tiêu thế nào?" value={p.result} onChange={(v) => upItem(p.id, { result: v })} multiline />
+          <Field label="S – Situation" hint="Giải quyết bài toán gì? Mục tiêu?" value={p.situation} onChange={(v) => upItem(p.id, { situation: v })} multiline compact />
+          <Field label="T – Task" hint="Các bước chính để đạt mục tiêu" value={p.task} onChange={(v) => upItem(p.id, { task: v })} multiline compact />
+          <Field label="A – Action" hint="Tool/technique nào trên nền tảng nào" value={p.action} onChange={(v) => upItem(p.id, { action: v })} multiline compact />
+          <Field label="R – Result" hint="Insight rút ra? Giải quyết mục tiêu thế nào?" value={p.result} onChange={(v) => upItem(p.id, { result: v })} multiline compact />
         </ItemCard>
       ))}
       <AddButton onClick={add}>+ Thêm project</AddButton>

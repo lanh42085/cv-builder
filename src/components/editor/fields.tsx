@@ -3,9 +3,9 @@
 import { BoldTextarea } from "./BoldTextarea";
 
 /** Ô nhập dùng chung: nhãn · gợi ý (cột "Gợi ý" của sheet) · ví dụ mờ. */
-export function Field({ label, hint, value, onChange, placeholder, multiline, type = "text" }: {
+export function Field({ label, hint, value, onChange, placeholder, multiline, compact, type = "text" }: {
   label: string; hint?: string; value: string; onChange: (v: string) => void;
-  placeholder?: string; multiline?: boolean; type?: string;
+  placeholder?: string; multiline?: boolean; compact?: boolean; type?: string;
 }) {
   const cls = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-[var(--accent)] focus:outline-none";
   return (
@@ -13,7 +13,7 @@ export function Field({ label, hint, value, onChange, placeholder, multiline, ty
       <div className="mb-1 text-sm font-medium">{label}</div>
       {hint && <div className="mb-1 text-xs text-neutral-500">{hint}</div>}
       {multiline ? (
-        <BoldTextarea className={cls} value={value} placeholder={placeholder} onValueChange={onChange} />
+        <BoldTextarea className={cls} value={value} placeholder={placeholder} onValueChange={onChange} compact={compact} />
       ) : (
         <input className={cls} type={type} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
       )}
