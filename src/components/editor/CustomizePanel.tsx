@@ -43,7 +43,7 @@ export function CustomizePanel({ cv, set }: Props) {
 
       {/* Line height */}
       <section>
-        <Slider label="Giãn dòng (Line Height)" value={st.lineHeight} min={1} max={1.8} step={0.05}
+        <Slider label="Giãn dòng (Line Height)" value={st.lineHeight} min={1} max={1.8} step={0.01}
           display={`${Math.round(st.lineHeight / DEFAULT_STYLE.lineHeight * 100)}%`}
           onChange={(v) => setStyle({ lineHeight: v })} />
       </section>
@@ -53,8 +53,8 @@ export function CustomizePanel({ cv, set }: Props) {
         <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">Cỡ chữ</h3>
         <div className="grid gap-4">
           {SIZE_ROWS.map((r) => (
-            <Slider key={r.key} label={r.label} value={st.sizes[r.key]} min={r.min} max={r.max} step={0.5}
-              display={`${st.sizes[r.key]} pt`} onChange={(v) => setSize(r.key, v)} />
+            <Slider key={r.key} label={r.label} value={st.sizes[r.key]} min={r.min} max={r.max} step={0.1}
+              display={`${st.sizes[r.key].toFixed(1)} pt`} onChange={(v) => setSize(r.key, Math.round(v * 10) / 10)} />
           ))}
         </div>
         <button type="button" className="mt-3 text-xs text-neutral-500 underline hover:text-neutral-900"
@@ -71,12 +71,12 @@ export function CustomizePanel({ cv, set }: Props) {
           </select>
         </label>
         <div className="grid gap-4">
-          <Slider label="Lề trên & dưới" value={L.marginY} min={0.2} max={1.2} step={0.05} display={`${L.marginY.toFixed(2)} in`} onChange={(v) => setLayout({ marginY: v })} />
-          <Slider label="Lề trái & phải" value={L.marginX} min={0.2} max={1.2} step={0.05} display={`${L.marginX.toFixed(2)} in`} onChange={(v) => setLayout({ marginX: v })} />
-          <Slider label="Giữa các mục" value={L.gapSection} min={0} max={24} step={1} display={`${L.gapSection} pt`} onChange={(v) => setLayout({ gapSection: v })} />
-          <Slider label="Tiêu đề mục ↔ nội dung" value={L.gapTitle} min={0} max={16} step={1} display={`${L.gapTitle} pt`} onChange={(v) => setLayout({ gapTitle: v })} />
-          <Slider label="Giữa các khối" value={L.gapBlock} min={0} max={16} step={1} display={`${L.gapBlock} pt`} onChange={(v) => setLayout({ gapBlock: v })} />
-          <Slider label="Trong khối (các dòng)" value={L.gapInner} min={0} max={8} step={0.5} display={`${L.gapInner} pt`} onChange={(v) => setLayout({ gapInner: v })} />
+          <Slider label="Lề trên & dưới" value={L.marginY} min={0.2} max={1.2} step={0.01} display={`${L.marginY.toFixed(2)} in`} onChange={(v) => setLayout({ marginY: v })} />
+          <Slider label="Lề trái & phải" value={L.marginX} min={0.2} max={1.2} step={0.01} display={`${L.marginX.toFixed(2)} in`} onChange={(v) => setLayout({ marginX: v })} />
+          <Slider label="Giữa các mục" value={L.gapSection} min={0} max={24} step={0.5} display={`${L.gapSection} pt`} onChange={(v) => setLayout({ gapSection: v })} />
+          <Slider label="Tiêu đề mục ↔ nội dung" value={L.gapTitle} min={0} max={16} step={0.5} display={`${L.gapTitle} pt`} onChange={(v) => setLayout({ gapTitle: v })} />
+          <Slider label="Giữa các khối" value={L.gapBlock} min={0} max={16} step={0.5} display={`${L.gapBlock} pt`} onChange={(v) => setLayout({ gapBlock: v })} />
+          <Slider label="Trong khối (các dòng)" value={L.gapInner} min={0} max={8} step={0.25} display={`${L.gapInner} pt`} onChange={(v) => setLayout({ gapInner: v })} />
         </div>
         <label className="mt-4 block">
           <div className="mb-1 text-sm">Định dạng ngày</div>
