@@ -3,7 +3,7 @@
 import type { CvData } from "@/lib/cv/schema";
 import { emptyAchievement, emptyEducation, emptyExperience, emptyProject, emptyTask } from "@/lib/cv/schema";
 import type { ExperienceItem, ExperienceTask } from "@/lib/cv/schema";
-import { AddButton, Field, Intro, ItemCard } from "./fields";
+import { AddButton, Field, ItemCard } from "./fields";
 import { AiAbout, AiSection } from "./AiPanel";
 import { BrainstormPanel } from "./BrainstormPanel";
 import { useState } from "react";
@@ -47,7 +47,6 @@ export function StepAbout({ cv, set }: Props) {
     set((c) => ({ ...c, raw: { ...c.raw, aboutMe: { ...c.raw.aboutMe, [k]: v } } }));
   return (
     <div className="grid gap-3">
-      <Intro>Nhà tuyển dụng đọc phần này đầu tiên. Trả lời 3 ý bằng 1 câu ngắn mỗi ý, AI sẽ gộp thành một đoạn ≤ 3 dòng.</Intro>
       <Field label="1. Bạn là ai" hint="Title + nền tảng (ngành học / số năm kinh nghiệm)" value={a.whoAmI} onChange={up("whoAmI")}
         placeholder="Sinh viên Kinh tế mới tốt nghiệp, định hướng Data Analyst" multiline />
       <Field label="2. Bạn mạnh gì" hint="2–3 tool / kỹ năng có bằng chứng" value={a.strengths} onChange={up("strengths")}
@@ -76,7 +75,6 @@ export function StepExperience({ cv, set, resumeId }: Props) {
 
   return (
     <div className="grid gap-4">
-      <Intro>Mỗi thẻ lớn = 1 công ty. Trong mỗi công ty liệt kê từng việc / thành tựu nổi bật, mỗi việc một bảng — AI sẽ viết mỗi việc thành đúng 1 bullet. Công ty gần nhất xếp trên. Viết bằng lời của bạn, chưa cần hay, chưa cần nhìn JD.</Intro>
       {items.map((e, i) => (
         <ItemCard key={e.id} title={`Công ty ${i + 1}${e.company ? ` — ${e.company}` : ""}`} onRemove={() => remove(e.id)}>
           <div className="grid grid-cols-2 gap-3">
@@ -114,10 +112,10 @@ export function StepExperience({ cv, set, resumeId }: Props) {
               <Field label="Impact – Ảnh hưởng tích cực" hint="Kết quả đo được (%, giờ, tiền). Chưa có số → để trống, KHÔNG bịa" value={t.impact} onChange={(v) => upTask(e.id, t.id, { impact: v })} />
             </div>
           ))}
-          <AddButton onClick={() => addTask(e.id)}>+ Thêm việc / thành tựu tại công ty này</AddButton>
+          <AddButton onClick={() => addTask(e.id)}>Thêm việc / thành tựu tại công ty này</AddButton>
         </ItemCard>
       ))}
-      <AddButton onClick={add}>+ Thêm công ty</AddButton>
+      <AddButton onClick={add}>Thêm công ty</AddButton>
       <AiSection cv={cv} set={set} kind="experience" />
       {chat && (() => {
         const task = items.find((e) => e.id === chat.eid)?.tasks.find((t) => t.id === chat.tid);
@@ -139,7 +137,6 @@ export function StepProjects({ cv, set }: Props) {
 
   return (
     <div className="grid gap-4">
-      <Intro>Mỗi thẻ = 1 project. Rất quan trọng nếu ít kinh nghiệm. Gắn link GitHub / dashboard public.</Intro>
       {items.map((p, i) => (
         <ItemCard key={p.id} title={`Project ${i + 1}${p.name ? ` — ${p.name}` : ""}`} onRemove={() => remove(p.id)}>
           <Field label="Tên project" hint="Ngắn, rõ chủ đề" value={p.name} onChange={(v) => upItem(p.id, { name: v })} />
@@ -153,7 +150,7 @@ export function StepProjects({ cv, set }: Props) {
           <Field label="R – Result" hint="Insight rút ra? Giải quyết mục tiêu thế nào?" value={p.result} onChange={(v) => upItem(p.id, { result: v })} multiline compact />
         </ItemCard>
       ))}
-      <AddButton onClick={add}>+ Thêm project</AddButton>
+      <AddButton onClick={add}>Thêm project</AddButton>
       <AiSection cv={cv} set={set} kind="projects" />
     </div>
   );
@@ -164,7 +161,6 @@ export function StepSkills({ cv, set }: Props) {
   const up = (k: "hard" | "soft") => (v: string) => set((c) => ({ ...c, raw: { ...c.raw, skills: { ...c.raw.skills, [k]: v } } }));
   return (
     <div className="grid gap-3">
-      <Intro>Chỉ ghi skill đã học VÀ có bằng chứng (project/công việc). Mỗi dòng = 1 bullet trên CV. Viết dạng “Nhóm: chi tiết” thì phần Nhóm tự in đậm.</Intro>
       <Field label="Hard skill" hint="Mỗi dòng 1 ý" value={s.hard} onChange={up("hard")}
         placeholder={"Database & Querying: SQL (PostgreSQL, BigQuery, CTEs, Window Functions)\nBI & Visualization: Power BI (DAX, Power Query)\nProgramming: Python (pandas, NumPy)"} multiline />
       <Field label="Soft skill" hint="Mỗi dòng 1 ý" value={s.soft} onChange={up("soft")}
@@ -181,7 +177,6 @@ export function StepEducation({ cv, set }: Props) {
   const add = () => set((c) => ({ ...c, raw: { ...c.raw, education: [...c.raw.education, emptyEducation()] } }));
   return (
     <div className="grid gap-4">
-      <Intro>2–3 dòng. Chỉ ghi GPA nếu ≥ 3.0/4 hoặc ≥ 7.5/10.</Intro>
       {items.map((e, i) => (
         <ItemCard key={e.id} title={`Học vấn ${i + 1}`} onRemove={() => remove(e.id)}>
           <div className="grid grid-cols-2 gap-3">
@@ -195,7 +190,7 @@ export function StepEducation({ cv, set }: Props) {
           <Field label="Mô tả ngắn" hint="Môn / khoá học liên quan data, học bổng" value={e.note} onChange={(v) => upItem(e.id, { note: v })} />
         </ItemCard>
       ))}
-      <AddButton onClick={add}>+ Thêm học vấn</AddButton>
+      <AddButton onClick={add}>Thêm học vấn</AddButton>
     </div>
   );
 }
@@ -208,14 +203,13 @@ export function StepAchievements({ cv, set }: Props) {
   const add = () => set((c) => ({ ...c, raw: { ...c.raw, achievements: [...c.raw.achievements, emptyAchievement()] } }));
   return (
     <div className="grid gap-4">
-      <Intro>Chỉ ghi cái liên quan Data hoặc thể hiện năng lực nổi bật, kèm link xác thực nếu có.</Intro>
       {items.map((a, i) => (
         <ItemCard key={a.id} title={`Mục ${i + 1}`} onRemove={() => remove(a.id)}>
           <Field label="Chứng chỉ / thành tích" value={a.text} onChange={(v) => upItem(a.id, { text: v })} placeholder="Google Data Analytics (Coursera, 2025)" />
           <Field label="Link xác thực" value={a.link} onChange={(v) => upItem(a.id, { link: v })} />
         </ItemCard>
       ))}
-      <AddButton onClick={add}>+ Thêm</AddButton>
+      <AddButton onClick={add}>Thêm</AddButton>
     </div>
   );
 }

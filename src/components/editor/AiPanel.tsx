@@ -50,7 +50,7 @@ export function AiAbout({ cv, set }: Props) {
   }
 
   return (
-    <div className="mt-4 grid gap-3 rounded-lg border-2 border-[var(--accent)]/30 bg-white p-4">
+    <div className="mt-2 grid gap-3 rounded-xl border border-[var(--accent)]/30 bg-[var(--mint)]/40 p-5">
       <div className="flex items-center justify-between">
         <div className="font-medium">Tạo bằng AI</div>
         <GenerateButton loading={loading} onClick={run} label={g.options.length ? "Viết lại" : "Viết About Me"} />
@@ -69,7 +69,7 @@ export function AiAbout({ cv, set }: Props) {
           <label className="block">
             <div className="mb-1 text-sm font-medium">Bản dùng trong CV (sửa được)</div>
             <BoldTextarea value={g.final}
-              className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-[var(--accent)] focus:outline-none"
+              className="w-full rounded-lg border-0 bg-[#eff2f9] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
               onValueChange={(v) => set((c) => ({ ...c, generated: { ...c.generated, aboutMe: { ...c.generated.aboutMe, final: v } } }))} />
           </label>
         </>
@@ -84,11 +84,11 @@ function SectionsEditor({ sections, onChange }: { sections: GeneratedSection[]; 
   return (
     <div className="grid gap-3">
       {sections.map((s, i) => (
-        <div key={i} className="grid gap-2 rounded-md border bg-neutral-50 p-3">
+        <div key={i} className="grid gap-2 rounded-lg border border-neutral-200 bg-white p-3">
           <input value={s.header} onChange={(e) => upd(i, { header: e.target.value })}
-            className="rounded-md border border-neutral-300 px-2 py-1 text-sm font-medium focus:border-[var(--accent)] focus:outline-none" />
+            className="rounded-lg border-0 bg-[#eff2f9] px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30" />
           <BoldTextarea value={s.bullets.join("\n")}
-            className="w-full rounded-md border border-neutral-300 px-3 py-2 text-sm focus:border-[var(--accent)] focus:outline-none"
+            className="w-full rounded-lg border-0 bg-[#eff2f9] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30"
             onValueChange={(v) => upd(i, { bullets: v.split("\n") })} />
           <div className="text-xs text-neutral-400">Mỗi dòng = 1 bullet</div>
         </div>
@@ -113,7 +113,7 @@ export function AiSection({ cv, set, kind }: Props & { kind: "experience" | "pro
   }
 
   return (
-    <div className="mt-4 grid gap-3 rounded-lg border-2 border-[var(--accent)]/30 bg-white p-4">
+    <div className="mt-2 grid gap-3 rounded-xl border border-[var(--accent)]/30 bg-[var(--mint)]/40 p-5">
       <div className="flex items-center justify-between">
         <div className="font-medium">Tạo bằng AI</div>
         <GenerateButton loading={loading} onClick={run} label={sections.length ? "Viết lại" : `Viết ${label}`} />

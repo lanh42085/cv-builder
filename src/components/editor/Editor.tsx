@@ -6,6 +6,7 @@ import type { CvData } from "@/lib/cv/schema";
 import { Preview, type PreviewHandle } from "@/components/cv/Preview";
 import { StyleBar } from "@/components/cv/StyleBar";
 import { CustomizePanel } from "./CustomizePanel";
+import { cvScore } from "@/lib/cv/score";
 import Image from "next/image";
 import { AccountMenu } from "@/components/AccountMenu";
 import type { SessionUser } from "@/lib/supabase/user";
@@ -65,9 +66,19 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
   }
 
   const StepView = [StepBasics, StepAbout, StepExperience, StepProjects, StepSkills, StepEducation, StepAchievements][step];
+  const score = cvScore(cv);
+  const STEP_HINT = [
+    "Nhà tuyển dụng cần liên hệ được với bạn. Link LinkedIn và GitHub là bắt buộc với Data Analyst.",
+    "Nhà tuyển dụng đọc phần này đầu tiên. Trả lời 3 ý ngắn, AI gộp thành một đoạn ≤ 3 dòng.",
+    "Mỗi công ty một thẻ, mỗi việc nổi bật một bảng STAR. Viết bằng lời của bạn, AI sẽ chuyển sang tiếng Anh.",
+    "Project là thứ bù cho kinh nghiệm ít. Gắn link GitHub hoặc dashboard public.",
+    "Chỉ ghi skill đã học và có bằng chứng. Mỗi dòng = 1 bullet, viết “Nhóm: chi tiết” để nhóm tự in đậm.",
+    "2–3 dòng. Chỉ ghi GPA nếu từ 3.0/4 hoặc 7.5/10.",
+    "Chỉ ghi chứng chỉ liên quan Data, kèm link xác thực nếu có.",
+  ];
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-[#eef1f8]">
       <header className="flex items-center justify-between border-b bg-white px-4 py-2">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 text-sm font-medium" style={{ color: "var(--navy)" }}><Image src="/logo.png" alt="UniGap" width={26} height={28} /> UniGap <span style={{ color: "var(--accent)" }}>CV Builder</span></Link>
@@ -108,31 +119,57 @@ export function Editor({ id, initialTitle, initialCv, user }: { id: string; init
       </header>
 
       <div className="grid flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <div className="border-r bg-neutral-50">
-          {mode === "customize" ? (
-            <div className="p-4"><h2 className="mb-4 text-lg font-semibold">Tùy chỉnh chữ & bố cục</h2><CustomizePanel cv={cv} set={set} /></div>
-          ) : (<>
-          <nav className="flex flex-wrap gap-1 border-b bg-white px-4 py-2">
-            {STEPS.map((s, i) => (
-              <button key={s} type="button" onClick={() => setStep(i)}
-                className={"rounded-full px-3 py-1 text-xs " + (i === step ? "bg-[var(--accent)] text-white" : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200")}>
-                {i + 1}. {s}
-              </button>
-            ))}
-          </nav>
-          <div className="p-4">
-            <h2 className="mb-3 text-lg font-semibold">{step + 1}. {STEPS[step]}</h2>
-            <StepView cv={cv} set={set} resumeId={id} />
-            <div className="mt-6 flex justify-between">
-              <button type="button" disabled={step === 0} onClick={() => setStep(step - 1)}
-                className="rounded-md border px-3 py-2 text-sm disabled:opacity-40">← Trước</button>
-              <button type="button" disabled={step === STEPS.length - 1} onClick={() => setStep(step + 1)}
-                className="rounded-md bg-[var(--accent)] px-3 py-2 text-sm text-white disabled:opacity-40">Tiếp →</button>
-            </div>
+        <div className="p-4 lg:p-6">
+          <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl bg-white shadow-sm">
+            {mode === "customize" ? (
+              <div className="p-6 lg:p-8">
+                <h2 className="text-2xl font-bold text-neutral-900">Tùy chỉnh chữ & bố cục</h2>
+                <p className="mb-6 mt-1 text-sm text-neutral-500">Mọi thay đổi hiện ngay bên phải và áp vào PDF / DOCX.</p>
+                <CustomizePanel cv={cv} set={set} />
+              </div>
+            ) : (<>
+              {/* Mức hoàn thiện */}
+              <div className="border-b px-6 pt-4">
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className={"rounded px-1.5 py-0.5 text-xs font-bold text-white " + (score.percent >= 70 ? "bg-[var(--accent)]" : score.percent >= 40 ? "bg-amber-500" : "bg-red-500")}>{score.percent}%</span>
+                    <span className="text-neutral-500">Mức hoàn thiện CV</span>
+                  </div>
+                  {score.next && (
+                    <button type="button" onClick={() => setStep(score.next!.step)} className="flex items-center gap-2 text-sm hover:underline">
+                      <span className="rounded bg-[var(--mint)] px-1.5 py-0.5 text-xs font-semibold text-[var(--accent-dark)]">+{score.next.weight}%</span>
+                      <span className="text-neutral-700">{score.next.label}</span>
+                    </button>
+                  )}
+                </div>
+                <div className="mt-3 h-1 w-full rounded bg-neutral-100">
+                  <div className="h-1 rounded transition-all" style={{ width: `${score.percent}%`, background: score.percent >= 70 ? "var(--accent)" : score.percent >= 40 ? "#f59e0b" : "#ef4444" }} />
+                </div>
+              </div>
+              {/* Bước */}
+              <nav className="flex flex-wrap gap-1 px-6 py-3">
+                {STEPS.map((s, i) => (
+                  <button key={s} type="button" onClick={() => setStep(i)}
+                    className={"rounded-full px-3 py-1 text-xs transition " + (i === step ? "bg-[var(--navy)] text-white" : "text-neutral-500 hover:bg-neutral-100")}>
+                    {i + 1}. {s}
+                  </button>
+                ))}
+              </nav>
+              <div className="px-6 pb-8 pt-2 lg:px-8">
+                <h2 className="text-2xl font-bold text-neutral-900">{STEPS[step]}</h2>
+                <p className="mb-6 mt-1 text-sm text-neutral-500">{STEP_HINT[step]}</p>
+                <StepView cv={cv} set={set} resumeId={id} />
+                <div className="mt-8 flex justify-between">
+                  <button type="button" disabled={step === 0} onClick={() => setStep(step - 1)}
+                    className="rounded-lg border px-4 py-2.5 text-sm disabled:opacity-40">← Trước</button>
+                  <button type="button" disabled={step === STEPS.length - 1} onClick={() => setStep(step + 1)}
+                    className="rounded-lg bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-40">Tiếp: {STEPS[Math.min(step + 1, STEPS.length - 1)]} →</button>
+                </div>
+              </div>
+            </>)}
           </div>
-          </>)}
         </div>
-        <div className="sticky top-0 self-start p-4">
+        <div className="sticky top-0 self-start p-4 lg:p-6">
           <StyleBar cv={cv} set={set} canFormat={canFormat} onFormat={(f) => previewRef.current?.format(f)} />
           <Preview ref={previewRef} cv={cv} set={set} onSelectionChange={setCanFormat} />
         </div>
