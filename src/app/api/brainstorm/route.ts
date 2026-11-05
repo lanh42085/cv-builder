@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { anthropic, MODEL } from "@/lib/anthropic";
-import { loadPrompt } from "@/lib/prompts";
+import { anthropic, cachedSystem, MODEL } from "@/lib/anthropic";
+import { loadPromptSplit } from "@/lib/prompts";
 import { MAX_TURNS, parseResult, type ChatMessage } from "@/lib/cv/brainstorm";
 
 export const runtime = "nodejs";
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
   messages = [...messages, { role: "user", content: userText, at: new Date().toISOString() }];
   await supabase.from("brainstorms").update({ messages }).eq("id", id);
 
-  const system = await loadPrompt("brainstorm", taskRaw);
+  const split = await loadPromptSplit("brainstorm", { DATA: taskRaw });
   const encoder = new TextEncoder();
   let full = "";
 
@@ -61,8 +61,9 @@ export async function POST(req: Request) {
     async start(controller) {
       try {
         const s = anthropic().messages.stream({
-          model: MODEL, max_tokens: 8000, system,
-          messages: messages.map((m) => ({ role: m.role, content: m.content })),
+          model: MODEL, max_tokens: 8000,
+          system: cachedSystem(split.system + "\n\n" + split.user.replace(taskRaw.trim(), "(xem tin nhắn đầu tiên của tôi)")),
+          messages: messages.map((m, i) => ({ role: m.role, content: i === 0 ? `TASK CỦA TÔI\n${taskRaw.trim()}\n\n${m.content}` : m.content })),
         });
         for await (const ev of s) {
           if (ev.type === "content_block_delta" && ev.delta.type === "text_delta") {

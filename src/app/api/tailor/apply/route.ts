@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { createClient } from "@/lib/supabase/server";
 import { ask } from "@/lib/anthropic";
+import { loadPromptSplit } from "@/lib/prompts";
 import { normalizeCv } from "@/lib/cv/schema";
 import { cvToPlainText, parseTailored } from "@/lib/cv/tailor";
 
@@ -23,8 +22,7 @@ export async function POST(req: Request) {
   const cv = normalizeCv(resume.data);
 
   try {
-    const template = await readFile(path.join(process.cwd(), "prompts", "tailor.md"), "utf8");
-    const prompt = template.replace("{{KEYWORDS}}", keywordOutput.trim()).replace("{{DATA}}", cvToPlainText(cv));
+    const prompt = await loadPromptSplit("tailor", { KEYWORDS: keywordOutput, DATA: cvToPlainText(cv) });
     const text = await ask(prompt, 8000);
     const tailored = parseTailored(text, cv);
     if (!tailored) return NextResponse.json({ error: "AI trả về không đúng định dạng, thử lại.", raw: text }, { status: 502 });
