@@ -11,8 +11,8 @@ export type CvView = {
   basics: CvData["basics"];
   aboutMe: string;
   aboutSrc: string | null;
-  experience: { header: string; period: string; bullets: string[]; srcs: (string | null)[] }[];
-  projects: { header: string; link: string; bullets: string[]; srcs: (string | null)[] }[];
+  experience: { header: string; headerSrc: string | null; period: string; bullets: string[]; srcs: (string | null)[] }[];
+  projects: { header: string; headerSrc: string | null; link: string; bullets: string[]; srcs: (string | null)[] }[];
   skills: { hard: string; soft: string };
   education: { line: string; years: string; note: string; noteSrc: string }[];
   achievements: { text: string; link: string; src: string }[];
@@ -63,25 +63,23 @@ export function toView(cv: CvData): CvView {
   const experience = g.experience.length
     ? g.experience.map((s, i) => {
         const e = cv.raw.experience.find((x) => x.id === s.rawId);
-        const idx = s.bullets.map((b, j) => (b.trim() ? j : -1)).filter((j) => j >= 0);
-        return { header: s.header, period: e ? period(e, df) : "", bullets: idx.map((j) => s.bullets[j].trim()),
-          srcs: idx.map((j) => `generated.experience.${i}.bullets.${j}`) };
+        return { header: s.header, headerSrc: `generated.experience.${i}.header`, period: e ? period(e, df) : "", bullets: s.bullets.map((b) => b.trim()),
+          srcs: s.bullets.map((_, j) => `generated.experience.${i}.bullets.${j}`) };
       })
     : cv.raw.experience.map((e) => {
         const bullets = draftExperience(e);
-        return { header: nonEmpty([e.company, e.role]).join(" | "), period: period(e, df), bullets, srcs: bullets.map(() => null) };
+        return { header: nonEmpty([e.company, e.role]).join(" | "), headerSrc: null, period: period(e, df), bullets, srcs: bullets.map(() => null) };
       });
 
   const projects = g.projects.length
     ? g.projects.map((s, i) => {
         const p = cv.raw.projects.find((x) => x.id === s.rawId);
-        const idx = s.bullets.map((b, j) => (b.trim() ? j : -1)).filter((j) => j >= 0);
-        return { header: s.header, link: p?.link ?? "", bullets: idx.map((j) => s.bullets[j].trim()),
-          srcs: idx.map((j) => `generated.projects.${i}.bullets.${j}`) };
+        return { header: s.header, headerSrc: `generated.projects.${i}.header`, link: p?.link ?? "", bullets: s.bullets.map((b) => b.trim()),
+          srcs: s.bullets.map((_, j) => `generated.projects.${i}.bullets.${j}`) };
       })
     : cv.raw.projects.map((p) => {
         const bullets = draftProject(p);
-        return { header: nonEmpty([p.name, p.tools]).join(" | "), link: p.link, bullets, srcs: bullets.map(() => null) };
+        return { header: nonEmpty([p.name, p.tools]).join(" | "), headerSrc: null, link: p.link, bullets, srcs: bullets.map(() => null) };
       });
 
   return {

@@ -5,6 +5,11 @@ import type { CvData } from "./schema";
  * Dạng "a.b.0.c" (đi theo object/array) hoặc "raw.skills.hard@2" (dòng thứ 2 trong chuỗi nhiều dòng).
  */
 export function getText(cv: CvData, path: string): string {
+  if (path.includes("#")) {
+    const [base, k] = path.split("#");
+    const parts = getText(cv, base).split("|").map((x) => x.trim());
+    return k === "0" ? (parts[0] ?? "") : parts.slice(1).join(" | ");
+  }
   const [p, line] = path.split("@");
   let cur: unknown = cv;
   for (const seg of p.split(".")) {
@@ -16,6 +21,13 @@ export function getText(cv: CvData, path: string): string {
 }
 
 export function setText(cv: CvData, path: string, value: string): CvData {
+  if (path.includes("#")) {
+    const [base, k] = path.split("#");
+    const parts = getText(cv, base).split("|").map((x) => x.trim());
+    const first = k === "0" ? value.trim() : (parts[0] ?? "");
+    const rest = k === "0" ? parts.slice(1).join(" | ") : value.trim();
+    return setText(cv, base, rest ? `${first} | ${rest}` : first);
+  }
   const [p, line] = path.split("@");
   const next = structuredClone(cv) as unknown as Record<string, unknown>;
   const segs = p.split(".");

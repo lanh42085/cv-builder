@@ -36,7 +36,7 @@ export function AtsSingle({ v, style, order, edit }: { v: CvView; style: CvStyle
           return (
             <div key={i} style={{ marginBottom: gap.block }}>
               <TwoSide block
-                left={<b style={{ fontSize: pt(S.heading), fontFamily: headFont }}>{name || "Tên project"}{tools.length > 0 && ` [${tools.join(", ")}]`}</b>}
+                left={<b style={{ fontSize: pt(S.heading), fontFamily: headFont }}>{p.headerSrc && edit ? <Inline text={name} src={`${p.headerSrc}#0`} edit={edit} /> : (name || "Tên project")}{(tools.length > 0 || (p.headerSrc && edit)) && <> [{p.headerSrc && edit ? <Inline text={tools.join(", ")} src={`${p.headerSrc}#1`} edit={edit} /> : tools.join(", ")}]</>}</b>}
                 right={p.link ? <A href={p.link} bold>View Project</A> : null} />
               <Bullets items={p.bullets} srcs={p.srcs} edit={edit} />
             </div>
@@ -50,8 +50,8 @@ export function AtsSingle({ v, style, order, edit }: { v: CvView; style: CvStyle
           const [company, ...role] = e.header.split("|").map((s) => s.trim());
           return (
             <div key={i} style={{ marginBottom: gap.block }}>
-              <div style={{ fontWeight: 700, fontSize: pt(S.heading), fontFamily: headFont }} data-block>{company || "Công ty"}</div>
-              <TwoSide block left={<i>{role.join(" | ")}</i>} right={e.period ? <i>{e.period}</i> : null} />
+              <div style={{ fontWeight: 700, fontSize: pt(S.heading), fontFamily: headFont }} data-block>{e.headerSrc && edit ? <Inline text={company} src={`${e.headerSrc}#0`} edit={edit} /> : (company || "Công ty")}</div>
+              <TwoSide block left={<i>{e.headerSrc && edit ? <Inline text={role.join(" | ")} src={`${e.headerSrc}#1`} edit={edit} /> : role.join(" | ")}</i>} right={e.period ? <i>{e.period}</i> : null} />
               <Bullets items={e.bullets} srcs={e.srcs} edit={edit} />
             </div>
           );
