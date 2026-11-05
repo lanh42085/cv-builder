@@ -10,20 +10,24 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
   const FONT = FONTS[cv.style.bodyFont].docx;
   const HFONT = FONTS[cv.style.font].docx;
   const ACCENT = cv.style.accent.replace("#", "").toUpperCase();
-  const RIGHT = 9638; // twips ~ lề phải A4 với margin 2cm
+  const RIGHT = (L.format === "Letter" ? 12240 : 11906) - 2 * Math.round(L.marginX * 1440);
   const Z = cv.style.sizes;
   const SZ = Math.round(Z.body * 2);      // half-points
   const HSZ = Math.round(Z.heading * 2);
   const SEC = Math.round(Z.section * 2);
   const NAME = Math.round(Z.name * 2);
   const LINE = Math.round(cv.style.lineHeight * 240);
+  const L = cv.style.layout;
+  const TW = (inches: number) => Math.round(inches * 1440);
+  const PTW = (p: number) => Math.round(p * 20); // pt → twips
+  const PAGE_W = L.format === "Letter" ? 12240 : 11906, PAGE_H = L.format === "Letter" ? 15840 : 16838;
   const P: Paragraph[] = [];
 
   const run = (text: string, o: { bold?: boolean; italics?: boolean; size?: number; color?: string; font?: string } = {}) =>
     new TextRun({ text, bold: o.bold, italics: o.italics, size: o.size ?? SZ, font: o.font ?? FONT, color: o.color });
 
   const heading = (t: string) => new Paragraph({
-    spacing: { before: 200, after: 60 },
+    spacing: { before: PTW(L.gapSection), after: PTW(L.gapTitle) },
     border: { bottom: { style: "single", size: 8, color: ACCENT, space: 1 } },
     children: [run(t.toUpperCase(), { bold: true, size: SEC, color: ACCENT, font: HFONT })],
   });
@@ -32,16 +36,16 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
     spacing: { after: 20, line: LINE }, children: runs(t, o),
   });
   const twoSide = (left: string, right: string, o: { bold?: boolean; italics?: boolean } = {}) => new Paragraph({
-    tabStops: [{ type: TabStopType.RIGHT, position: RIGHT }], spacing: { before: 60, after: 10, line: LINE },
+    tabStops: [{ type: TabStopType.RIGHT, position: RIGHT }], spacing: { before: PTW(L.gapBlock), after: PTW(L.gapInner), line: LINE },
     children: [run(left, o.bold ? { ...o, size: HSZ, font: HFONT } : o), run(right ? `\t${right}` : "", { italics: true })],
   });
   const runs = (t: string, o: { bold?: boolean; italics?: boolean; size?: number; color?: string; font?: string } = {}) =>
     parseInline(t).map((r) => run(r.text, { ...o, bold: o.bold || r.bold, italics: o.italics || r.italic }));
   const bullet = (t: string) => new Paragraph({
-    bullet: { level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: 20, line: LINE }, children: runs(t),
+    bullet: { level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: PTW(L.gapInner), line: LINE }, children: runs(t),
   });
   const bulletRuns = (children: TextRun[]) => new Paragraph({
-    bullet: { level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: 20, line: LINE }, children,
+    bullet: { level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: PTW(L.gapInner), line: LINE }, children,
   });
 
   const b = v.basics;
@@ -103,7 +107,7 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
 
   const doc = new Document({
     styles: { default: { document: { run: { font: FONT, size: SZ } } } },
-    sections: [{ properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1000, bottom: 1000, left: 1134, right: 1134 } } }, children: P }],
+    sections: [{ properties: { page: { size: { width: PAGE_W, height: PAGE_H }, margin: { top: TW(L.marginY), bottom: TW(L.marginY), left: TW(L.marginX), right: TW(L.marginX) } } }, children: P }],
   });
   return Buffer.from(await Packer.toBuffer(doc));
 }

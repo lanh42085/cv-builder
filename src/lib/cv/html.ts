@@ -14,7 +14,7 @@ export async function cvToHtml(cv: CvData): Promise<string> {
 <html lang="vi"><head><meta charset="utf-8">
 ${fontHref ? `<link href="${fontHref}" rel="stylesheet">` : ""}
 <style>
-  @page { size: A4; margin: 0; }
+  @page { size: ${cv.style.layout.format}; margin: 0; }
   html, body { margin: 0; padding: 0; background: #fff; }
   .cv-page { min-height: auto !important; }
   li, section > div { break-inside: avoid; }

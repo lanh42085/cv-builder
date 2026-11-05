@@ -3,7 +3,27 @@
 export type FontId = "times" | "be-vietnam-pro" | "inter" | "roboto" | "arial" | "georgia";
 export type TemplateId = "ats-single" | "two-column";
 export type CvSizes = { name: number; heading: number; body: number; section: number }; // pt
-export type CvStyle = { font: FontId; bodyFont: FontId; accent: string; lineHeight: number; sizes: CvSizes };
+export type PageFormat = "A4" | "Letter";
+export type DateFormat = "MM/YYYY" | "Mon YYYY" | "YYYY-MM";
+export type CvLayout = {
+  format: PageFormat;
+  marginY: number;    // inch, lề trên & dưới
+  marginX: number;    // inch, lề trái & phải
+  gapSection: number; // pt, giữa các mục
+  gapTitle: number;   // pt, giữa tiêu đề mục và nội dung
+  gapBlock: number;   // pt, giữa các khối (công ty, project)
+  gapInner: number;   // pt, giữa các dòng trong khối
+  dateFormat: DateFormat;
+};
+export type CvStyle = { font: FontId; bodyFont: FontId; accent: string; lineHeight: number; sizes: CvSizes; layout: CvLayout };
+
+export const PAGE: Record<PageFormat, { w: number; h: number; label: string }> = {
+  A4: { w: 794, h: 1123, label: "A4 (8.27\" × 11.69\")" },
+  Letter: { w: 816, h: 1056, label: "Letter (8.5\" × 11\")" },
+};
+export const DATE_FORMATS: Record<DateFormat, string> = { "MM/YYYY": "06/2025", "Mon YYYY": "Jun 2025", "YYYY-MM": "2025-06" };
+export const DEFAULT_LAYOUT: CvLayout = { format: "A4", marginY: 0.45, marginX: 0.55, gapSection: 8, gapTitle: 3, gapBlock: 5, gapInner: 1, dateFormat: "MM/YYYY" };
+export const inch = (v: number) => Math.round(v * 96);
 
 export const FONTS: Record<FontId, { label: string; family: string; google?: string; docx: string }> = {
   times: { label: "Times New Roman (có chân)", family: '"Times New Roman", Times, serif', docx: "Times New Roman" },
@@ -22,7 +42,7 @@ export const TEMPLATES: Record<TemplateId, { label: string; hint: string }> = {
 export const ACCENTS = ["#111111", "#1f4e79", "#0f766e", "#7c3aed", "#b91c1c", "#c2410c", "#374151", "#0369a1", "#15803d"];
 
 export const DEFAULT_SIZES: CvSizes = { name: 15, heading: 10.5, body: 10, section: 10.5 };
-export const DEFAULT_STYLE: CvStyle = { font: "times", bodyFont: "times", accent: "#111111", lineHeight: 1.25, sizes: { ...DEFAULT_SIZES } };
+export const DEFAULT_STYLE: CvStyle = { font: "times", bodyFont: "times", accent: "#111111", lineHeight: 1.25, sizes: { ...DEFAULT_SIZES }, layout: { ...DEFAULT_LAYOUT } };
 /** pt → px (96 dpi) để template dùng. */
 export const pt = (v: number) => Math.round(v * 96 / 72 * 100) / 100;
 
@@ -34,7 +54,19 @@ export function normalizeStyle(s: unknown): CvStyle {
   const lineHeight = typeof o.lineHeight === "number" && o.lineHeight >= 1 && o.lineHeight <= 2 ? o.lineHeight : DEFAULT_STYLE.lineHeight;
   const sz = (o.sizes ?? {}) as Partial<CvSizes>;
   const clamp = (v: unknown, d: number) => (typeof v === "number" && v >= 7 && v <= 30 ? v : d);
-  return { font, bodyFont, accent, lineHeight, sizes: {
+  const ly = (o.layout ?? {}) as Partial<CvLayout>;
+  const num = (v: unknown, d: number, lo: number, hi: number) => (typeof v === "number" && v >= lo && v <= hi ? v : d);
+  const layout: CvLayout = {
+    format: ly.format === "Letter" ? "Letter" : "A4",
+    marginY: num(ly.marginY, DEFAULT_LAYOUT.marginY, 0.2, 1.2),
+    marginX: num(ly.marginX, DEFAULT_LAYOUT.marginX, 0.2, 1.2),
+    gapSection: num(ly.gapSection, DEFAULT_LAYOUT.gapSection, 0, 24),
+    gapTitle: num(ly.gapTitle, DEFAULT_LAYOUT.gapTitle, 0, 16),
+    gapBlock: num(ly.gapBlock, DEFAULT_LAYOUT.gapBlock, 0, 16),
+    gapInner: num(ly.gapInner, DEFAULT_LAYOUT.gapInner, 0, 8),
+    dateFormat: ly.dateFormat && ly.dateFormat in DATE_FORMATS ? ly.dateFormat : "MM/YYYY",
+  };
+  return { font, bodyFont, accent, lineHeight, layout, sizes: {
     name: clamp(sz.name, DEFAULT_SIZES.name), heading: clamp(sz.heading, DEFAULT_SIZES.heading),
     body: clamp(sz.body, DEFAULT_SIZES.body), section: clamp(sz.section, DEFAULT_SIZES.section) } };
 }

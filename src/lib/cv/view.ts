@@ -1,4 +1,5 @@
 import type { CvData, ExperienceItem, ProjectItem } from "./schema";
+import type { DateFormat } from "./style";
 
 /**
  * Chuyển CvData thành "view model" cho template.
@@ -20,15 +21,19 @@ export type CvView = {
 
 const nonEmpty = (xs: string[]) => xs.map((s) => s.trim()).filter(Boolean);
 
-export function fmtMonth(ym: string): string {
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+export function fmtMonth(ym: string, fmt: DateFormat = "MM/YYYY"): string {
   if (!ym) return "";
   const [y, m] = ym.split("-");
-  return m && y ? `${m}/${y}` : ym;
+  if (!m || !y) return ym;
+  if (fmt === "Mon YYYY") return `${MONTHS[Number(m) - 1] ?? m} ${y}`;
+  if (fmt === "YYYY-MM") return `${y}-${m}`;
+  return `${m}/${y}`;
 }
 
-export function period(e: ExperienceItem): string {
-  const a = fmtMonth(e.startDate);
-  const b = e.current ? "Present" : fmtMonth(e.endDate);
+export function period(e: ExperienceItem, fmt: DateFormat = "MM/YYYY"): string {
+  const a = fmtMonth(e.startDate, fmt);
+  const b = e.current ? "Present" : fmtMonth(e.endDate, fmt);
   if (!a && !b) return "";
   return `${a || "?"} – ${b || "?"}`;
 }
@@ -50,6 +55,7 @@ function draftProject(p: ProjectItem): string[] {
 
 export function toView(cv: CvData): CvView {
   const g = cv.generated;
+  const df = cv.style.layout.dateFormat;
   const aboutGen = g.aboutMe.final || g.aboutMe.options[g.aboutMe.chosen] || "";
   const aboutDraft = nonEmpty([cv.raw.aboutMe.whoAmI, cv.raw.aboutMe.strengths, cv.raw.aboutMe.goal]).join(". ");
   const hasGen = Boolean(aboutGen || g.experience.length || g.projects.length);
@@ -58,12 +64,12 @@ export function toView(cv: CvData): CvView {
     ? g.experience.map((s, i) => {
         const e = cv.raw.experience.find((x) => x.id === s.rawId);
         const idx = s.bullets.map((b, j) => (b.trim() ? j : -1)).filter((j) => j >= 0);
-        return { header: s.header, period: e ? period(e) : "", bullets: idx.map((j) => s.bullets[j].trim()),
+        return { header: s.header, period: e ? period(e, df) : "", bullets: idx.map((j) => s.bullets[j].trim()),
           srcs: idx.map((j) => `generated.experience.${i}.bullets.${j}`) };
       })
     : cv.raw.experience.map((e) => {
         const bullets = draftExperience(e);
-        return { header: nonEmpty([e.company, e.role]).join(" | "), period: period(e), bullets, srcs: bullets.map(() => null) };
+        return { header: nonEmpty([e.company, e.role]).join(" | "), period: period(e, df), bullets, srcs: bullets.map(() => null) };
       });
 
   const projects = g.projects.length

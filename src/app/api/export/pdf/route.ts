@@ -33,7 +33,7 @@ export async function GET(req: Request) {
     const page = await browser.newPage();
     await page.setContent(await cvToHtml(cv), { waitUntil: "load" });
     await page.evaluate(() => (document as unknown as { fonts: { ready: Promise<unknown> } }).fonts.ready);
-    const pdf = await page.pdf({ format: "A4", printBackground: true, preferCSSPageSize: true });
+    const pdf = await page.pdf({ format: cv.style.layout.format === "Letter" ? "letter" : "a4", printBackground: true, preferCSSPageSize: true });
     await browser.close();
     return new NextResponse(Buffer.from(pdf), {
       headers: { "content-type": "application/pdf", "content-disposition": `attachment; filename="${safeFileName(cv, "pdf")}"` },

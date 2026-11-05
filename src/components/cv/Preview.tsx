@@ -6,6 +6,7 @@ import { toView } from "@/lib/cv/view";
 import { toggleFmtVisible, type Fmt } from "@/lib/cv/inline";
 import { getText, setText } from "@/lib/cv/paths";
 import { CvTemplate } from "./CvTemplate";
+import { PAGE } from "@/lib/cv/style";
 
 type Sel = { path: string; start: number; end: number; x: number; y: number };
 export type PreviewHandle = { format: (fmt: Fmt) => void; hasSelection: boolean };
@@ -24,17 +25,17 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
       const el = measure.current;
       if (!el) return;
       const h = el.scrollHeight;
-      setPages(Math.max(1, Math.ceil((h - 2) / 1123)));
+      setPages(Math.max(1, Math.ceil((h - 2) / PAGE[cv.style.layout.format].h)));
     }, [cv]);
     const setSel = (s: Sel | null) => { setSelState(s); onSelectionChange?.(Boolean(s)); };
 
     useEffect(() => {
       const el = ref.current;
       if (!el) return;
-      const ro = new ResizeObserver(([entry]) => setScale(Math.min(1, entry.contentRect.width / 794)));
+      const ro = new ResizeObserver(([entry]) => setScale(Math.min(1, entry.contentRect.width / PAGE[cv.style.layout.format].w)));
       ro.observe(el);
       return () => ro.disconnect();
-    }, []);
+    }, [cv.style.layout.format]);
 
     function onMouseUp() {
       if (!set) return;
@@ -72,14 +73,14 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
         )}
         {set && !isDraft && <p className="mb-2 text-xs text-neutral-400">Mẹo: bôi đen chữ ngay trên trang này rồi bấm B (đậm) hoặc I (nghiêng).</p>}
         {/* Bản đo chiều cao (ẩn) */}
-        <div style={{ position: "absolute", left: -99999, top: 0, width: 794, visibility: "hidden" }} aria-hidden>
+        <div style={{ position: "absolute", left: -99999, top: 0, width: PAGE[cv.style.layout.format].w, visibility: "hidden" }} aria-hidden>
           <div ref={measure}><CvTemplate cv={cv} /></div>
         </div>
         {Array.from({ length: pages }, (_, i) => (
           <div key={i} className="relative">
             {pages > 1 && <div className="mb-1 text-right text-[11px] text-neutral-400">Trang {i + 1} / {pages}</div>}
-            <div style={{ height: 1123 * scale }} className="mb-4 overflow-hidden rounded bg-white shadow-lg">
-              <div style={{ transform: `scale(${scale}) translateY(${-i * 1123}px)`, transformOrigin: "top left", width: 794 }}>
+            <div style={{ height: PAGE[cv.style.layout.format].h * scale }} className="mb-4 overflow-hidden rounded bg-white shadow-lg">
+              <div style={{ transform: `scale(${scale}) translateY(${-i * PAGE[cv.style.layout.format].h}px)`, transformOrigin: "top left", width: PAGE[cv.style.layout.format].w }}>
                 <CvTemplate cv={cv} />
               </div>
             </div>

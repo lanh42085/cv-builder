@@ -1,7 +1,7 @@
 "use client";
 
 import type { CvData } from "@/lib/cv/schema";
-import { ACCENTS, DEFAULT_SIZES, DEFAULT_STYLE, FONTS, type CvSizes, type FontId } from "@/lib/cv/style";
+import { ACCENTS, DATE_FORMATS, DEFAULT_LAYOUT, DEFAULT_SIZES, DEFAULT_STYLE, FONTS, PAGE, type CvLayout, type CvSizes, type DateFormat, type FontId, type PageFormat } from "@/lib/cv/style";
 
 type Props = { cv: CvData; set: (fn: (cv: CvData) => CvData) => void };
 
@@ -16,6 +16,8 @@ export function CustomizePanel({ cv, set }: Props) {
   const st = cv.style;
   const setStyle = (patch: Partial<CvData["style"]>) => set((c) => ({ ...c, style: { ...c.style, ...patch } }));
   const setSize = (k: keyof CvSizes, v: number) => set((c) => ({ ...c, style: { ...c.style, sizes: { ...c.style.sizes, [k]: v } } }));
+  const setLayout = (patch: Partial<CvLayout>) => set((c) => ({ ...c, style: { ...c.style, layout: { ...c.style.layout, ...patch } } }));
+  const L = st.layout;
   const sel = "w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-[var(--accent)] focus:outline-none";
 
   return (
@@ -57,6 +59,33 @@ export function CustomizePanel({ cv, set }: Props) {
         </div>
         <button type="button" className="mt-3 text-xs text-neutral-500 underline hover:text-neutral-900"
           onClick={() => setStyle({ sizes: { ...DEFAULT_SIZES }, lineHeight: DEFAULT_STYLE.lineHeight })}>Về mặc định</button>
+      </section>
+
+      {/* Layout */}
+      <section>
+        <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">Bố cục trang (Layout)</h3>
+        <label className="mb-4 block">
+          <div className="mb-1 text-sm">Khổ giấy</div>
+          <select className={sel} value={L.format} onChange={(e) => setLayout({ format: e.target.value as PageFormat })}>
+            {Object.entries(PAGE).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+          </select>
+        </label>
+        <div className="grid gap-4">
+          <Slider label="Lề trên & dưới" value={L.marginY} min={0.2} max={1.2} step={0.05} display={`${L.marginY.toFixed(2)} in`} onChange={(v) => setLayout({ marginY: v })} />
+          <Slider label="Lề trái & phải" value={L.marginX} min={0.2} max={1.2} step={0.05} display={`${L.marginX.toFixed(2)} in`} onChange={(v) => setLayout({ marginX: v })} />
+          <Slider label="Giữa các mục" value={L.gapSection} min={0} max={24} step={1} display={`${L.gapSection} pt`} onChange={(v) => setLayout({ gapSection: v })} />
+          <Slider label="Tiêu đề mục ↔ nội dung" value={L.gapTitle} min={0} max={16} step={1} display={`${L.gapTitle} pt`} onChange={(v) => setLayout({ gapTitle: v })} />
+          <Slider label="Giữa các khối" value={L.gapBlock} min={0} max={16} step={1} display={`${L.gapBlock} pt`} onChange={(v) => setLayout({ gapBlock: v })} />
+          <Slider label="Trong khối (các dòng)" value={L.gapInner} min={0} max={8} step={0.5} display={`${L.gapInner} pt`} onChange={(v) => setLayout({ gapInner: v })} />
+        </div>
+        <label className="mt-4 block">
+          <div className="mb-1 text-sm">Định dạng ngày</div>
+          <select className={sel} value={L.dateFormat} onChange={(e) => setLayout({ dateFormat: e.target.value as DateFormat })}>
+            {Object.entries(DATE_FORMATS).map(([k, ex]) => <option key={k} value={k}>{k} — ví dụ {ex}</option>)}
+          </select>
+        </label>
+        <button type="button" className="mt-3 text-xs text-neutral-500 underline hover:text-neutral-900"
+          onClick={() => setLayout({ ...DEFAULT_LAYOUT })}>Về mặc định</button>
       </section>
 
       {/* Màu */}

@@ -10,7 +10,8 @@ export const SAMPLE_CV: CvData = {
     "bodyFont": "times",
     "accent": "#111111",
     "lineHeight": 1.25,
-    "sizes": { "name": 15, "heading": 10.5, "body": 10, "section": 10.5 }
+    "sizes": { "name": 15, "heading": 10.5, "body": 10, "section": 10.5 },
+    "layout": { "format": "A4", "marginY": 0.45, "marginX": 0.55, "gapSection": 8, "gapTitle": 3, "gapBlock": 5, "gapInner": 1, "dateFormat": "MM/YYYY" }
   },
   "sectionOrder": [
     "about",
