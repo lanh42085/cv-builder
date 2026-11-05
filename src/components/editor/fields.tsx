@@ -13,7 +13,7 @@ export function Field({ label, hint, value, onChange, placeholder, multiline, ty
       <div className="mb-1 text-sm font-medium">{label}</div>
       {hint && <div className="mb-1 text-xs text-neutral-500">{hint}</div>}
       {multiline ? (
-        <BoldTextarea className={cls + ""} rows={4} value={value} placeholder={placeholder} onValueChange={onChange} />
+        <BoldTextarea className={cls} value={value} placeholder={placeholder} onValueChange={onChange} />
       ) : (
         <input className={cls} type={type} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
       )}
