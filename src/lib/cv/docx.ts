@@ -87,7 +87,10 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
         P.push(twoSide(rest.join(" – "), e.years, { italics: true }));
         if (e.note) P.push(bullet(e.note));
       }
-      v.achievements.forEach((a) => P.push(bullet(a.text + (a.link ? ` – ${a.link}` : ""))));
+      if (v.achievements.length) P.push(new Paragraph({ spacing: { before: 60, after: 20 }, children: [
+        run("Certifications: ", { bold: true }),
+        ...runs(v.achievements.map((a) => a.text + (a.link ? ` (${a.link})` : "")).join(", ")),
+      ] }));
     },
   };
   for (const k of cv.sectionOrder) render[k]?.();

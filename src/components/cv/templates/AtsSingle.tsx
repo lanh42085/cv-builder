@@ -68,9 +68,16 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
           );
         })}
         {v.achievements.length > 0 && (
-          <ul style={{ margin: "2px 0 0", paddingLeft: 16, listStyle: "disc" }}>
-            {v.achievements.map((a, i) => <li key={i}><Inline text={a.text} src={a.src} />{a.link ? <> – <A href={a.link}>{a.link}</A></> : null}</li>)}
-          </ul>
+          <div style={{ marginTop: 3 }}>
+            <b>Certifications:</b>{" "}
+            {v.achievements.map((a, i) => (
+              <span key={i}>
+                <Inline text={a.text} src={a.src} />
+                {a.link && <> (<A href={a.link}>link</A>)</>}
+                {i < v.achievements.length - 1 && ", "}
+              </span>
+            ))}
+          </div>
         )}
       </Section>
     ) : null,
