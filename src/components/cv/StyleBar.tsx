@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import type { Fmt } from "@/lib/cv/inline";
 
 import type { CvData } from "@/lib/cv/schema";
 import { ACCENTS, FONTS, SECTION_LABELS, TEMPLATES, type FontId, type SectionKey, type TemplateId } from "@/lib/cv/style";
 
-export function StyleBar({ cv, set }: { cv: CvData; set: (fn: (cv: CvData) => CvData) => void }) {
+export function StyleBar({ cv, set, onFormat, canFormat }: { cv: CvData; set: (fn: (cv: CvData) => CvData) => void; onFormat?: (f: Fmt) => void; canFormat?: boolean }) {
   const [drag, setDrag] = useState<number | null>(null);
   const [over, setOver] = useState<number | null>(null);
   const reorder = (from: number, to: number) => set((c) => {
@@ -37,6 +38,14 @@ export function StyleBar({ cv, set }: { cv: CvData; set: (fn: (cv: CvData) => Cv
           onChange={(e) => set((x) => ({ ...x, style: { ...x.style, accent: e.target.value } }))}
           className="h-6 w-8 cursor-pointer rounded border bg-white p-0" />
       </div>
+      {onFormat && (
+        <div className="flex items-center gap-1 text-xs text-neutral-600" title={canFormat ? "Áp cho chữ đang bôi đen trên CV" : "Bôi đen chữ trên CV trước"}>Chữ
+          <button type="button" disabled={!canFormat} onMouseDown={(e) => e.preventDefault()} onClick={() => onFormat("bold")}
+            className="rounded border bg-white px-2 py-0.5 text-sm font-bold hover:border-[var(--accent)] disabled:opacity-40">B</button>
+          <button type="button" disabled={!canFormat} onMouseDown={(e) => e.preventDefault()} onClick={() => onFormat("italic")}
+            className="rounded border bg-white px-2 py-0.5 text-sm italic hover:border-[var(--accent)] disabled:opacity-40">I</button>
+        </div>
+      )}
       <span className="text-[11px] text-neutral-400">{TEMPLATES[cv.templateId].hint}</span>
       <details className="w-full">
         <summary className="cursor-pointer text-xs text-neutral-600 hover:text-neutral-900">Thứ tự các mục ▾ <span className="text-neutral-400">(kéo thả hoặc bấm mũi tên)</span></summary>

@@ -1,15 +1,18 @@
-/** Định dạng inline tối giản: **đậm**. Dùng cho preview/PDF (React) và DOCX (runs). */
+/** Định dạng inline tối giản: **đậm**, __nghiêng__. Dùng cho preview/PDF (React) và DOCX (runs). */
 
-export type Run = { text: string; bold: boolean };
+export type Run = { text: string; bold: boolean; italic: boolean };
+export type Fmt = "bold" | "italic";
 
-/** Tách chuỗi thành các đoạn đậm/thường. "**" là công tắc bật/tắt, nên chuỗi lệch dấu vẫn đọc được. */
+/** Tách chuỗi thành các đoạn. "**" bật/tắt đậm, "__" bật/tắt nghiêng — chuỗi lệch dấu vẫn đọc được. */
 export function parseInline(text: string): Run[] {
   const out: Run[] = [];
-  let bold = false;
-  for (const seg of text.split("**")) {
-    if (seg) out.push({ text: seg, bold });
-    bold = !bold;
+  let bold = false, italic = false, buf = "";
+  for (let i = 0; i < text.length; i++) {
+    if (text.startsWith("**", i)) { if (buf) out.push({ text: buf, bold, italic }); buf = ""; bold = !bold; i++; continue; }
+    if (text.startsWith("__", i)) { if (buf) out.push({ text: buf, bold, italic }); buf = ""; italic = !italic; i++; continue; }
+    buf += text[i];
   }
+  if (buf) out.push({ text: buf, bold, italic });
   return mergeRuns(out);
 }
 
@@ -18,59 +21,55 @@ function mergeRuns(runs: Run[]): Run[] {
   for (const r of runs) {
     if (!r.text) continue;
     const last = out[out.length - 1];
-    if (last && last.bold === r.bold) last.text += r.text;
+    if (last && last.bold === r.bold && last.italic === r.italic) last.text += r.text;
     else out.push({ ...r });
   }
   return out;
 }
 
-/** Ghép các đoạn thành chuỗi có ** — luôn cân dấu. */
+/** Ghép các đoạn thành chuỗi có dấu — luôn cân dấu. */
 export function serializeInline(runs: Run[]): string {
-  return mergeRuns(runs).map((r) => (r.bold ? `**${r.text}**` : r.text)).join("");
+  return mergeRuns(runs).map((r) => {
+    let t = r.text;
+    if (r.italic) t = `__${t}__`;
+    if (r.bold) t = `**${t}**`;
+    return t;
+  }).join("");
 }
 
-/** Bỏ dấu ** để lấy chữ thuần. */
 export function stripInline(text: string): string {
   return parseInline(text).map((r) => r.text).join("");
 }
 
-/**
- * Bật/tắt đậm cho vùng [start, end) tính theo CHỮ HIỂN THỊ (không tính dấu **).
- * Nếu cả vùng đã đậm → bỏ đậm; ngược lại → đậm cả vùng.
- */
-export function toggleBoldVisible(src: string, start: number, end: number): string {
+/** Bật/tắt một kiểu cho vùng [start, end) tính theo CHỮ HIỂN THỊ. Cả vùng đã có kiểu → bỏ; ngược lại → áp cả vùng. */
+export function toggleFmtVisible(src: string, start: number, end: number, fmt: Fmt): string {
   if (end <= start) return src;
   const runs = parseInline(src);
-  // Tách runs tại start và end
   const pieces: Run[] = [];
   let pos = 0;
   for (const r of runs) {
     const a = pos, b = pos + r.text.length;
     const cuts = [a, start, end, b].filter((x) => x >= a && x <= b).sort((x, y) => x - y);
     for (let i = 0; i < cuts.length - 1; i++) {
-      if (cuts[i + 1] > cuts[i]) pieces.push({ text: r.text.slice(cuts[i] - a, cuts[i + 1] - a), bold: r.bold });
+      if (cuts[i + 1] > cuts[i]) pieces.push({ ...r, text: r.text.slice(cuts[i] - a, cuts[i + 1] - a) });
     }
     pos = b;
   }
-  // Vùng chọn đã đậm hết chưa?
   let p = 0;
-  const inSel = (q: Run) => { const a = p, b = p + q.text.length; p = b; return a >= start && b <= end; };
-  const selected = pieces.filter((q) => inSel(q));
-  const allBold = selected.length > 0 && selected.every((q) => q.bold);
-  // Áp dụng
-  p = 0;
-  const result = pieces.map((q) => {
-    const a = p, b = p + q.text.length; p = b;
-    return a >= start && b <= end ? { text: q.text, bold: !allBold } : q;
-  });
+  const flags = pieces.map((q) => { const a = p, b = p + q.text.length; p = b; return a >= start && b <= end; });
+  const selected = pieces.filter((_, i) => flags[i]);
+  const allOn = selected.length > 0 && selected.every((q) => q[fmt]);
+  const result = pieces.map((q, i) => (flags[i] ? { ...q, [fmt]: !allOn } : q));
   return serializeInline(result);
 }
 
-/** Offset trong chuỗi gốc (có **) → offset trong chữ hiển thị. */
+export const toggleBoldVisible = (src: string, s: number, e: number) => toggleFmtVisible(src, s, e, "bold");
+
+/** Offset trong chuỗi gốc (có dấu) → offset trong chữ hiển thị. */
 export function sourceToVisible(src: string, srcOffset: number): number {
   let v = 0, i = 0;
   while (i < src.length && i < srcOffset) {
-    if (src.startsWith("**", i)) { i += 2; continue; }
+    if (src.startsWith("**", i) || src.startsWith("__", i)) { i += 2; continue; }
     i++; v++;
   }
   return v;
@@ -78,7 +77,6 @@ export function sourceToVisible(src: string, srcOffset: number): number {
 
 /** Dùng cho textarea: selection tính theo chuỗi gốc. */
 export function toggleBold(value: string, start: number, end: number): { value: string; start: number; end: number } {
-  const vs = sourceToVisible(value, start), ve = sourceToVisible(value, end);
-  const next = toggleBoldVisible(value, vs, ve);
+  const next = toggleFmtVisible(value, sourceToVisible(value, start), sourceToVisible(value, end), "bold");
   return { value: next, start: 0, end: 0 };
 }

@@ -30,7 +30,7 @@ export async function cvToDocx(cv: CvData): Promise<Buffer> {
     children: [run(left, o), run(right ? `\t${right}` : "", { italics: true })],
   });
   const runs = (t: string, o: { bold?: boolean; italics?: boolean; size?: number; color?: string } = {}) =>
-    parseInline(t).map((r) => run(r.text, { ...o, bold: o.bold || r.bold }));
+    parseInline(t).map((r) => run(r.text, { ...o, bold: o.bold || r.bold, italics: o.italics || r.italic }));
   const bullet = (t: string) => new Paragraph({
     bullet: { level: 0 }, alignment: AlignmentType.JUSTIFIED, spacing: { after: 20 }, children: runs(t),
   });

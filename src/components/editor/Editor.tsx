@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CvData } from "@/lib/cv/schema";
-import { Preview } from "@/components/cv/Preview";
+import { Preview, type PreviewHandle } from "@/components/cv/Preview";
 import { StyleBar } from "@/components/cv/StyleBar";
 import { saveResume } from "@/app/app/[id]/actions";
 import { STEPS, StepAbout, StepAchievements, StepBasics, StepEducation, StepExperience, StepProjects, StepSkills } from "./steps";
@@ -17,6 +17,8 @@ export function Editor({ id, initialTitle, initialCv }: { id: string; initialTit
   const [save, setSave] = useState<SaveState>("saved");
   const [exporting, setExporting] = useState<"pdf" | "docx" | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  const previewRef = useRef<PreviewHandle>(null);
+  const [canFormat, setCanFormat] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latest = useRef({ cv, title });
   latest.current = { cv, title };
@@ -113,8 +115,8 @@ export function Editor({ id, initialTitle, initialCv }: { id: string; initialTit
           </div>
         </div>
         <div className="sticky top-0 self-start p-4">
-          <StyleBar cv={cv} set={set} />
-          <Preview cv={cv} set={set} />
+          <StyleBar cv={cv} set={set} canFormat={canFormat} onFormat={(f) => previewRef.current?.format(f)} />
+          <Preview ref={previewRef} cv={cv} set={set} onSelectionChange={setCanFormat} />
         </div>
       </div>
     </div>

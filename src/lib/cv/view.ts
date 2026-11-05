@@ -101,10 +101,11 @@ export function toView(cv: CvData): CvView {
 export function skillLines(raw: string): { label: string; text: string }[] {
   return raw.split("\n").map((l) => l.replace(/^(?:[-•]\s*|\*\s+)/, "").trim()).filter(Boolean).map((l) => {
     const i = l.search(/[:：]/);
-    const before = i >= 0 ? l.slice(0, i).replace(/\*\*/g, "").trim() : "";
+    const before = i >= 0 ? l.slice(0, i).replace(/\*\*|__/g, "").trim() : "";
     if (i < 0 || before.length === 0 || before.length > 40) return { label: "", text: l };
     let text = l.slice(i + 1).trim();
     if ((text.match(/\*\*/g) ?? []).length % 2 === 1) text = text.replace("**", "").trim();
+    if ((text.match(/__/g) ?? []).length % 2 === 1) text = text.replace("__", "").trim();
     return { label: before, text };
   });
 }
