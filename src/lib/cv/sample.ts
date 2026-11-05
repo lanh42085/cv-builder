@@ -10,8 +10,22 @@ export const SAMPLE_CV: CvData = {
     "bodyFont": "times",
     "accent": "#111111",
     "lineHeight": 1.25,
-    "sizes": { "name": 15, "heading": 10.5, "body": 10, "section": 10.5 },
-    "layout": { "format": "A4", "marginY": 0.45, "marginX": 0.55, "gapSection": 8, "gapTitle": 3, "gapBlock": 5, "gapInner": 1, "dateFormat": "MM/YYYY" }
+    "sizes": {
+      "name": 15,
+      "heading": 10.5,
+      "body": 10,
+      "section": 10.5
+    },
+    "layout": {
+      "format": "A4",
+      "marginY": 0.45,
+      "marginX": 0.55,
+      "gapSection": 8,
+      "gapTitle": 3,
+      "gapBlock": 5,
+      "gapInner": 1,
+      "dateFormat": "MM/YYYY"
+    }
   },
   "sectionOrder": [
     "about",
@@ -125,16 +139,6 @@ export const SAMPLE_CV: CvData = {
         "task": "Xây pipeline ELT 3 tầng Bronze → Silver → Gold",
         "action": "Python loader có metadata ingestion, SQL làm sạch/ép kiểu/kiểm tra schema, Star Schema marts (Fact Sales, Targets, Returns)",
         "result": "Dữ liệu sẵn sàng cho BI, theo dõi hiệu suất nhà phân phối nhanh hơn"
-      },
-      {
-        "id": "p5",
-        "name": "E-Commerce Customer Churn Prediction",
-        "tools": "Python",
-        "link": "github.com/minhan-data/customer-churn",
-        "situation": "Dự đoán khách hàng sắp rời bỏ để giữ chân",
-        "task": "Mô hình phân loại trên 5.630 khách hàng TMĐT",
-        "action": "EDA, feature engineering (RFM, tenure, khiếu nại), Logistic Regression / Random Forest / XGBoost, tối ưu Recall và ROC-AUC",
-        "result": "Xác định 3 yếu tố gây churn hàng đầu, ma trận phân khúc rủi ro cho CRM"
       }
     ],
     "skills": {
@@ -231,14 +235,6 @@ export const SAMPLE_CV: CvData = {
         "bullets": [
           "Architected a 3-tier automated ELT pipeline (Bronze → Silver → Gold) with Python loaders capturing audit ingestion metadata and SQL routines enforcing deduplication, type casting, and schema validation.",
           "Modeled Star Schema marts (Fact Sales, Targets, Returns and Dimension tables), accelerating query throughput for downstream BI reporting and distributor performance tracking."
-        ]
-      },
-      {
-        "rawId": "p5",
-        "header": "E-Commerce Customer Churn Prediction | Python",
-        "bullets": [
-          "Built a predictive churn model on 5,630 e-commerce customer records with EDA and feature engineering (RFM metrics, tenure, complaint frequency, payment preferences).",
-          "Trained Logistic Regression, Random Forest and XGBoost; optimized for Recall and ROC-AUC to isolate the top 3 churn drivers and formulated an account risk segmentation matrix for CRM targeting."
         ]
       }
     ],
