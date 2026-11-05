@@ -26,11 +26,17 @@ export default async function AppPage() {
         </form>
       </header>
 
-      <form action={createResume} className="mb-6">
-        <button className="rounded-lg bg-[var(--accent)] px-4 py-2 text-white hover:opacity-90">
-          + Tạo CV mới
-        </button>
-      </form>
+      {(!resumes || resumes.length === 0) ? (
+        <form action={createResume} className="mb-6">
+          <button className="rounded-lg bg-[var(--accent)] px-4 py-2 text-white hover:opacity-90">
+            + Tạo CV của tôi
+          </button>
+        </form>
+      ) : (
+        <p className="mb-4 text-sm text-neutral-500">
+          Mỗi tài khoản có một CV gốc. Bản tùy biến theo từng job thì tạo bao nhiêu cũng được — mở CV rồi bấm “Tùy biến theo JD”.
+        </p>
+      )}
 
       {resumes && resumes.length > 0 ? (
         <ul className="divide-y rounded-lg border bg-white">
@@ -45,7 +51,7 @@ export default async function AppPage() {
           ))}
         </ul>
       ) : (
-        <p className="text-neutral-500">Chưa có CV nào. Bấm “Tạo CV mới” để bắt đầu.</p>
+        <p className="text-neutral-500">Chưa có CV. Bấm “Tạo CV của tôi” để bắt đầu.</p>
       )}
     </main>
   );

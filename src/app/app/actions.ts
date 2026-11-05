@@ -11,9 +11,10 @@ export async function createResume() {
   if (!user) redirect("/login");
 
   const { count } = await supabase.from("resumes").select("id", { count: "exact", head: true });
+  if ((count ?? 0) >= 1) { revalidatePath("/app"); return; } // mỗi tài khoản 1 CV gốc
   const { error } = await supabase
     .from("resumes")
-    .insert({ user_id: user.id, title: `CV ${(count ?? 0) + 1}`, data: emptyCv() });
+    .insert({ user_id: user.id, title: "CV của tôi", data: emptyCv() });
   if (error) throw new Error(error.message);
   revalidatePath("/app");
 }
