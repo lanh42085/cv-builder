@@ -5,11 +5,13 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CvData } from "@/lib/cv/schema";
 import { applyTailored, type Tailored } from "@/lib/cv/tailor";
-import { Preview } from "@/components/cv/Preview";
+import { Preview, type PreviewHandle } from "@/components/cv/Preview";
+import { StyleBar } from "@/components/cv/StyleBar";
+import { normalizeCv } from "@/lib/cv/schema";
 import { CustomizePanel } from "@/components/editor/CustomizePanel";
 import type { CvStyle } from "@/lib/cv/style";
 
-type Job = { id: string; job_title: string; jd_text: string; keyword_output: string | null; tailored: Tailored | null; style: CvStyle | null; created_at: string };
+type Job = { id: string; job_title: string; jd_text: string; keyword_output: string | null; tailored: Tailored | null; style: CvStyle | null; cv_override: unknown | null; created_at: string };
 
 export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: string; title: string; cv: CvData; initialJobs: Job[] }) {
   const [jobs, setJobs] = useState<Job[]>(initialJobs);
@@ -18,24 +20,34 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
   const [styleSave, setStyleSave] = useState<"saved" | "dirty" | "saving" | "error">("saved");
   const latest = useRef(selected); latest.current = selected;
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const previewRef = useRef<PreviewHandle>(null);
+  const [canFormat, setCanFormat] = useState(false);
   const flush = useCallback(async () => {
     const j = latest.current; if (!j) return;
     setStyleSave("saving");
-    const r = await fetch(`/api/jobs/${j.id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ style: j.style }) });
+    const r = await fetch(`/api/jobs/${j.id}`, { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify({ style: j.style, cv_override: j.cv_override }) });
     setStyleSave(r.ok ? "saved" : "error");
   }, []);
-  /** Customize trên trang này chỉ sửa kiểu của bản job đang chọn (khởi tạo từ kiểu CV gốc). */
+  /** Bản job đang hiện: bản chụp riêng (nếu đã sửa tay) hoặc ghép từ CV gốc + keyword đã lồng. */
+  const shownOf = useCallback((j: Job | null): CvData => {
+    if (!j) return cv;
+    if (j.cv_override) return normalizeCv(j.cv_override);
+    const base = j.style ? { ...cv, style: j.style } : cv;
+    return j.tailored ? applyTailored(base, j.tailored) : base;
+  }, [cv]);
+  /** Mọi chỉnh sửa trên trang này (format, B/I, thứ tự, sửa chữ) chỉ vào bản job đang chọn, CV gốc giữ nguyên. */
   const set = useCallback((fn: (c: CvData) => CvData) => {
     setSelected((j) => {
       if (!j) return j;
-      const next = { ...j, style: fn({ ...cv, style: j.style ?? cv.style }).style };
+      const nextCv = fn(shownOf(j));
+      const next: Job = { ...j, cv_override: nextCv, style: nextCv.style };
       setJobs((list) => list.map((x) => (x.id === next.id ? next : x)));
       return next;
     });
     setStyleSave("dirty");
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(flush, 1500);
-  }, [cv, flush]);
+  }, [shownOf, flush]);
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
   const [jobTitle, setJobTitle] = useState("");
   const [jd, setJd] = useState("");
@@ -58,7 +70,7 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
       body: JSON.stringify({ resumeId, jobTitle, jdText: jd, keywordOutput: keywords }) });
     const j = await r.json();
     if (!r.ok) { setError(j.error); setBusy(null); return; }
-    const job: Job = { id: j.id, job_title: j.jobTitle, jd_text: jd, keyword_output: keywords, tailored: j.tailored, style: null, created_at: j.createdAt };
+    const job: Job = { id: j.id, job_title: j.jobTitle, jd_text: jd, keyword_output: keywords, tailored: j.tailored, style: null, cv_override: null, created_at: j.createdAt };
     setJobs([job, ...jobs]); setSelected(job); setCreating(false);
     setJobTitle(""); setJd(""); setKeywords("");
     setBusy(null);
@@ -66,12 +78,13 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
 
   async function redo() {
     if (!selected) return;
+    if (selected.cv_override && !confirm("Bản này đã được sửa tay. Làm lại sẽ bỏ các sửa tay và lồng lại từ CV gốc hiện tại. Tiếp tục?")) return;
     setBusy("redo"); setError(null);
     const r = await fetch("/api/tailor/apply", { method: "POST", headers: { "content-type": "application/json" },
       body: JSON.stringify({ resumeId, jobId: selected.id, jobTitle: selected.job_title, jdText: selected.jd_text, keywordOutput: selected.keyword_output ?? "" }) });
     const j = await r.json();
     if (!r.ok) { setError(j.error); setBusy(null); return; }
-    const job: Job = { ...selected, tailored: j.tailored };
+    const job: Job = { ...selected, tailored: j.tailored, cv_override: null };
     setJobs(jobs.map((x) => (x.id === job.id ? job : x))); setSelected(job);
     setBusy(null);
   }
@@ -86,8 +99,8 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
     setBusy(null);
   }
 
-  const base = selected?.style ? { ...cv, style: selected.style } : cv;
-  const shown = selected?.tailored ? applyTailored(base, selected.tailored) : base;
+  const shown = shownOf(selected);
+  const base = shown;
   const textarea = "w-full rounded-lg border-0 bg-[#eef6f4] px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400 focus:bg-[#e3f0ec] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30";
 
   return (
@@ -196,7 +209,10 @@ export function JobsClient({ resumeId, title, cv, initialJobs }: { resumeId: str
           </div>
         </div>
         <div className="min-h-0 overflow-y-auto overflow-x-hidden p-3">
-          <Preview cv={shown} />
+          {selected ? (<>
+            <StyleBar cv={shown} set={set} canFormat={canFormat} onFormat={(f) => previewRef.current?.format(f)} />
+            <Preview ref={previewRef} cv={shown} set={set} editable onSelectionChange={setCanFormat} />
+          </>) : <Preview cv={shown} />}
         </div>
       </div>
     </div>

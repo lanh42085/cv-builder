@@ -6,14 +6,15 @@ import { toView } from "@/lib/cv/view";
 import { toggleFmtVisible, type Fmt } from "@/lib/cv/inline";
 import { getText, setText } from "@/lib/cv/paths";
 import { CvTemplate } from "./CvTemplate";
+import { EditCtx } from "./Inline";
 import { PAGE } from "@/lib/cv/style";
 
 type Sel = { path: string; start: number; end: number; x: number; y: number };
 export type PreviewHandle = { format: (fmt: Fmt) => void; hasSelection: boolean };
 
 /** Khung A4 thu nhỏ; có `set` thì bôi đen chữ trên trang → nút B/I nổi để định dạng. */
-export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: CvData) => CvData) => void; onSelectionChange?: (has: boolean) => void }>(
-  function Preview({ cv, set, onSelectionChange }, handle) {
+export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: CvData) => CvData) => void; onSelectionChange?: (has: boolean) => void; editable?: boolean }>(
+  function Preview({ cv, set, onSelectionChange, editable }, handle) {
     const ref = useRef<HTMLDivElement>(null);
     const [scale, setScale] = useState(0.6);
     const [sel, setSelState] = useState<Sel | null>(null);
@@ -95,6 +96,12 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
     useImperativeHandle(handle, () => ({ format, hasSelection: Boolean(sel) }), [sel, set]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const isDraft = toView(cv).isDraft;
+    /** Sửa trực tiếp: giữ nhãn in đậm đầu dòng skill ("**SQL:** ") vì phần hiện ra không gồm nhãn. */
+    const onCommit = editable && set ? (path: string, value: string) => set((c) => {
+      const full = getText(c, path);
+      const prefix = full.match(/^\s*\*\*[^*]+:\*\*\s*/)?.[0] ?? "";
+      return setText(c, path, prefix + value);
+    }) : null;
     const btn = "rounded-md border bg-white px-2.5 py-1 text-sm shadow-lg hover:border-[var(--accent)] hover:text-[var(--accent)]";
     return (
       <div ref={ref} className="relative mx-auto w-full max-w-[860px]" onMouseUp={onMouseUp}>
@@ -103,7 +110,7 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
             Bản nháp ghép từ dữ liệu thô. Bấm “Tạo bằng AI” ở các bước About Me, Experience, Projects để AI viết lại câu chữ.
           </p>
         )}
-        {set && !isDraft && <p className="mb-2 text-xs text-neutral-400">Mẹo: bôi đen chữ ngay trên trang này rồi bấm B (đậm) hoặc I (nghiêng).</p>}
+        {set && !isDraft && <p className="mb-2 text-xs text-neutral-400">{editable ? "Mẹo: bấm vào chữ trên trang để sửa trực tiếp (Enter để lưu); bôi đen rồi bấm B (đậm) hoặc I (nghiêng)." : "Mẹo: bôi đen chữ ngay trên trang này rồi bấm B (đậm) hoặc I (nghiêng)."}</p>}
         {/* Bản đo chiều cao (ẩn) */}
         <div style={{ position: "absolute", left: -99999, top: 0, width: PAGE[cv.style.layout.format].w, visibility: "hidden" }} aria-hidden>
           <div ref={measure}><CvTemplate cv={cv} /></div>
@@ -116,7 +123,7 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
               <div key={i} className="relative" style={{ marginBottom: i < pages - 1 ? 16 : 0 }}>
                 <div style={{ height: PG.h * scale, width: PG.w * scale }} className="relative mx-auto overflow-hidden bg-white shadow-[0_2px_12px_rgba(0,0,0,0.25)] ring-1 ring-neutral-300">
                   <div style={{ transform: `scale(${scale}) translateY(${-sp.start}px)`, transformOrigin: "top left", width: PG.w }}>
-                    <CvTemplate cv={cv} />
+                    <EditCtx.Provider value={onCommit}><CvTemplate cv={cv} /></EditCtx.Provider>
                   </div>
                   {maskTop !== null && (
                     <div className="absolute inset-x-0 bottom-0 bg-white" style={{ top: maskTop * scale }} />

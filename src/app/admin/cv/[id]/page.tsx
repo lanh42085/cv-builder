@@ -18,7 +18,7 @@ export default async function AdminCvPage({ params }: { params: Promise<{ id: st
   const { data: resume } = await supabase.from("resumes").select("id, title, data, user_id, updated_at").eq("id", id).single();
   if (!resume) notFound();
   const { data: profile } = await supabase.from("profiles").select("email, full_name").eq("id", resume.user_id).maybeSingle();
-  const { data: jobs } = await supabase.from("job_versions").select("id, job_title, tailored, style, created_at").eq("resume_id", id).order("created_at", { ascending: false });
+  const { data: jobs } = await supabase.from("job_versions").select("id, job_title, tailored, style, cv_override, created_at").eq("resume_id", id).order("created_at", { ascending: false });
 
   return (
     <div className="flex h-screen flex-col bg-[#e6f4f1]">

@@ -21,9 +21,12 @@ export async function GET(req: Request) {
   if (!resume) return new NextResponse("Không tìm thấy CV", { status: 404 });
   let cv = normalizeCv(resume.data);
   if (job) {
-    const { data: jv } = await supabase.from("job_versions").select("tailored, style").eq("id", job).single();
-    if (jv?.tailored) cv = applyTailored(cv, jv.tailored as Tailored);
-    if (jv?.style) cv = { ...cv, style: normalizeStyle(jv.style) };
+    const { data: jv } = await supabase.from("job_versions").select("tailored, style, cv_override").eq("id", job).single();
+    if (jv?.cv_override) cv = normalizeCv(jv.cv_override);
+    else {
+      if (jv?.tailored) cv = applyTailored(cv, jv.tailored as Tailored);
+      if (jv?.style) cv = { ...cv, style: normalizeStyle(jv.style) };
+    }
   }
 
   let browser: Awaited<ReturnType<typeof puppeteer.launch>> | null = null;

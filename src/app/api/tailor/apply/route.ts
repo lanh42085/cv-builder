@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     if (!tailored) return NextResponse.json({ error: "AI trả về không đúng định dạng, thử lại.", raw: text }, { status: 502 });
 
     const { data: row, error } = jobId
-      ? await supabase.from("job_versions").update({ tailored, keyword_output: keywordOutput }).eq("id", jobId).eq("user_id", user.id)
+      ? await supabase.from("job_versions").update({ tailored, keyword_output: keywordOutput, cv_override: null }).eq("id", jobId).eq("user_id", user.id)
           .select("id, job_title, created_at").single()
       : await supabase.from("job_versions")
           .insert({ resume_id: resumeId, user_id: user.id, job_title: (jobTitle ?? "").trim() || "Job", jd_text: jdText, keyword_output: keywordOutput, tailored })

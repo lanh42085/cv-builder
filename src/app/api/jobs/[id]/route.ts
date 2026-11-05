@@ -16,8 +16,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Chưa đăng nhập" }, { status: 401 });
-  const { style } = (await req.json()) as { style?: unknown };
-  const { error } = await supabase.from("job_versions").update({ style: style ?? null }).eq("id", id).eq("user_id", user.id);
+  const body = (await req.json()) as { style?: unknown; cv_override?: unknown };
+  const patch: Record<string, unknown> = {};
+  if ("style" in body) patch.style = body.style ?? null;
+  if ("cv_override" in body) patch.cv_override = body.cv_override ?? null;
+  const { error } = await supabase.from("job_versions").update(patch).eq("id", id).eq("user_id", user.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
