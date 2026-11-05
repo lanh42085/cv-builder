@@ -138,7 +138,7 @@ export function normalizeCv(input: unknown): CvData {
   const gen = (d.generated ?? {}) as Partial<Generated>;
   return {
     ...base,
-    templateId: d.templateId === "two-column" ? "two-column" : "ats-single",
+    templateId: "ats-single", // mẫu cột đôi tạm ẩn
     style: normalizeStyle(d.style),
     sectionOrder: normalizeOrder(d.sectionOrder),
     cvLanguage: d.cvLanguage ?? base.cvLanguage,

@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { Fmt } from "@/lib/cv/inline";
 
 import type { CvData } from "@/lib/cv/schema";
-import { ACCENTS, FONTS, SECTION_LABELS, TEMPLATES, type FontId, type SectionKey, type TemplateId } from "@/lib/cv/style";
+import { ACCENTS, FONTS, SECTION_LABELS, type FontId, type SectionKey } from "@/lib/cv/style";
 
 export function StyleBar({ cv, set, onFormat, canFormat }: { cv: CvData; set: (fn: (cv: CvData) => CvData) => void; onFormat?: (f: Fmt) => void; canFormat?: boolean }) {
   const [drag, setDrag] = useState<number | null>(null);
@@ -19,11 +19,6 @@ export function StyleBar({ cv, set, onFormat, canFormat }: { cv: CvData; set: (f
   const sel = "rounded-md border border-neutral-300 bg-white px-2 py-1 text-xs focus:border-[var(--accent)] focus:outline-none";
   return (
     <div className="mb-3 flex flex-wrap items-center gap-3 rounded-lg border bg-white px-3 py-2">
-      <label className="flex items-center gap-1 text-xs text-neutral-600">Mẫu
-        <select className={sel} value={cv.templateId} onChange={(e) => set((c) => ({ ...c, templateId: e.target.value as TemplateId }))}>
-          {Object.entries(TEMPLATES).map(([k, t]) => <option key={k} value={k}>{t.label}</option>)}
-        </select>
-      </label>
       <label className="flex items-center gap-1 text-xs text-neutral-600">Font
         <select className={sel} value={cv.style.font} onChange={(e) => set((c) => ({ ...c, style: { ...c.style, font: e.target.value as FontId } }))}>
           {Object.entries(FONTS).map(([k, f]) => <option key={k} value={k}>{f.label}</option>)}
@@ -46,7 +41,6 @@ export function StyleBar({ cv, set, onFormat, canFormat }: { cv: CvData; set: (f
             className="rounded border bg-white px-2 py-0.5 text-sm italic hover:border-[var(--accent)] disabled:opacity-40">I</button>
         </div>
       )}
-      <span className="text-[11px] text-neutral-400">{TEMPLATES[cv.templateId].hint}</span>
       <details className="w-full">
         <summary className="cursor-pointer text-xs text-neutral-600 hover:text-neutral-900">Thứ tự các mục ▾ <span className="text-neutral-400">(kéo thả hoặc bấm mũi tên)</span></summary>
         <ol className="mt-2 grid gap-1">
@@ -69,7 +63,6 @@ export function StyleBar({ cv, set, onFormat, canFormat }: { cv: CvData; set: (f
             </li>
           ))}
         </ol>
-        {cv.templateId === "two-column" && <p className="mt-1 text-[11px] text-neutral-400">Mẫu cột đôi: Skills và Education luôn ở sidebar.</p>}
       </details>
     </div>
   );
