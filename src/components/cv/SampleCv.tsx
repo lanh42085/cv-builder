@@ -26,9 +26,11 @@ export function HeroCv() {
         <SampleCv scale={0.56} />
       </div>
 
-      {/* Avatar */}
-      <div className="absolute right-6 top-2 flex h-32 w-32 items-center justify-center rounded-full text-4xl font-bold text-white shadow-xl ring-8 ring-white"
-        style={{ background: "linear-gradient(135deg, var(--accent) 0%, #4fd1b5 100%)" }}>MA</div>
+      {/* Phù hợp JD */}
+      <div className="absolute right-2 top-6 flex items-center gap-3 rounded-2xl bg-white px-5 py-4 shadow-xl ring-1 ring-black/5">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full text-xl text-white" style={{ background: "linear-gradient(135deg, var(--accent) 0%, #4fd1b5 100%)" }}>🎯</span>
+        <span className="text-base font-semibold leading-tight" style={{ color: "var(--navy)" }}>Phù hợp với<br />từng JD</span>
+      </div>
 
       {/* Điểm hoàn thiện */}
       <div className="absolute -left-6 top-40 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-xl ring-1 ring-black/5">
