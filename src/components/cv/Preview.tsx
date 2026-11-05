@@ -6,7 +6,7 @@ import { toView } from "@/lib/cv/view";
 import { toggleFmtVisible, type Fmt } from "@/lib/cv/inline";
 import { getText, insertAfter, removeAt, setText } from "@/lib/cv/paths";
 import { CvTemplate } from "./CvTemplate";
-import { EditCtx } from "./Inline";
+
 import { PAGE } from "@/lib/cv/style";
 
 type Sel = { path: string; start: number; end: number; x: number; y: number };
@@ -127,7 +127,7 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
               <div key={i} className="relative" style={{ marginBottom: i < pages - 1 ? 16 : 0 }}>
                 <div style={{ height: PG.h * scale, width: PG.w * scale }} className="relative mx-auto overflow-hidden bg-white shadow-[0_2px_12px_rgba(0,0,0,0.25)] ring-1 ring-neutral-300">
                   <div style={{ transform: `scale(${scale}) translateY(${-sp.start}px)`, transformOrigin: "top left", width: PG.w }}>
-                    <EditCtx.Provider value={editApi}><CvTemplate cv={cv} /></EditCtx.Provider>
+                    <CvTemplate cv={cv} edit={editApi} />
                   </div>
                   {maskTop !== null && (
                     <div className="absolute inset-x-0 bottom-0 bg-white" style={{ top: maskTop * scale }} />

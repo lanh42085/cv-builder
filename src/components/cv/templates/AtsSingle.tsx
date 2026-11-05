@@ -1,7 +1,6 @@
 import { skillLines, type CvView } from "@/lib/cv/view";
 import type { CvStyle } from "@/lib/cv/style";
-import { AddAfter, EditCtx, Inline } from "@/components/cv/Inline";
-import { useContext } from "react";
+import { AddAfter, Inline, type EditApi } from "@/components/cv/Inline";
 import { FONTS, PAGE, inch, pt, type SectionKey } from "@/lib/cv/style";
 
 const LINK = "#1a56db";
@@ -12,7 +11,7 @@ const LINK = "#1a56db";
  * Thứ tự: About → Skills → Projects → Experience → Education & Certifications.
  * Kích thước cố định A4 (794×1123 px @96dpi). Dùng chung cho preview và PDF.
  */
-export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; order: SectionKey[] }) {
+export function AtsSingle({ v, style, order, edit }: { v: CvView; style: CvStyle; order: SectionKey[]; edit?: EditApi | null }) {
   const accent = style.accent;
   const b = v.basics;
   const headFont = FONTS[style.font].family, bodyFont = FONTS[style.bodyFont].family;
@@ -22,11 +21,11 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
   const hasLinks = b.linkedin.trim() || b.github.trim() || b.portfolioUrl.trim();
 
   const sections: Record<SectionKey, React.ReactNode> = {
-    about: v.aboutMe ? <Section title="About me" accent={accent} size={pt(S.section)} font={headFont} gapSection={gap.section} gapTitle={gap.title}><p style={{ margin: 0, textAlign: "justify" }} data-block><Inline text={v.aboutMe} src={v.aboutSrc} /></p></Section> : null,
+    about: v.aboutMe ? <Section title="About me" accent={accent} size={pt(S.section)} font={headFont} gapSection={gap.section} gapTitle={gap.title}><p style={{ margin: 0, textAlign: "justify" }} data-block><Inline text={v.aboutMe} src={v.aboutSrc} edit={edit} /></p></Section> : null,
     skills: (v.skills.hard || v.skills.soft) ? (
       <Section title="Skills" accent={accent} size={pt(S.section)} font={headFont} gapSection={gap.section} gapTitle={gap.title}>
-        <SkillGroup title="Hard skills" raw={v.skills.hard} src="raw.skills.hard" />
-        <SkillGroup title="Soft skills" raw={v.skills.soft} src="raw.skills.soft" />
+        <SkillGroup title="Hard skills" raw={v.skills.hard} src="raw.skills.hard" edit={edit} />
+        <SkillGroup title="Soft skills" raw={v.skills.soft} src="raw.skills.soft" edit={edit} />
       </Section>
     ) : null,
     projects: v.projects.length > 0 ? (
@@ -39,7 +38,7 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
               <TwoSide block
                 left={<b style={{ fontSize: pt(S.heading), fontFamily: headFont }}>{name || "Tên project"}{tools.length > 0 && ` [${tools.join(", ")}]`}</b>}
                 right={p.link ? <A href={p.link} bold>View Project</A> : null} />
-              <Bullets items={p.bullets} srcs={p.srcs} />
+              <Bullets items={p.bullets} srcs={p.srcs} edit={edit} />
             </div>
           );
         })}
@@ -53,7 +52,7 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
             <div key={i} style={{ marginBottom: gap.block }}>
               <div style={{ fontWeight: 700, fontSize: pt(S.heading), fontFamily: headFont }} data-block>{company || "Công ty"}</div>
               <TwoSide block left={<i>{role.join(" | ")}</i>} right={e.period ? <i>{e.period}</i> : null} />
-              <Bullets items={e.bullets} srcs={e.srcs} />
+              <Bullets items={e.bullets} srcs={e.srcs} edit={edit} />
             </div>
           );
         })}
@@ -67,7 +66,7 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
             <div key={i} style={{ marginBottom: gap.block }}>
               <div style={{ fontWeight: 700, fontSize: pt(S.heading), fontFamily: headFont }} data-block>{school}</div>
               <TwoSide block left={<i>{rest.join(" – ")}</i>} right={e.years ? <i>{e.years}</i> : null} />
-              {e.note && <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}><li data-block><Inline text={e.note} src={e.noteSrc} /></li></ul>}
+              {e.note && <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}><li data-block><Inline text={e.note} src={e.noteSrc} edit={edit} /></li></ul>}
             </div>
           );
         })}
@@ -76,7 +75,7 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
             <b>Certifications:</b>{" "}
             {v.achievements.map((a, i) => (
               <span key={i}>
-                <Inline text={a.text} src={a.src} />
+                <Inline text={a.text} src={a.src} edit={edit} />
                 {a.link && <> (<A href={a.link}>link</A>)</>}
                 {i < v.achievements.length - 1 && ", "}
               </span>
@@ -116,15 +115,14 @@ export function AtsSingle({ v, style, order }: { v: CvView; style: CvStyle; orde
   );
 }
 
-function SkillGroup({ title, raw, src }: { title: string; raw: string; src: string }) {
-  const editing = useContext(EditCtx) !== null;
-  const lines = skillLines(raw, editing);
+function SkillGroup({ title, raw, src, edit }: { title: string; raw: string; src: string; edit?: EditApi | null }) {
+  const lines = skillLines(raw, Boolean(edit));
   if (lines.length === 0) return null;
   return (
     <div style={{ marginBottom: 3 }}>
       <div style={{ fontWeight: 700 }} data-block>{title}</div>
       <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}>
-        {lines.map((l, i) => <li key={i} data-block className="group" style={{ position: "relative" }}>{l.label ? <><b>{l.label}:</b> <Inline text={l.text} src={`${src}@${i}`} /></> : <Inline text={l.text} src={`${src}@${i}`} />}<AddAfter path={`${src}@${i}`} /></li>)}
+        {lines.map((l, i) => <li key={i} data-block className="group" style={{ position: "relative" }}>{l.label ? <><b>{l.label}:</b> <Inline text={l.text} src={`${src}@${i}`} edit={edit} /></> : <Inline text={l.text} src={`${src}@${i}`} edit={edit} />}<AddAfter path={`${src}@${i}`} edit={edit} /></li>)}
       </ul>
     </div>
   );
@@ -162,13 +160,13 @@ export function Row({ left, right }: { left: string; right: string }) {
   return <TwoSide left={<b>{left}</b>} right={right || null} />;
 }
 
-export function Bullets({ items, srcs }: { items: string[]; srcs?: (string | null)[] }) {
-  const editing = useContext(EditCtx) !== null;
+export function Bullets({ items, srcs, edit }: { items: string[]; srcs?: (string | null)[]; edit?: EditApi | null }) {
+  const editing = Boolean(edit);
   const xs = items.map((s, i) => ({ s, src: srcs?.[i] ?? null })).filter((x) => (editing && x.src) || (x.s && x.s.trim()));
   if (xs.length === 0) return null;
   return (
     <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}>
-      {xs.map((x, i) => <li key={i} data-block className="group" style={{ marginBottom: "var(--gap-inner, 1px)", textAlign: "justify", position: "relative" }}><Inline text={x.s} src={x.src} />{x.src && <AddAfter path={x.src} />}</li>)}
+      {xs.map((x, i) => <li key={i} data-block className="group" style={{ marginBottom: "var(--gap-inner, 1px)", textAlign: "justify", position: "relative" }}><Inline text={x.s} src={x.src} edit={edit} />{x.src && <AddAfter path={x.src} edit={edit} />}</li>)}
     </ul>
   );
 }
