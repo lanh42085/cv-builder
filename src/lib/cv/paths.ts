@@ -4,7 +4,7 @@ import type { CvData } from "./schema";
  * Đường dẫn tới một chuỗi trong CvData, để sửa trực tiếp từ preview.
  * Dạng "a.b.0.c" (đi theo object/array) hoặc "raw.skills.hard@2" (dòng thứ 2 trong chuỗi nhiều dòng).
  */
-const LABEL_RE = /^(\s*)(?:\*\*([^*]+?):?\*\*\s*|([^:*]{1,40}):\s+)(.*)$/s;
+const LABEL_RE = /^(\s*)(?:\*\*([^*]+?):?\*\*\s*|([^:*]{1,40}):\s+)([\s\S]*)$/;
 function splitLabel(line: string): { label: string; text: string } {
   const m = line.match(LABEL_RE);
   if (!m) return { label: "", text: line };
