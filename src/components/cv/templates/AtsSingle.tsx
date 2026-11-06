@@ -122,7 +122,7 @@ function SkillGroup({ title, raw, src, edit }: { title: string; raw: string; src
     <div style={{ marginBottom: 3 }}>
       <div style={{ fontWeight: 700 }} data-block>{title}</div>
       <ul style={{ margin: "1px 0 0", paddingLeft: 16, listStyle: "disc" }}>
-        {lines.map((l, i) => <li key={i} data-block className="group" style={{ position: "relative" }}>{l.label ? <><b>{l.label}:</b> <Inline text={l.text} src={`${src}@${i}`} edit={edit} /></> : <Inline text={l.text} src={`${src}@${i}`} edit={edit} />}<AddAfter path={`${src}@${i}`} edit={edit} /></li>)}
+        {lines.map((l, i) => <li key={i} data-block className="group" style={{ position: "relative" }}>{l.label ? <><b>{edit ? <Inline text={l.label} src={`${src}@${i}:label`} edit={edit} /> : l.label}:</b> <Inline text={l.text} src={`${src}@${i}`} edit={edit} /></> : <Inline text={l.text} src={`${src}@${i}`} edit={edit} />}<AddAfter path={`${src}@${i}`} edit={edit} /></li>)}
       </ul>
     </div>
   );

@@ -102,7 +102,8 @@ export const Preview = forwardRef<PreviewHandle, { cv: CvData; set?: (fn: (cv: C
       remove: (path: string) => set((c) => removeAt(c, path)),
       commit: (path: string, value: string) => set((c) => {
       // Xoá hết chữ → bỏ luôn bullet / dòng đó (riêng About Me thì để trống)
-      if (!value.trim() && !path.startsWith("generated.aboutMe") && !path.includes("#")) { const r = removeAt(c, path); if (r !== c) return r; }
+      if (!value.trim() && !path.startsWith("generated.aboutMe") && !path.includes("#") && !path.endsWith(":label")) { const r = removeAt(c, path); if (r !== c) return r; }
+      if (path.endsWith(":label")) return setText(c, path, value);
       const full = getText(c, path);
       const prefix = full.match(/^\s*\*\*[^*]+:\*\*\s*/)?.[0] ?? "";
       return setText(c, path, prefix + value);

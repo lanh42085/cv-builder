@@ -4,7 +4,17 @@ import type { CvData } from "./schema";
  * Đường dẫn tới một chuỗi trong CvData, để sửa trực tiếp từ preview.
  * Dạng "a.b.0.c" (đi theo object/array) hoặc "raw.skills.hard@2" (dòng thứ 2 trong chuỗi nhiều dòng).
  */
+const LABEL_RE = /^(\s*)(?:\*\*([^*]+?):?\*\*\s*|([^:*]{1,40}):\s+)(.*)$/s;
+function splitLabel(line: string): { label: string; text: string } {
+  const m = line.match(LABEL_RE);
+  if (!m) return { label: "", text: line };
+  return { label: (m[2] ?? m[3] ?? "").trim(), text: m[4] ?? "" };
+}
+
 export function getText(cv: CvData, path: string): string {
+  if (path.endsWith(":label")) {
+    return splitLabel(getText(cv, path.slice(0, -6))).label;
+  }
   if (path.includes("#")) {
     const [base, k] = path.split("#");
     const parts = getText(cv, base).split("|").map((x) => x.trim());
@@ -21,6 +31,12 @@ export function getText(cv: CvData, path: string): string {
 }
 
 export function setText(cv: CvData, path: string, value: string): CvData {
+  if (path.endsWith(":label")) {
+    const base = path.slice(0, -6);
+    const { text } = splitLabel(getText(cv, base));
+    const label = value.trim().replace(/:$/, "");
+    return setText(cv, base, label ? `**${label}:** ${text}` : text);
+  }
   if (path.includes("#")) {
     const [base, k] = path.split("#");
     const parts = getText(cv, base).split("|").map((x) => x.trim());
